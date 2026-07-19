@@ -83,6 +83,12 @@ def main() -> None:
     if args.agent_api_base:
         agent_llm_args["api_base"] = args.agent_api_base
         agent_llm_args["api_key"] = "local"
+        # Local Qwen via mlx_lm.server: thinking mode must be off, or long
+        # tasks can yield think-only (empty) completions that fail tau2's
+        # message validation. Found by the compat matrix; see DECISIONS.md.
+        agent_llm_args["extra_body"] = {
+            "chat_template_kwargs": {"enable_thinking": False}
+        }
 
     user_llm_args = {"temperature": args.user_temperature}
     if args.user_llm.startswith("deepseek/"):
