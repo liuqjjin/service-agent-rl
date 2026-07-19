@@ -58,5 +58,5 @@ Governance overhead shows up as regenerations, not dollars: the local policy mod
 
 Rule for this project: among arms that meet the safety bar (zero unauthorized writes), pick the one with the highest reward. Safety is the non-negotiable floor; given it, more task success is better.
 
-**Hbest = H2.** Both H1 and H2 remove every unauthorized write. Among them H2 scores higher (0.900 vs 0.850): its bounded recovery turns some tool-error loops that H1 rode to max-steps into completed episodes, recovering most of the reward the gate cost. The H2-H1 gap is +0.050 [+0.000, +0.113] (within the 95% CI of zero). Hbest = H2 -- near-H0 success with zero violations.
+**Hbest = H2.** Both H1 and H2 remove every unauthorized write. Among them H2 scores higher (0.900 vs 0.850): its bounded recovery turns some tool-error loops that H1 rode to max-steps into completed episodes, recovering most of the reward the gate cost. The H2-H1 gap is +0.050 [+0.000, +0.113] (within the 95% CI of zero) -- so among the safe arms, H2 gives near-H0 success with zero violations.
 

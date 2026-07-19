@@ -228,7 +228,8 @@ def build() -> tuple[str, str]:
             f"bounded recovery turns some tool-error loops that H1 rode to "
             f"max-steps into completed episodes, recovering most of the reward "
             f"the gate cost. The H2-H1 gap is {_fmt_ci(h2_h1)} ({tie} the 95% "
-            f"CI of zero). Hbest = H2 -- near-H0 success with zero violations."
+            f"CI of zero) -- so among the safe arms, H2 gives near-H0 success "
+            f"with zero violations."
         )
     else:
         rationale = (
