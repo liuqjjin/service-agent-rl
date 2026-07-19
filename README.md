@@ -97,8 +97,10 @@ uv run python -m service_agent.eval.report_ablation   # regenerates both reports
 
 Everything under `src/service_agent/` and `tests/` is written for this project.
 `third_party/tau2-bench` (`cf71a80`) and `third_party/ART` (`828b839`) are pinned
-submodules, used as dependencies rather than copied and edited. UPSTREAM.md draws
-the line precisely. The pieces I built:
+submodules, not vendored into the tree. ART is unmodified; tau2-bench carries one
+local fix commit to the gym wrapper (the seed/thread fixes below), isolated by a
+test that asserts nothing else differs from the pin. UPSTREAM.md draws the line
+precisely. The pieces I built:
 
 - **Execution governance** (`governance/`, `agent/governed.py`): the evidence
   extractor, the policy-derived rule table, idempotency keys, bounded recovery,

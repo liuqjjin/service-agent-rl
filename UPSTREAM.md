@@ -1,8 +1,8 @@
 # Upstream provenance
 
 Everything in `third_party/` is someone else's work, pinned and used as-is except
-where stated below. Everything in `src/service_agent/`, `tests/`, `configs/`,
-`data_protocol/`, and `reports/` is written for this project.
+where stated below. Everything in `src/service_agent/`, `tests/`, `data_protocol/`,
+`reports/`, and `runbooks/` is written for this project.
 
 ## Pins
 
