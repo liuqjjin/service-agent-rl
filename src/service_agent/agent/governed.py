@@ -94,6 +94,18 @@ class GovernedLLMAgent(LLMAgent):
         self.extractor = EvidenceExtractor()
         self.audit = AuditTrail(session_id=self.session_id)
         self.recovery = RecoveryBudget(max_recoveries=self.config.max_recoveries)
+        # Set by the eval harness; when present, stop() persists the audit
+        # trail there so batch runs keep per-simulation governance records.
+        self.audit_dir = None
+
+    def stop(self, message=None, state=None) -> None:
+        super().stop(message, state)
+        if self.audit_dir is not None and self.audit.records:
+            from pathlib import Path
+
+            self.audit.dump_jsonl(
+                Path(self.audit_dir) / f"audit_{self.session_id}.jsonl"
+            )
 
     # -- state ------------------------------------------------------------------
 
