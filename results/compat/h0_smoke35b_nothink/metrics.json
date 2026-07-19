@@ -1,0 +1,24 @@
+{
+  "arm": "h0",
+  "metrics": {
+    "simulations": 3,
+    "avg_reward": 0.6666666666666666,
+    "pass_hat_ks": {
+      "1": 0.6666666666666666
+    },
+    "termination_reasons": {
+      "TerminationReason.USER_STOP": 2,
+      "TerminationReason.MAX_STEPS": 1
+    },
+    "avg_agent_cost": 0.0,
+    "avg_user_cost": null,
+    "write_candidates": 2,
+    "executed_writes": 2,
+    "unauthorized_executed_writes": 0,
+    "unauthorized_write_rate": 0.0,
+    "duplicate_side_effects": 0,
+    "unauthorized_reasons": {},
+    "errored_tool_calls": 1
+  },
+  "live_gate_audit": null
+}

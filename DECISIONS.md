@@ -55,3 +55,26 @@ exists in this codebase.
 Seed and thread-lifecycle fixes share the file, the tests, and the PR; the
 combined commit message tells the full story. Upstream can squash or split as
 they prefer.
+
+## D7. Compatibility matrix results and the serving stack
+
+Fixed simulator (deepseek-v4-pro, official API) verified through tau2's
+LiteLLM path: tool calls parse, user tools execute (8-13 device-tool calls
+per smoke simulation), multi-turn history holds over 40-68 message episodes,
+temperature-0 repeats are stable, and non-thinking mode works only via
+`extra_body={"thinking": {"type": "disabled"}}` (the top-level `thinking`
+parameter is ignored; default mode leaks reasoning_content). User-simulator
+cost measured at ~$0.003 per simulation.
+
+Local policy serving via mlx_lm.server (uv tool, v0.31.3): works, with two
+traps. The request's model id must be exactly the served `--model` value or
+the server downloads that id from HF instead; and Qwen thinking mode must be
+disabled per request via `chat_template_kwargs`, or long tasks
+deterministically produce think-only empty completions that fail tau2's
+message validation (found on the 8-fault MMS smoke task, reproduced across
+all 4 runner retries, fixed by disabling thinking).
+
+Smoke evidence (3 dev-family tasks, local Qwen3.6-35B agent + deepseek user):
+2/3 reward=1.0 with thinking accidentally on; the failure was the empty
+completion above, not a protocol issue. Full matrix rerun with thinking off
+recorded in results/compat/.
