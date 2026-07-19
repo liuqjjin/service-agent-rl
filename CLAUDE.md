@@ -4,6 +4,11 @@ Execution governance + GRPO post-training for LLM agents on tau2-bench telecom (
 The research question: how much reliability comes from a deterministic governance harness vs.
 from RL post-training, measured with a 2x2 factorial (base/RL model x native/governed harness).
 
+Status: base-model row of the 2x2 measured on dev (reports/governance_ablation.md, Hbest = H2).
+Shim, training path, logprob gate, SFT bridge, and AutoDL runbook built and tested. Not yet run:
+the GRPO training and the final 2x2 on the test split (GPU, runbooks/autodl.md). No real weights
+updated yet, so the repo stays named `service-agent`.
+
 ## Commands
 
 ```bash
