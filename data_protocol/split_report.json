@@ -1,0 +1,33 @@
+{
+  "upstream_commit": "cf71a8070269883e38a365ffa85f78f46844c1f4",
+  "split_sizes": {
+    "base": 114,
+    "full": 2285,
+    "small": 20,
+    "test": 40,
+    "train": 74
+  },
+  "train\u2229test": 0,
+  "test\u2282full": true,
+  "test\u2282base": true,
+  "dev_size": 20,
+  "train_core_size": 54,
+  "expanded_train_size": 2225,
+  "fingerprints": {
+    "sizes": {
+      "train_core": 54,
+      "dev": 20,
+      "test": 40
+    },
+    "unique_fingerprints": {
+      "train_core": 54,
+      "dev": 20,
+      "test": 37
+    },
+    "overlap": {
+      "train_core\u2229dev": 1,
+      "train_core\u2229test": 2,
+      "dev\u2229test": 1
+    }
+  }
+}
