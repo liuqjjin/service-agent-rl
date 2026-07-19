@@ -131,10 +131,16 @@ def test_rejected_write_never_enters_trajectory(monkeypatch, telecom_tasks):
     assert [r.tool_name for r in rejected] == ["resume_line"]
     assert rejected[0].decision == Decision.REQUIRE_EVIDENCE.value
 
-    # The governance feedback reached the model privately...
+    # The governance feedback reached the model privately, folded into the
+    # system prompt (serving stacks reject system messages that are not at
+    # position zero -- found the hard way on mlx_lm.server)...
     last_prompt = scripted.prompts_seen[-1]
     feedback = [m for m in last_prompt if "execution governance" in (m.content or "")]
-    assert feedback
+    assert feedback and feedback[0] is last_prompt[0]
+    for prompt in scripted.prompts_seen:
+        assert all(getattr(m, "role", "") != "system" for m in prompt[1:]), (
+            "system content may only appear at position zero"
+        )
     # ...and never the official trajectory.
     assert not any(
         "execution governance" in (m.content or "") for m in simulation.messages

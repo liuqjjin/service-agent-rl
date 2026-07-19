@@ -1,0 +1,2485 @@
+2026-07-19 23:10:26.226 | INFO     | tau2.utils.utils:<module>:28 - Using data directory from source: /Users/lqj/Developer/service-agent-rl/third_party/tau2-bench/data
+2026-07-19 23:10:28.284 | INFO     | tau2.utils.llm_utils:<module>:102 - LiteLLM: Cache is disabled
+2026-07-19 23:10:28.308 | DEBUG    | tau2.registry:<module>:281 - Registering default components...
+2026-07-19 23:10:28.309 | DEBUG    | tau2.registry:<module>:292 - Voice dependencies not installed, skipping voice user registration
+2026-07-19 23:10:28.309 | DEBUG    | tau2.registry:<module>:350 - Default components registered successfully. Registry info: {
+  "domains": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ],
+  "agents": [
+    "llm_agent",
+    "llm_agent_gt",
+    "llm_agent_solo",
+    "discrete_time_audio_native_agent"
+  ],
+  "users": [
+    "user_simulator",
+    "dummy_user"
+  ],
+  "task_sets": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom_full",
+    "telecom_small",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ]
+}
+0/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None], trial 1
+1/20 (trial 1/4). Running task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy], trial 1
+2026-07-19 23:10:35.940 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:10:41.098 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:10:45.711 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:10:50.088 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:10:51.932 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:10:51.951 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+Status: 0/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None].0(7s R1), 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy].0(30s)
+2026-07-19 23:10:58.532 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:11:03.859 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:03.882 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:11:10.124 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:15.605 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:15.625 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:11:21.501 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:11:27.021 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:27.043 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+Status: 0/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None].0(13s R2), 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy].0(1s R2)
+2026-07-19 23:11:33.088 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:11:38.612 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:38.635 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:11:44.893 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:50.356 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:11:50.377 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:11:56.485 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 0/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None].0(20s R3), 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy].0(8s R3)
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:02.012 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:02.033 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:12:02.038 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task [mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None] failed 
+permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+2/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy], trial 1
+2026-07-19 23:12:08.853 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:12:14.171 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:12:16.009 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:12:23.169 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:12:28.474 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 1/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy].0(38s R3), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy].0(26s)
+2026-07-19 23:12:30.314 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:30.337 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:12:30.342 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy] failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+3/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard], trial 1
+2026-07-19 23:12:37.170 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:42.898 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:42.918 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: OpenAIException 
+- Error code: 404 - {'error': 'System message must be at the beginning.'}
+2026-07-19 23:12:49.001 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:12:54.545 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:12:54.567 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+Status: 2/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy].0(16s R1), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard].0(4s R1)
+2026-07-19 23:13:00.596 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:06.280 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:08.119 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:13.180 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:18.791 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:13:18.824 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+2026-07-19 23:13:18.833 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: OpenAIException 
+- Error code: 404 - {'error': 'System message must be at the beginning.'}
+2026-07-19 23:13:27.166 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 2/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy].0(10s R2), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard].0(10s R2)
+2026-07-19 23:13:32.393 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:37.368 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:13:42.145 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:13:43.997 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:13:44.015 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+2026-07-19 23:13:50.940 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:13:56.653 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:13:56.677 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: OpenAIException 
+- Error code: 404 - {'error': 'System message must be at the beginning.'}
+Status: 2/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy].0(2s R3), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard].0(15s R3)
+2026-07-19 23:14:02.632 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:08.191 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:08.211 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:14:08.216 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_ab
+road_roaming_disabled_on[PERSONA:Hard] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+4/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy], trial 1
+2026-07-19 23:14:14.424 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:19.946 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:19.966 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:14:19.972 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_e
+nabled_off[PERSONA:Easy] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+5/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None], 
+trial 1
+2026-07-19 23:14:26.525 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 4/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy].0(20s), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None].0(
+9s)
+2026-07-19 23:14:32.158 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:32.181 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:14:38.551 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:14:44.031 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:44.053 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:14:50.635 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:56.265 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:14:56.286 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+Status: 4/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy].0(2s R2), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None].0(
+14s R1)
+2026-07-19 23:15:02.403 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:15:07.925 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:07.947 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:15:14.364 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:20.008 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:20.028 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:15:26.334 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 4/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy].0(8s R3), 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None].0(
+21s R2)
+2026-07-19 23:15:31.816 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:31.838 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:15:38.005 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:15:43.693 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:43.715 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:15:43.720 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|u
+ser_abroad_roaming_disabled_off[PERSONA:Easy] failed permanently after 4 
+attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 
+404 - {'error': 'System message must be at the beginning.'}
+6/20 (trial 1/4). Running task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard], trial 1
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mProvider List: https://docs.litellm.ai/docs/providers[0m
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mProvider List: https://docs.litellm.ai/docs/providers[0m
+
+2026-07-19 23:15:51.253 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:15:56.677 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:15:56.700 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:15:56.705 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_sa
+ver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None] 
+failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+7/20 (trial 1/4). Running task 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard], trial 1
+Status: 6/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard].0(15s), 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard].0(2s)
+2026-07-19 23:16:02.844 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:16:08.130 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:08.152 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:16:14.634 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:20.207 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:20.226 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:16:26.357 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 6/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard].0(20s R1), 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard].0(8s R1)
+2026-07-19 23:16:31.763 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:31.786 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:16:37.819 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:43.482 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:43.503 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:16:49.607 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:16:54.894 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:16:54.916 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+Status: 6/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard].0(4s R3), 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard].0(15s R2)
+2026-07-19 23:17:01.246 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:17:06.885 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:06.908 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:17:12.787 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:17:18.109 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:18.131 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:17:18.136 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off
+|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard] failed 
+permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+8/20 (trial 1/4). Running task 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard], trial 1
+2026-07-19 23:17:24.193 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 7/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard].0(22s R3), 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard].0(10s)
+2026-07-19 23:17:29.504 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:29.527 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:17:29.532 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task [service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard] failed 
+permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+9/20 (trial 1/4). Running task 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard], trial 1
+2026-07-19 23:17:35.852 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:17:41.104 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:41.126 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:17:47.814 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:52.992 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:17:53.012 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404
+- {'error': 'System message must be at the beginning.'}
+Status: 8/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard].0(17s 
+R1), 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard].0(6s R1)
+2026-07-19 23:17:59.068 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:04.562 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:04.583 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:18:10.677 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:18:15.981 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:16.003 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404
+- {'error': 'System message must be at the beginning.'}
+2026-07-19 23:18:22.239 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:27.526 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:27.547 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+Status: 8/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard].0(1s R3),
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard].0(13s R2)
+2026-07-19 23:18:33.736 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:18:39.022 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:39.044 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404
+- {'error': 'System message must be at the beginning.'}
+2026-07-19 23:18:45.289 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:18:50.639 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:18:50.661 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:18:50.666 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task [service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard] 
+failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+10/20 (trial 1/4). Running task 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None], trial 1
+2026-07-19 23:18:56.951 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 9/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard].0(20s R3), 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None].0(8s)
+2026-07-19 23:19:02.363 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:02.386 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:19:02.391 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSON
+A:Hard] failed permanently after 4 attempts: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+11/20 (trial 1/4). Running task 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy], trial
+1
+2026-07-19 23:19:08.743 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:19:14.072 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:14.094 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:19:20.405 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:19:25.814 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:25.836 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+Status: 10/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None].0(15s R1), 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy].0(3s 
+R1)
+2026-07-19 23:19:32.261 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:19:37.630 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:37.653 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:19:43.694 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:49.151 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:19:49.171 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:19:55.278 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 10/80 complete. Avg reward: N/A. 2 running: 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None].0(21s R2), 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy].0(9s 
+R2)
+2026-07-19 23:20:00.729 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:00.751 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:20:07.432 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:12.748 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:12.768 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:20:18.807 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:20:24.271 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:24.293 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:20:24.298 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bil
+l_suspension|unseat_sim_card[PERSONA:None] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+12/20 (trial 1/4). Running task 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy], 
+trial 1
+Status: 11/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy].0(16s 
+R3), 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy].0(4s
+)
+2026-07-19 23:20:30.478 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:20:35.917 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:35.939 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:20:35.944 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task [mms_issue]break_app_storage_permission|data_usage_exceeded[PERSONA:Easy]
+failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+13/20 (trial 1/4). Running task 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard], trial 1
+2026-07-19 23:20:42.033 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:20:47.805 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:47.827 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:20:53.787 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 12/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy].0(11
+s R1), 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard].0(23s)
+2026-07-19 23:20:59.210 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:20:59.233 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error 
+code: 404 - {'error': 'System message must be at the beginning.'}
+2026-07-19 23:21:05.220 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:21:10.995 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:11.017 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:21:17.317 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:22.753 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:22.773 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error 
+code: 404 - {'error': 'System message must be at the beginning.'}
+Status: 12/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy].0(18
+s R2), 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard].0(6s R2)
+2026-07-19 23:21:29.059 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:21:34.565 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:34.588 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:21:40.514 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:21:46.001 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:46.023 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard]: litellm.NotFoundError: NotFoundError: OpenAIException - Error 
+code: 404 - {'error': 'System message must be at the beginning.'}
+2026-07-19 23:21:52.177 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:21:57.968 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:21:57.990 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:21:57.995 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]bad_wifi_calling|data_mode_off|data_usage_exceeded[PERSONA:Easy] 
+failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+14/20 (trial 1/4). Running task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy], trial 1
+Status: 13/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard].0(13s R3), 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy].0(1s)
+2026-07-19 23:22:04.250 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:22:10.006 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:10.029 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:22:10.034 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]break_apn_mms_setting|data_mode_off|user_abroad_roaming_disabled_on[P
+ERSONA:Hard] failed permanently after 4 attempts: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+15/20 (trial 1/4). Running task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None], trial 1
+2026-07-19 23:22:16.598 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:22:21.555 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:26.575 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:26.610 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:22:26.610 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 1/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+Status: 14/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy].0(2s R1), 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None].0(2s R1)
+2026-07-19 23:22:34.258 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:22:39.771 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:22:44.794 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:49.793 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:49.824 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:22:49.829 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 2/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+2026-07-19 23:22:57.489 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 14/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy].0(9s R2), 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None].0(9s R2)
+2026-07-19 23:23:03.008 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:23:08.033 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:23:13.041 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:13.073 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:13.076 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 3/3 for task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+2026-07-19 23:23:20.607 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:23:26.143 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 14/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy].0(16s R3), 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None].0(16s R3)
+2026-07-19 23:23:31.180 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:36.180 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:36.214 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:23:36.214 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:23:36.224 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|data_mode_off|data_usage_excee
+ded|unseat_sim_card[PERSONA:None] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:23:36.224 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_roaming_enabled_off[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]bad_wifi_calling|break_apn_mms_setting|unseat_sim_card|user_abroad_ro
+aming_enabled_off[PERSONA:Easy] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+16/20 (trial 1/4). Running task 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None], trial 1
+17/20 (trial 1/4). Running task 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy], trial 1
+2026-07-19 23:23:43.527 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:23:48.907 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:23:53.955 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 16/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None].0(22s), 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy].0(22s)
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:58.974 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:59.004 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:23:59.009 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+  Retry 1/3 for task 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 -
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:24:07.438 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:12.598 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:17.568 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:22.581 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:24:22.615 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:24:22.621 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+  Retry 2/3 for task 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 -
+{'error': 'System message must be at the beginning.'}
+Status: 16/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None].0(6s R2), 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy].0(6s R2)
+2026-07-19 23:24:31.421 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:36.561 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:41.443 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:24:46.463 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:24:46.499 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:24:46.499 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+  Retry 3/3 for task 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy]: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 -
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:24:55.025 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 16/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None].0(12s R3), 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy].0(12s R3)
+2026-07-19 23:25:00.183 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:05.117 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:10.148 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:10.180 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:10.188 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:25:10.188 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_us
+age_exceeded|user_abroad_roaming_enabled_off[PERSONA:None] failed permanently 
+after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error 
+code: 404 - {'error': 'System message must be at the beginning.'}
+2026-07-19 23:25:10.194 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_app_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:Easy] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_a
+pp_storage_permission|data_mode_off|data_usage_exceeded|unseat_sim_card[PERSONA:
+Easy] failed permanently after 4 attempts: litellm.NotFoundError: NotFoundError:
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+18/20 (trial 1/4). Running task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None], trial 1
+19/20 (trial 1/4). Running task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard], trial 1
+2026-07-19 23:25:16.848 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:22.582 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:27.962 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 18/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None].0(19s), 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard].0(18s)
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:33.317 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:33.351 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:33.354 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 1/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 1/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+2026-07-19 23:25:41.905 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:48.098 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:53.445 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:25:58.593 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:25:58.632 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:25:58.633 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 2/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 2/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+Status: 18/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None].0(0s R2), 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard].0(0s R2)
+2026-07-19 23:26:08.429 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:26:14.169 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:26:19.318 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:26:24.467 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:26:24.499 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:26:24.502 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Retry 3/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None]: litellm.NotFoundError: NotFoundError: 
+OpenAIException - Error code: 404 - {'error': 'System message must be at the 
+beginning.'}
+  Retry 3/3 for task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard]: litellm.NotFoundError: 
+NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message 
+must be at the beginning.'}
+Status: 18/80 complete. Avg reward: N/A. 2 running: 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None].0(4s R3), 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard].0(4s R3)
+2026-07-19 23:26:33.077 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:26:39.048 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-07-19 23:26:44.499 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:26:49.710 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:26:49.742 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+2026-07-19 23:26:49.750 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sms_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_off[PERSONA:None] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_app_sm
+s_permission|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roami
+ng_disabled_off[PERSONA:None] failed permanently after 4 attempts: 
+litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - 
+{'error': 'System message must be at the beginning.'}
+2026-07-19 23:26:49.750 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+2026-07-19 23:26:49.757 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Hard] failed after 4 attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {'error': 'System message must be at the beginning.'}
+
+  Task 
+[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mm
+s_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_si
+m_card|user_abroad_roaming_disabled_on[PERSONA:Hard] failed permanently after 4 
+attempts: litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 
+404 - {'error': 'System message must be at the beginning.'}
+0/20 (trial 2/4). Running task 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None], trial 2
+1/20 (trial 2/4). Running task 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy], trial 2
+2026-07-19 23:26:56.975 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=/Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 20/80 complete. Avg reward: N/A. 2 running: 
+[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None].1(9s), 
+[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:E
+asy].1(9s)
+/Users/lqj/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

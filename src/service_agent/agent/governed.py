@@ -134,24 +134,39 @@ class GovernedLLMAgent(LLMAgent):
             self._observe(message)
             state.messages.append(message)
 
-        private_feedback: list[Message] = []
+        # Rejected-candidate feedback is folded into an amended copy of the
+        # system prompt rather than appended as a trailing system message:
+        # serving stacks (mlx_lm.server, and most Qwen chat templates) only
+        # accept system content at position zero. The amendment is ephemeral --
+        # state.system_messages is never modified, so nothing reaches the
+        # official trajectory.
+        feedback_notes: list[str] = []
         verdict: Optional[GovernanceResult] = None
         for attempt in range(self.config.max_regenerations + 1):
+            system_messages = state.system_messages
+            if feedback_notes:
+                amended = SystemMessage(
+                    role="system",
+                    content=state.system_messages[0].content
+                    + "\n\n"
+                    + "\n\n".join(feedback_notes),
+                )
+                system_messages = [amended] + state.system_messages[1:]
             candidate = generate(
                 model=self.llm,
                 tools=self.tools,
-                messages=state.system_messages + state.messages + private_feedback,
+                messages=system_messages + state.messages,
                 call_name="governed_agent_response",
                 **self.llm_args,
             )
             verdict = self._adjudicate(candidate)
-            if candidate.is_tool_call() or not verdict.allowed:
+            if candidate.is_tool_call() or not verdict.allowed or attempt > 0:
                 for proposed in self._proposed_actions(candidate):
                     self.audit.record(proposed, verdict, attempt)
             if verdict.allowed:
                 self._observe(candidate)
                 return candidate
-            private_feedback.append(self._feedback_message(candidate, verdict))
+            feedback_notes.append(self._feedback_note(candidate, verdict))
 
         # Regeneration budget exhausted: never return the rejected candidate.
         fallback = AssistantMessage(role="assistant", content=FALLBACK_TEXT, cost=0.0)
@@ -224,9 +239,7 @@ class GovernedLLMAgent(LLMAgent):
         return [ProposedAction.from_tool_call(tc) for tc in candidate.tool_calls]
 
     @staticmethod
-    def _feedback_message(
-        candidate: AssistantMessage, verdict: GovernanceResult
-    ) -> SystemMessage:
+    def _feedback_note(candidate: AssistantMessage, verdict: GovernanceResult) -> str:
         if candidate.is_tool_call():
             calls = ", ".join(
                 f"{tc.name}({tc.arguments})" for tc in candidate.tool_calls
@@ -235,13 +248,10 @@ class GovernedLLMAgent(LLMAgent):
         else:
             attempted = "Your previous response was not sent"
         ref = f" [policy: {verdict.policy_ref}]" if verdict.policy_ref else ""
-        return SystemMessage(
-            role="system",
-            content=(
-                f"{FEEDBACK_PREFIX} {attempted} "
-                f"({verdict.reason_code}).{ref} {verdict.guidance} "
-                "Respond again taking this into account."
-            ),
+        return (
+            f"{FEEDBACK_PREFIX} {attempted} "
+            f"({verdict.reason_code}).{ref} {verdict.guidance} "
+            "Respond again taking this into account."
         )
 
 
