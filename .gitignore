@@ -1,0 +1,67 @@
+# Local project manuals and planning material
+_planning/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Experiment clients
+wandb/
+
+# Model weights and checkpoints
+checkpoints/
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+
+# macOS
+.DS_Store
+EOFcat > .gitignore <<'EOF'
+# Local project manuals and planning material
+_planning/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Experiment clients
+wandb/
+
+# Model weights and checkpoints
+checkpoints/
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+
+# macOS
+.DS_Store
