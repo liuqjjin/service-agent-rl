@@ -25,7 +25,6 @@ import threading
 import time
 
 import pytest
-
 from tau2.gym.gym_agent import AgentGymEnv, UserGymEnv
 
 
