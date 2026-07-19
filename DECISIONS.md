@@ -78,3 +78,18 @@ Smoke evidence (3 dev-family tasks, local Qwen3.6-35B agent + deepseek user):
 2/3 reward=1.0 with thinking accidentally on; the failure was the empty
 completion above, not a protocol issue. Full matrix rerun with thinking off
 recorded in results/compat/.
+
+## D8. Mixed text+tool-call candidates are sanitized, not denied
+
+Qwen3.5-4B habitually narrates while calling a tool (~4 mixed messages per
+episode). The policy says one or the other (main_policy.md:9), and the first
+H1 run denied such candidates with feedback and regeneration: 103 denials
+over a 3-episode smoke, models rarely complied, turns burned to max-steps,
+and reward halved versus H0. That punished a formatting habit, not a
+business violation -- the native orchestrator routes a mixed message to the
+environment and the user never sees its text, and telecom's reward basis has
+no COMMUNICATE component. The gate now strips the text, keeps the call,
+records the event in the audit (reason mixed_text_stripped), and reserves
+deny-and-regenerate for actual business-precondition failures. Smoke after
+the change: reward back to H0 parity, and the sole rejection in the run was
+a genuine price_not_confirmed with a successful regeneration.

@@ -1,0 +1,72 @@
+{
+  "arm": "h1",
+  "task_ids": [
+    "[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+    "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+    "[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard]"
+  ],
+  "cli_args": {
+    "arm": "h1",
+    "tasks": "smoke3",
+    "trials": "1",
+    "agent_llm": "openai//Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit",
+    "agent_api_base": "http://127.0.0.1:8398/v1",
+    "agent_temperature": "0.0",
+    "user_llm": "deepseek/deepseek-v4-pro",
+    "user_temperature": "0.0",
+    "seed": "42",
+    "max_steps": "100",
+    "max_concurrency": "1",
+    "out": "results/compat/h1_smoke4b"
+  },
+  "text_run_config": {
+    "domain": "telecom",
+    "task_set_name": null,
+    "task_split_name": "base",
+    "task_ids": null,
+    "num_tasks": null,
+    "llm_user": "deepseek/deepseek-v4-pro",
+    "llm_args_user": {
+      "temperature": 0.0,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      }
+    },
+    "num_trials": 1,
+    "max_errors": 10,
+    "timeout": null,
+    "save_to": null,
+    "max_concurrency": 1,
+    "seed": 42,
+    "log_level": "ERROR",
+    "verbose_logs": false,
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "auto_resume": true,
+    "auto_review": false,
+    "review_mode": "full",
+    "review_model": "claude-opus-4-5",
+    "hallucination_retries": 3,
+    "is_remote": false,
+    "retrieval_config": null,
+    "retrieval_config_kwargs": null,
+    "agent": "governed_llm_agent_h1",
+    "llm_agent": "openai//Users/lqj/local-llm/models/Qwen3.5-4B-MLX-8bit",
+    "llm_args_agent": {
+      "temperature": 0.0,
+      "api_base": "http://127.0.0.1:8398/v1",
+      "api_key": "local",
+      "extra_body": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      }
+    },
+    "user": "user_simulator",
+    "max_steps": 100,
+    "enforce_communication_protocol": false,
+    "text_streaming_config": null
+  }
+}
