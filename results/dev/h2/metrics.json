@@ -1,0 +1,43 @@
+{
+  "arm": "h2",
+  "metrics": {
+    "simulations": 80,
+    "avg_reward": 0.9,
+    "pass_hat_ks": {
+      "1": 0.9,
+      "2": 0.8666666666666668,
+      "3": 0.85,
+      "4": 0.85
+    },
+    "termination_reasons": {
+      "TerminationReason.USER_STOP": 72,
+      "TerminationReason.MAX_STEPS": 8
+    },
+    "avg_agent_cost": 0.0,
+    "avg_user_cost": null,
+    "write_candidates": 81,
+    "executed_writes": 81,
+    "unauthorized_executed_writes": 0,
+    "unauthorized_write_rate": 0.0,
+    "duplicate_side_effects": 0,
+    "unauthorized_reasons": {},
+    "errored_tool_calls": 1
+  },
+  "live_gate_audit": {
+    "sessions_with_audit": 80,
+    "decisions": {
+      "allow": 972,
+      "deny": 33,
+      "require_confirmation": 55,
+      "require_evidence": 1
+    },
+    "rejection_reasons": {
+      "contract_expired": 12,
+      "price_not_confirmed": 55,
+      "overdue_bills_unpaid": 18,
+      "bill_not_overdue": 3,
+      "refuel_price_unknown": 1
+    },
+    "regenerations": 102
+  }
+}
