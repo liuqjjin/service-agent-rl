@@ -82,6 +82,14 @@ def main() -> None:
     agent_llm_args = {"temperature": args.agent_temperature}
     if args.agent_api_base:
         agent_llm_args["api_base"] = args.agent_api_base
+        agent_llm_args["api_key"] = "local"
+
+    user_llm_args = {"temperature": args.user_temperature}
+    if args.user_llm.startswith("deepseek/"):
+        # DECISIONS.md D1: the fixed simulator runs non-thinking. Verified
+        # empirically: extra_body is the knob that actually suppresses
+        # reasoning_content on deepseek-v4-pro via LiteLLM.
+        user_llm_args["extra_body"] = {"thinking": {"type": "disabled"}}
 
     config = TextRunConfig(
         domain="telecom",
@@ -90,7 +98,7 @@ def main() -> None:
         llm_args_agent=agent_llm_args,
         user="user_simulator",
         llm_user=args.user_llm,
-        llm_args_user={"temperature": args.user_temperature},
+        llm_args_user=user_llm_args,
         num_trials=args.trials,
         seed=args.seed,
         max_steps=args.max_steps,
