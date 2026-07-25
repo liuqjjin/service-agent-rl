@@ -28,8 +28,11 @@ W&B                                     # curves, configs, evidence
 # tools
 curl -LsSf https://astral.sh/uv/install.sh | sh && source ~/.bashrc
 
-# repo, pinned submodules included
-git clone --recurse-submodules <YOUR_GIT_REMOTE>/service-agent-rl.git
+# repo, pinned submodules included. service-agent-rl is a private repo, so the
+# box needs credentials first: `gh auth login` (or a PAT in the clone URL).
+# tau2-bench resolves to a fork because the pinned commit is upstream cf71a80
+# plus one gym fix that does not exist in sierra-research's repo (UPSTREAM.md).
+git clone --recurse-submodules https://github.com/liuqjjin/service-agent-rl.git
 cd service-agent-rl
 git submodule status   # expect tau2-bench at 2822d90, ART at 828b839
 

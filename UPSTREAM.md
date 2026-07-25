@@ -27,6 +27,13 @@ touching only `src/tau2/gym/gym_agent.py`. A test
 pin, so every result-bearing path (runner, orchestrator, evaluator, domains,
 data) is byte-identical to upstream.
 
+That commit does not exist in sierra-research's repository, so `.gitmodules`
+points the submodule at a fork, [liuqjjin/tau2-bench](https://github.com/liuqjjin/tau2-bench),
+which carries the full upstream history. Without this, `git clone
+--recurse-submodules` cannot check the submodule out at all. The pin stays
+verifiable from the fork: `git merge-base HEAD cf71a80` returns the pin and
+`git diff --name-only cf71a80` returns one file.
+
 The native runner does not import the gym wrapper; all benchmark results are
 unaffected by this commit.
 
@@ -61,7 +68,7 @@ git -C third_party/tau2-bench checkout fix/gym-seed-and-thread-lifecycle
 uv run pytest tests/test_gym_lifecycle.py   # all pass
 ```
 
-PR to upstream: prepared, not yet submitted.
+PR to upstream: branch pushed to the fork, description written, not opened.
 
 ## Verified findings at the pin
 

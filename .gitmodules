@@ -1,6 +1,10 @@
 [submodule "third_party/tau2-bench"]
 	path = third_party/tau2-bench
-	url = https://github.com/sierra-research/tau2-bench.git
+	# A fork, because the pinned commit is upstream cf71a80 plus one local gym
+	# fix (UPSTREAM.md); that commit does not exist in sierra-research's repo,
+	# so a clone pointed there cannot check the submodule out at all. The fork
+	# carries the full upstream history, so the pin stays verifiable.
+	url = https://github.com/liuqjjin/tau2-bench.git
 [submodule "third_party/ART"]
 	path = third_party/ART
 	url = https://github.com/OpenPipe/ART.git
