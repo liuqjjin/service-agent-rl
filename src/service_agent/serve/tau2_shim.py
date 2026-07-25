@@ -52,7 +52,10 @@ from service_agent.splits import load_frozen_dev_ids, train_core_ids
 
 # tau2 splits that contain the official test tasks. Serving them for
 # training would contaminate the protocol (CLAUDE.md hard rule 2), so they
-# are refused unless explicitly unlocked for a final evaluation run.
+# are refused unless explicitly unlocked for a final evaluation run. Both
+# endpoints enforce it: listing and instantiating have to agree, because task
+# ids are readable straight out of the published split file, so a lock that
+# only covers /scenarios stops nothing.
 EVAL_SPLITS = frozenset({"test", "full", "base"})
 
 # Splits defined by this repo's frozen data protocol rather than tau2's
@@ -242,6 +245,31 @@ def _resolve_split_tasks(domain: str, split: str) -> list[Task]:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+def _eval_splits_unlocked() -> bool:
+    return os.environ.get("SHIM_ALLOW_EVAL_SPLITS") == "1"
+
+
+_TEST_IDS_BY_DOMAIN: dict[str, frozenset[str]] = {}
+
+
+def _test_task_ids(domain: str) -> frozenset[str]:
+    """Ids in a domain's official test split; empty when it has no test split.
+
+    Only the test split matters for instantiation: `full` and `base` are
+    refused as *listings* because they contain test tasks, but a `full` task
+    that is not in test is legitimate training material (expanded_train).
+    """
+    if domain not in _TEST_IDS_BY_DOMAIN:
+        try:
+            tasks = registry.get_tasks_loader(domain)(task_split_name="test")
+        except (KeyError, TypeError, ValueError):
+            # Unknown domain, or a task set without splits (mock): the caller
+            # already 404s on unknown domains, and nothing to lock otherwise.
+            tasks = []
+        _TEST_IDS_BY_DOMAIN[domain] = frozenset(task.id for task in tasks)
+    return _TEST_IDS_BY_DOMAIN[domain]
+
+
 def _redact_task(task: Task) -> dict[str, Any]:
     data = task.model_dump(mode="json")
     for field_name in REDACTED_TASK_FIELDS:
@@ -355,7 +383,7 @@ def create_app() -> FastAPI:
                 status_code=422,
                 detail="split is required (train, dev, train-core, small, base, full, test)",
             )
-        if split in EVAL_SPLITS and os.environ.get("SHIM_ALLOW_EVAL_SPLITS") != "1":
+        if split in EVAL_SPLITS and not _eval_splits_unlocked():
             raise HTTPException(
                 status_code=403,
                 detail=f"Split '{split}' contains official test tasks and is "
@@ -379,6 +407,13 @@ def create_app() -> FastAPI:
             raise HTTPException(
                 status_code=404,
                 detail=f"Task '{request.task_id}' not found in domain '{request.domain}'",
+            )
+        if task.id in _test_task_ids(request.domain) and not _eval_splits_unlocked():
+            raise HTTPException(
+                status_code=403,
+                detail=f"Task '{request.task_id}' is in the official test split and is "
+                "locked to prevent training contamination. Set "
+                "SHIM_ALLOW_EVAL_SPLITS=1 only for a final evaluation run.",
             )
         initial_state = task.initial_state
         if initial_state is not None and initial_state.message_history:

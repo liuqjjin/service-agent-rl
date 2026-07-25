@@ -23,7 +23,7 @@ from tau2.user.user_simulator_base import STOP
 from tau2.utils.utils import get_now
 
 from service_agent.serve.tau2_shim import create_app, parse_action
-from service_agent.splits import load_frozen_dev_ids, load_split_ids
+from service_agent.splits import load_frozen_dev_ids, load_split_ids, train_core_ids
 
 TASK_ID = "[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:Hard]"
 
@@ -163,6 +163,39 @@ def test_create_environment_unknown_task(client):
     )
     assert response.status_code == 404
     assert "no-such-task" in response.json()["detail"]
+
+
+def test_create_environment_refuses_test_split_tasks(client, monkeypatch):
+    # Locking /scenarios is not enough: test task ids are readable straight out
+    # of split_tasks.json, so a client can name one without ever listing it.
+    body = {
+        "domain": "telecom",
+        "task_id": sorted(load_split_ids()["test"])[0],
+        "user_llm": "scripted/none",
+    }
+    response = client.post("/environments", json=body)
+    assert response.status_code == 403
+    assert "SHIM_ALLOW_EVAL_SPLITS" in response.json()["detail"]
+
+    # Same env-scoped unlock as /scenarios, for the one final evaluation run.
+    script_user(monkeypatch, ["Hello."])
+    monkeypatch.setenv("SHIM_ALLOW_EVAL_SPLITS", "1")
+    assert client.post("/environments", json=body).status_code == 200
+
+
+def test_create_environment_allows_train_core_tasks(client, monkeypatch):
+    # The lock covers the test split only: a task from full/base that is not in
+    # test is legitimate training material and must still instantiate.
+    script_user(monkeypatch, ["Hello."])
+    response = client.post(
+        "/environments",
+        json={
+            "domain": "telecom",
+            "task_id": train_core_ids()[0],
+            "user_llm": "scripted/none",
+        },
+    )
+    assert response.status_code == 200, response.text
 
 
 # -- stepping -----------------------------------------------------------------
