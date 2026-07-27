@@ -20,7 +20,7 @@ tokenization, ART/tau2, runtime, split, replay, and resume contracts are tested
 locally. It has not yet passed a real GPU preflight and no weights have been
 trained, which is why the package is still named `service-agent`.
 
-Local Mac gate at the time of writing: 98 tests green, lint clean, both
+Local Mac gate at the time of writing: 99 tests green, lint clean, both
 submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
 `main` stays untouched.
 
@@ -88,7 +88,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 98 tests, ~5s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 99 tests, ~5s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -227,7 +227,7 @@ that is regenerated only deliberately (`python -m service_agent.splits` rewrites
 
 ## Test gates
 
-`uv run pytest` must be green before any commit. As of HEAD: 98 passed in ~5s, no API keys
+`uv run pytest` must be green before any commit. As of HEAD: 99 passed in ~5s, no API keys
 needed, models mocked or driven by scripted stand-ins.
 
 | File | What it protects |

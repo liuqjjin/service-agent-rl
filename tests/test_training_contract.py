@@ -173,6 +173,17 @@ def test_vllm_bootstrap_prefers_verified_cudart_over_tilelang_stub(
     )
 
 
+def test_vllm_bootstrap_is_silent_when_vllm_is_not_installed(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setitem(sys.modules, "vllm", None)
+    monkeypatch.delitem(sys.modules, "vllm.utils", raising=False)
+    monkeypatch.delitem(sys.modules, "vllm.utils.system_utils", raising=False)
+    monkeypatch.setenv("VLLM_CUDART_SO_PATH", "/runtime/libcudart.so.12")
+
+    runpy.run_path(str(VLLM_BOOTSTRAP), run_name="__no_vllm_bootstrap_test__")
+
+
 def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ):

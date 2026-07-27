@@ -17,6 +17,13 @@ def _install_cudart_override() -> None:
     if not cudart_path:
         return
 
+    try:
+        import vllm  # noqa: F401
+    except ModuleNotFoundError as exc:
+        if exc.name == "vllm":
+            return
+        raise
+
     from vllm.utils import system_utils
 
     original = system_utils.find_loaded_library
