@@ -150,3 +150,17 @@ at least one group has variance and ART confirms at least one trainable group.
 Formal checkpoint selection uses the same task/trial seeds at every scheduled
 dev evaluation, so a checkpoint is not selected merely because it received an
 easier random draw.
+
+## D13. ART training and vLLM inference keep separate locked environments
+
+The editable ART checkout does not install vLLM into the trainer environment.
+Its launcher resolves
+`third_party/ART/vllm_runtime/.venv/bin/art-vllm-runtime-server`, whose
+dependencies come from ART's own `vllm_runtime/uv.lock`. Treating vLLM as a
+trainer dependency made the original runbook verification command fail and
+would have recorded `vllm: null` in the experiment manifest. The GPU setup now
+builds that isolated environment explicitly. Every phase records both the
+trainer package set and the runtime's Python, ART runtime, FlashInfer, torch,
+Transformers, and vLLM versions; phase and resume gates reject drift in either
+environment. ART's lock intentionally overrides NumPy to `<2`; the resulting
+OpenCV metadata warning is not resolved by changing NumPy outside the lock.

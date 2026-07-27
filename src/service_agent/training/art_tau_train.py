@@ -60,6 +60,15 @@ from service_agent.training.token_budget import (
 
 DEFAULT_USER_MODEL = "deepseek/deepseek-v4-pro"
 SPARSE_REWARD_WINDOW = 10
+VLLM_RUNTIME_DISTRIBUTIONS = (
+    "art-vllm-runtime",
+    "flashinfer-python",
+    "torch",
+    "torchaudio",
+    "torchvision",
+    "transformers",
+    "vllm",
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -241,7 +250,35 @@ def _runtime(args: argparse.Namespace) -> RuntimeConfig:
     )
 
 
-def _system_info() -> dict[str, Any]:
+def _runtime_system_info(runtime_python: Path) -> dict[str, Any]:
+    """Read package provenance from ART's isolated vLLM interpreter."""
+
+    if not runtime_python.is_file():
+        raise RuntimeError(f"ART vLLM runtime is not installed: {runtime_python}")
+    script = (
+        "import json, platform; "
+        "from importlib.metadata import version; "
+        f"names = {VLLM_RUNTIME_DISTRIBUTIONS!r}; "
+        "print(json.dumps({'python': platform.python_version(), "
+        "'packages': {name: version(name) for name in names}}, sort_keys=True))"
+    )
+    completed = subprocess.run(
+        [str(runtime_python), "-c", script],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("ART vLLM runtime returned invalid package metadata") from exc
+    packages = payload.get("packages") if isinstance(payload, dict) else None
+    if not isinstance(packages, dict) or set(packages) != set(VLLM_RUNTIME_DISTRIBUTIONS):
+        raise RuntimeError("ART vLLM runtime package metadata is incomplete")
+    return payload
+
+
+def _system_info(repo_root: Path) -> dict[str, Any]:
     import torch
 
     gpu = torch.cuda.get_device_properties(0) if torch.cuda.is_available() else None
@@ -250,7 +287,6 @@ def _system_info() -> dict[str, Any]:
         "openpipe-art",
         "transformers",
         "unsloth",
-        "vllm",
         "trl",
         "wandb",
     ):
@@ -268,6 +304,9 @@ def _system_info() -> dict[str, Any]:
         "gpu": gpu.name if gpu is not None else None,
         "gpu_memory_bytes": gpu.total_memory if gpu is not None else None,
         "packages": packages,
+        "vllm_runtime": _runtime_system_info(
+            repo_root / "third_party/ART/vllm_runtime/.venv/bin/python"
+        ),
     }
 
 
@@ -306,7 +345,7 @@ def _base_manifest(
             "val_trials": args.val_trials,
         },
         "token_budget": token_budget,
-        "system": _system_info(),
+        "system": _system_info(repo_root),
         "user_simulator": {
             "model": args.user_model,
             "temperature": 0.0,

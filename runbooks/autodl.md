@@ -55,12 +55,19 @@ uv venv /root/autodl-tmp/work/service-agent-rl/.venv-trainer --python 3.12
 uv pip install --python .venv-trainer/bin/python -e 'third_party/ART[backend]'
 uv pip install --python .venv-trainer/bin/python --no-deps -e .
 uv pip install --python .venv-trainer/bin/python python-dotenv
+
+# An editable ART checkout launches vLLM from its separately locked runtime.
+uv sync --project third_party/ART/vllm_runtime --frozen --no-dev
 ```
 
 The service environment owns tau2. The trainer environment owns ART,
-Transformers, Unsloth, torch, and vLLM. The first-party package is installed
-without dependencies in the trainer so it does not resolve another tau2
-version from PyPI.
+Transformers, Unsloth, and the training torch stack. ART's source checkout
+owns a third, isolated environment at `third_party/ART/vllm_runtime/.venv`;
+that environment owns vLLM and its separately locked inference dependencies.
+The first-party package is installed without dependencies in the trainer so
+it does not resolve another tau2 version from PyPI. Preflight fails before
+model registration if the isolated runtime or any required package metadata is
+missing.
 
 Record the environment without dumping variables:
 
@@ -70,7 +77,10 @@ df -h /root/autodl-tmp
 free -h
 uv run python -V
 .venv-trainer/bin/python -c \
-  'from importlib.metadata import version; import torch; print(version("openpipe-art"), torch.__version__, version("transformers"), version("vllm"), torch.cuda.is_bf16_supported())'
+  'from importlib.metadata import version; import torch; print(version("openpipe-art"), torch.__version__, version("transformers"), version("unsloth"), torch.cuda.is_bf16_supported())'
+third_party/ART/vllm_runtime/.venv/bin/python -c \
+  'from importlib.metadata import version; import torch; print(version("art-vllm-runtime"), torch.__version__, version("transformers"), version("vllm"), torch.cuda.is_bf16_supported())'
+test -x third_party/ART/vllm_runtime/.venv/bin/art-vllm-runtime-server
 git status --short --branch
 git submodule status
 ```

@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-from service_agent.training.art_tau_train import group_stats
+from service_agent.training.art_tau_train import _runtime_system_info, group_stats
 from service_agent.training.contracts import (
     ART_COMMIT,
     BASE_MODEL_ID,
@@ -31,6 +32,34 @@ from service_agent.training.tau_rollout import (
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_ROOT = ROOT / "third_party/ART"
+
+
+def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    runtime_python = tmp_path / "python"
+    runtime_python.touch()
+    expected = {
+        "python": "3.12.3",
+        "packages": {
+            "art-vllm-runtime": "0.1.0",
+            "flashinfer-python": "0.6.12",
+            "torch": "2.11.0+cu128",
+            "torchaudio": "2.11.0+cu128",
+            "torchvision": "0.26.0+cu128",
+            "transformers": "5.12.1",
+            "vllm": "0.23.0+cu129",
+        },
+    }
+
+    def fake_run(command, **kwargs):
+        assert command[0] == str(runtime_python)
+        assert kwargs == {"check": True, "capture_output": True, "text": True}
+        return SimpleNamespace(stdout=json.dumps(expected))
+
+    monkeypatch.setattr("service_agent.training.art_tau_train.subprocess.run", fake_run)
+
+    assert _runtime_system_info(runtime_python) == expected
 
 
 def test_trainable_model_kwargs_match_pinned_art_signature():
@@ -175,7 +204,16 @@ def _manifest(run_name: str = "run-r1") -> dict:
             "cuda_runtime": "13.0",
             "gpu": "NVIDIA GeForce RTX 4090",
             "bf16_supported": True,
-            "packages": {"openpipe-art": "0.5.18", "vllm": "0.17.0"},
+            "packages": {"openpipe-art": "0.5.18", "transformers": "5.2.0"},
+            "vllm_runtime": {
+                "python": "3.12.3",
+                "packages": {
+                    "art-vllm-runtime": "0.1.0",
+                    "torch": "2.11.0+cu128",
+                    "transformers": "5.12.1",
+                    "vllm": "0.23.0+cu129",
+                },
+            },
         },
         "user_simulator": {
             "model": "deepseek/deepseek-v4-pro",
@@ -198,6 +236,11 @@ def test_phase_gates_require_the_same_complete_protocol():
     drifted = _manifest("smoke-r1")
     drifted["repo_commit"] = "different"
     with pytest.raises(RuntimeError, match="repo_commit"):
+        validate_matching_protocol(preflight, drifted, "preflight")
+
+    drifted = _manifest("smoke-r1")
+    drifted["system"]["vllm_runtime"]["packages"]["vllm"] = "different"
+    with pytest.raises(RuntimeError, match="system"):
         validate_matching_protocol(preflight, drifted, "preflight")
 
 

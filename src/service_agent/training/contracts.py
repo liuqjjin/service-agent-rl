@@ -239,6 +239,7 @@ def _shared_protocol_contract(payload: dict[str, Any]) -> dict[str, Any]:
             "gpu",
             "bf16_supported",
             "packages",
+            "vllm_runtime",
         )
     }
     return {
