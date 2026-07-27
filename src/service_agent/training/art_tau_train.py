@@ -22,6 +22,7 @@ import os
 import platform
 import random
 import subprocess
+import sys
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,6 +44,7 @@ from service_agent.training.contracts import (
     assert_pinned_art_api,
     build_trainable_model_kwargs,
     semantic_contract_sha256,
+    semantic_input_hashes,
     validate_matching_protocol,
     validate_preflight_gate,
     validate_resume_contract,
@@ -315,6 +317,7 @@ def _base_manifest(
     runtime: RuntimeConfig,
     *,
     semantic_hash: str,
+    semantic_inputs: dict[str, str],
     snapshot: Path,
     token_budget: dict[str, Any],
 ) -> dict[str, Any]:
@@ -332,6 +335,11 @@ def _base_manifest(
         "base_model_revision": BASE_MODEL_REVISION,
         "model_snapshot": str(snapshot),
         "semantic_contract_sha256": semantic_hash,
+        "semantic_input_hashes": semantic_inputs,
+        "invocation": {
+            "argv": list(sys.orig_argv),
+            "hf_endpoint": os.environ.get("HF_ENDPOINT", "https://huggingface.co"),
+        },
         "runtime": asdict(runtime),
         "training": {
             "group_size": args.group_size,
@@ -933,6 +941,11 @@ async def run(args: argparse.Namespace) -> None:
         tools=contract["tools"],
         tokenizer_chat_template=tokenizer.chat_template,
     )
+    semantic_inputs = semantic_input_hashes(
+        system_prompt=contract["system_prompt"],
+        tools=contract["tools"],
+        tokenizer_chat_template=tokenizer.chat_template,
+    )
     token_budget = measure_dev_token_budget(
         repo_root=repo_root,
         tokenizer=tokenizer,
@@ -952,6 +965,7 @@ async def run(args: argparse.Namespace) -> None:
         args,
         runtime,
         semantic_hash=semantic_hash,
+        semantic_inputs=semantic_inputs,
         snapshot=snapshot,
         token_budget=token_budget,
     )

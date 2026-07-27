@@ -21,7 +21,7 @@ ART_COMMIT = "828b839b1139ac780725f0a22a9bde70a82b4878"
 TAU2_COMMIT = "2822d9030b621e6f13a190fb14fa08cf1c9c4ca4"
 CHAT_TEMPLATE_KWARGS = {"enable_thinking": False}
 TOOL_CALL_PARSER = "hermes"
-MANIFEST_SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -203,6 +203,29 @@ def assert_pinned_art_api(art_root: Path) -> None:
         raise RuntimeError(f"pinned ART rollout is missing arguments: {sorted(missing)}")
 
 
+def semantic_input_hashes(
+    *,
+    system_prompt: str,
+    tools: list[dict[str, Any]],
+    tokenizer_chat_template: str,
+) -> dict[str, str]:
+    """Hash the three model-visible surfaces separately for provenance."""
+
+    tools_payload = json.dumps(
+        tools,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return {
+        "system_prompt_sha256": hashlib.sha256(system_prompt.encode("utf-8")).hexdigest(),
+        "tools_sha256": hashlib.sha256(tools_payload.encode("utf-8")).hexdigest(),
+        "tokenizer_chat_template_sha256": hashlib.sha256(
+            tokenizer_chat_template.encode("utf-8")
+        ).hexdigest(),
+    }
+
+
 def semantic_contract_sha256(
     *,
     system_prompt: str,
@@ -250,6 +273,7 @@ def _shared_protocol_contract(payload: dict[str, Any]) -> dict[str, Any]:
         "base_model": payload.get("base_model"),
         "base_model_revision": payload.get("base_model_revision"),
         "semantic_contract_sha256": payload.get("semantic_contract_sha256"),
+        "semantic_input_hashes": payload.get("semantic_input_hashes"),
         "runtime": runtime,
         "training": payload.get("training"),
         "token_budget": payload.get("token_budget"),

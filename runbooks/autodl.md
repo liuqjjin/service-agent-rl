@@ -32,6 +32,7 @@ The official test split stays locked throughout all three.
 mkdir -p /root/autodl-tmp/{work,cache/huggingface,cache/uv,tmp,logs,runs,art}
 export UV_CACHE_DIR=/root/autodl-tmp/cache/uv
 export HF_HOME=/root/autodl-tmp/cache/huggingface
+export HF_ENDPOINT=https://hf-mirror.com
 export WANDB_DIR=/root/autodl-tmp/wandb
 export TMPDIR=/root/autodl-tmp/tmp
 export TOKENIZERS_PARALLELISM=false
@@ -40,6 +41,11 @@ export TOKENIZERS_PARALLELISM=false
 Persist those non-secret exports in the shell profile. Do not put API keys
 there. The project `.env` contains `DEEPSEEK_API_KEY` and `WANDB_API_KEY`,
 has mode `0600`, and is never printed or committed.
+
+The AutoDL network cannot reach `huggingface.co:443`, so `HF_ENDPOINT` changes
+transport only. `prepare_pinned_snapshot` still requires the mirror's `main`
+metadata to resolve to the frozen revision, requires the downloaded snapshot
+directory to carry that exact SHA, and then forces all model loads offline.
 
 ## 2. Runtime installation
 
@@ -133,6 +139,10 @@ The command downloads and verifies the pinned model snapshot. It then:
 6. runs eight train-core episodes through strict replay with reward finalized
    exactly once;
 7. exits with `final_step=0`.
+
+The manifest records the exact Python argv, download endpoint, composite
+semantic-contract hash, and separate hashes for the system prompt, tools, and
+tokenizer chat template.
 
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl

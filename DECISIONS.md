@@ -164,3 +164,15 @@ trainer package set and the runtime's Python, ART runtime, FlashInfer, torch,
 Transformers, and vLLM versions; phase and resume gates reject drift in either
 environment. ART's lock intentionally overrides NumPy to `<2`; the resulting
 OpenCV metadata warning is not resolved by changing NumPy outside the lock.
+
+## D14. The AutoDL host uses a verified Hugging Face transport mirror
+
+The instance cannot connect to `huggingface.co:443`; an independent request
+times out before TLS. `https://hf-mirror.com` is reachable and its model-info
+response resolves `Qwen/Qwen3.5-4B` `main` to the frozen
+`851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` revision. The mirror is only the
+download transport: the driver still rejects any different commit, validates
+the snapshot directory name against the pin, and forces later loads offline.
+Manifest schema 2 records the endpoint and exact invocation, plus separate
+system-prompt, tool-schema, and tokenizer-template hashes in addition to the
+composite semantic hash.

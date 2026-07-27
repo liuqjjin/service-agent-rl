@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -21,6 +22,7 @@ from service_agent.training.contracts import (
     assert_pinned_art_api,
     build_internal_model_config,
     build_trainable_model_kwargs,
+    semantic_input_hashes,
     validate_matching_protocol,
     validate_preflight_gate,
     validate_resume_contract,
@@ -32,6 +34,29 @@ from service_agent.training.tau_rollout import (
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_ROOT = ROOT / "third_party/ART"
+
+
+def test_semantic_input_hashes_record_each_exact_model_visible_surface():
+    prompt = "system prompt\n"
+    tools = [{"type": "function", "function": {"name": "lookup", "parameters": {}}}]
+    template = "{{ messages }}"
+
+    assert semantic_input_hashes(
+        system_prompt=prompt,
+        tools=tools,
+        tokenizer_chat_template=template,
+    ) == {
+        "system_prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+        "tools_sha256": hashlib.sha256(
+            json.dumps(
+                tools,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode()
+        ).hexdigest(),
+        "tokenizer_chat_template_sha256": hashlib.sha256(template.encode()).hexdigest(),
+    }
 
 
 def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
@@ -178,6 +203,11 @@ def _manifest(run_name: str = "run-r1") -> dict:
         "base_model": BASE_MODEL_ID,
         "base_model_revision": BASE_MODEL_REVISION,
         "semantic_contract_sha256": "contract",
+        "semantic_input_hashes": {
+            "system_prompt_sha256": "prompt",
+            "tools_sha256": "tools",
+            "tokenizer_chat_template_sha256": "template",
+        },
         "runtime": {
             "run_name": run_name,
             "project": "service-agent",
@@ -241,6 +271,11 @@ def test_phase_gates_require_the_same_complete_protocol():
     drifted = _manifest("smoke-r1")
     drifted["system"]["vllm_runtime"]["packages"]["vllm"] = "different"
     with pytest.raises(RuntimeError, match="system"):
+        validate_matching_protocol(preflight, drifted, "preflight")
+
+    drifted = _manifest("smoke-r1")
+    drifted["semantic_input_hashes"]["tools_sha256"] = "different"
+    with pytest.raises(RuntimeError, match="semantic_input_hashes"):
         validate_matching_protocol(preflight, drifted, "preflight")
 
 
