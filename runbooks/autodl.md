@@ -45,7 +45,8 @@ has mode `0600`, and is never printed or committed.
 The AutoDL network cannot reach `huggingface.co:443`, so `HF_ENDPOINT` changes
 transport only. `prepare_pinned_snapshot` still requires the mirror's `main`
 metadata to resolve to the frozen revision, requires the downloaded snapshot
-directory to carry that exact SHA, and then forces all model loads offline.
+directory to carry that exact SHA, passes that local directory to both ART
+training and vLLM, and then forces all model loads offline.
 
 ## 2. Runtime installation
 

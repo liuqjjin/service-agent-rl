@@ -37,9 +37,8 @@ def prepare_pinned_snapshot(cache_dir: Path) -> Path:
             "downloaded snapshot does not match the pinned revision: "
             f"{snapshot.name} != {BASE_MODEL_REVISION}"
         )
-    # ART's pinned training-tokenizer helper does not forward `revision`.
-    # `snapshot_download(..., revision="main")` wrote a verified refs/main
-    # entry; forcing all later loaders offline prevents that helper from
-    # resolving a newer moving main between preflight and an update.
+    # ART receives this local snapshot path as its model source. Its training
+    # tokenizer does not forward `revision`, so forcing later loaders offline
+    # is a second guard against any accidental model-ID lookup.
     os.environ["HF_HUB_OFFLINE"] = "1"
     return snapshot

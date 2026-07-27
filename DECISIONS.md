@@ -200,3 +200,15 @@ iterating it in the reference logprob gate would likewise have read field
 names instead of IDs. One shared adapter now extracts and validates
 `input_ids` from either API shape. The context budget and the exact-token
 logprob comparison both use that adapter.
+
+## D17. ART and vLLM load the verified local snapshot path
+
+Unsloth 2026.3.3 calls `HfFileSystem.glob` for a model ID even when its
+`revision` argument is pinned; that metadata request fails after the driver
+intentionally enables offline mode. Relaxing offline mode would also reopen
+ART's training-tokenizer helper, which does not pass a revision. The
+`TrainableModel` therefore receives the already verified local snapshot path
+as `base_model`. Unsloth recognizes it as a directory, ART's tokenizer reads
+the same files, and the dedicated vLLM process sees that identical path.
+Manifests and W&B config continue to identify the canonical model ID and
+revision separately.

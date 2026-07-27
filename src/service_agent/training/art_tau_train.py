@@ -392,10 +392,18 @@ def _require_checkpoint(path: str | None, expected_step: int) -> str:
     return str(checkpoint)
 
 
-async def _register_model(art: Any, LocalBackend: Any, args: argparse.Namespace) -> tuple[Any, Any]:
+async def _register_model(
+    art: Any,
+    LocalBackend: Any,
+    args: argparse.Namespace,
+    *,
+    snapshot: Path,
+) -> tuple[Any, Any]:
     runtime = _runtime(args)
     backend = LocalBackend(path=str(args.art_path))
-    model = art.TrainableModel(**build_trainable_model_kwargs(runtime))
+    model = art.TrainableModel(
+        **build_trainable_model_kwargs(runtime, model_source=str(snapshot))
+    )
     model.update_wandb_config(
         {
             "protocol": {
@@ -506,7 +514,12 @@ async def _run_preflight(
     backend = model = None
     try:
         train, _ = await _load_scenarios(tau_bench, client)
-        backend, model = await _register_model(art, LocalBackend, args)
+        backend, model = await _register_model(
+            art,
+            LocalBackend,
+            args,
+            snapshot=Path(manifest["model_snapshot"]),
+        )
         initial_step = await model.get_step()
         if initial_step != 0:
             raise RuntimeError(f"preflight must start at step 0, got {initial_step}")
@@ -530,7 +543,12 @@ async def _run_preflight(
             raise RuntimeError("step-0 logprob gate failed")
 
         # Reopen the same untouched step-0 checkpoint for the rollout-only gate.
-        backend, model = await _register_model(art, LocalBackend, args)
+        backend, model = await _register_model(
+            art,
+            LocalBackend,
+            args,
+            snapshot=Path(manifest["model_snapshot"]),
+        )
         if await model.get_step() != 0:
             raise RuntimeError("preflight lineage changed during the logprob gate")
         groups = await _gather_groups(
@@ -611,7 +629,12 @@ async def _run_smoke(
     backend = model = None
     try:
         train, _ = await _load_scenarios(tau_bench, client)
-        backend, model = await _register_model(art, LocalBackend, args)
+        backend, model = await _register_model(
+            art,
+            LocalBackend,
+            args,
+            snapshot=Path(manifest["model_snapshot"]),
+        )
         initial_step = await model.get_step()
         if initial_step != 0:
             raise RuntimeError(f"smoke must start at step 0, got {initial_step}")
@@ -742,7 +765,12 @@ async def _run_train(
     backend = model = None
     try:
         train, dev = await _load_scenarios(tau_bench, client)
-        backend, model = await _register_model(art, LocalBackend, args)
+        backend, model = await _register_model(
+            art,
+            LocalBackend,
+            args,
+            snapshot=Path(manifest["model_snapshot"]),
+        )
         if not _wandb_url(model):
             raise RuntimeError("formal run has no W&B run URL")
         start_step = await model.get_step()

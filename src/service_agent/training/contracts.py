@@ -131,14 +131,18 @@ def build_internal_model_config(config: RuntimeConfig) -> dict[str, Any]:
     }
 
 
-def build_trainable_model_kwargs(config: RuntimeConfig) -> dict[str, Any]:
+def build_trainable_model_kwargs(
+    config: RuntimeConfig,
+    *,
+    model_source: str | None = None,
+) -> dict[str, Any]:
     """Keyword arguments accepted by TrainableModel at the pinned ART commit."""
 
     return {
         "name": config.run_name,
         "run_name": config.run_name,
         "project": config.project,
-        "base_model": config.base_model,
+        "base_model": model_source or config.base_model,
         "lora_config": {
             "rank": config.lora_rank,
             "alpha": config.lora_alpha,

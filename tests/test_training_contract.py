@@ -148,6 +148,18 @@ def test_trainable_model_kwargs_match_pinned_art_signature():
     assert_pinned_art_api(ART_ROOT)
 
 
+def test_trainable_model_can_use_the_verified_local_snapshot():
+    config = RuntimeConfig(run_name="preflight-r1")
+    snapshot = (
+        "/cache/models--Qwen--Qwen3.5-4B/snapshots/"
+        "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+    )
+
+    kwargs = build_trainable_model_kwargs(config, model_source=snapshot)
+
+    assert kwargs["base_model"] == snapshot
+
+
 def test_runtime_pins_weights_template_and_48gb_limits():
     runtime = RuntimeConfig(
         run_name="preflight-r1",
