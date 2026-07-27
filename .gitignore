@@ -22,6 +22,7 @@ htmlcov/
 
 # Experiment clients
 wandb/
+unsloth_compiled_cache/
 
 # Model weights and checkpoints
 checkpoints/

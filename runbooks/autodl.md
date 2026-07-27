@@ -29,11 +29,13 @@ The official test split stays locked throughout all three.
 ## 1. Data-disk layout
 
 ```bash
-mkdir -p /root/autodl-tmp/{work,cache/huggingface,cache/uv,tmp,logs,runs,art}
+mkdir -p /root/autodl-tmp/{work,cache/huggingface,cache/uv,cache/wandb,cache/unsloth_compiled_cache,wandb,tmp,logs,runs,art}
 export UV_CACHE_DIR=/root/autodl-tmp/cache/uv
 export HF_HOME=/root/autodl-tmp/cache/huggingface
 export HF_ENDPOINT=https://hf-mirror.com
+export WANDB_CACHE_DIR=/root/autodl-tmp/cache/wandb
 export WANDB_DIR=/root/autodl-tmp/wandb
+export UNSLOTH_COMPILE_LOCATION=/root/autodl-tmp/cache/unsloth_compiled_cache
 export TMPDIR=/root/autodl-tmp/tmp
 export TOKENIZERS_PARALLELISM=false
 ```
