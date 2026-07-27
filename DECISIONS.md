@@ -249,3 +249,20 @@ distribution (`1.13.0`; the wheel's binary adds a Kitware feature suffix).
 The distribution version, full binary version, executable path, and SHA-256
 are recorded beside the CUDA bootstrap provenance. No system package or
 unlocked Python dependency is added.
+
+## D20. The logprob reference loads only the verified local snapshot
+
+The first real preflight showed that passing the canonical model ID to the
+reference tokenizer and model could start a second download in the default
+Hugging Face hub cache. The verified snapshot deliberately lives at an
+explicit cache path outside that default layout. In addition, setting
+`HF_HUB_OFFLINE` after `huggingface_hub` has already been imported does not
+retroactively change every module-level offline constant.
+
+The reference gate now receives the snapshot path already recorded in the
+preflight manifest, requires its directory name to equal the frozen model
+revision, and passes that path to both Transformers loaders with
+`local_files_only=True`. It no longer resolves the canonical ID or accepts a
+revision argument at this boundary. The canonical ID remains in the manifest
+for provenance; the verified path is the only source from which the
+tokenizer and bf16 reference weights can be loaded.

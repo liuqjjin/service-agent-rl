@@ -20,7 +20,7 @@ tokenization, ART/tau2, runtime, split, replay, and resume contracts are tested
 locally. It has not yet passed a real GPU preflight and no weights have been
 trained, which is why the package is still named `service-agent`.
 
-Local Mac gate at the time of writing: 99 tests green, lint clean, both
+Local Mac gate at the time of writing: 100 tests green, lint clean, both
 submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
 `main` stays untouched.
 
@@ -88,7 +88,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 99 tests, ~5s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 100 tests, ~5s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -136,7 +136,8 @@ uv run python -m service_agent.serve.tau2_shim              # SHIM_HOST/SHIM_POR
 curl -s "localhost:8000/scenarios?domain=telecom&split=train-core" | ...   # 54 scenarios
 curl -s "localhost:8000/scenarios?domain=telecom&split=test" -o /dev/null -w "%{http_code}\n"  # 403
 python -m service_agent.training.art_tau_train --smoke      # trainer venv on the GPU box only
-python -m service_agent.training.logprob_check --api-base ... --served-model ... --hf-model ...
+python -m service_agent.training.logprob_check --api-base ... --served-model ... \
+    --model-snapshot ... --contract-json ...
 ```
 
 `SHIM_ALLOW_EVAL_SPLITS=1` unlocks the test split on **both** `GET /scenarios` (which refuses to
@@ -227,7 +228,7 @@ that is regenerated only deliberately (`python -m service_agent.splits` rewrites
 
 ## Test gates
 
-`uv run pytest` must be green before any commit. As of HEAD: 99 passed in ~5s, no API keys
+`uv run pytest` must be green before any commit. As of HEAD: 100 passed in ~5s, no API keys
 needed, models mocked or driven by scripted stand-ins.
 
 | File | What it protects |

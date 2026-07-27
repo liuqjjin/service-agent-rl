@@ -48,7 +48,9 @@ The AutoDL network cannot reach `huggingface.co:443`, so `HF_ENDPOINT` changes
 transport only. `prepare_pinned_snapshot` still requires the mirror's `main`
 metadata to resolve to the frozen revision, requires the downloaded snapshot
 directory to carry that exact SHA, passes that local directory to both ART
-training and vLLM, and then forces all model loads offline.
+training and vLLM, and then forces all model loads offline. The step-0
+reference tokenizer and bf16 model also receive that manifest-recorded path
+with local-only loading; they never resolve the canonical model ID.
 
 ## 2. Runtime installation
 
@@ -139,7 +141,8 @@ The command downloads and verifies the pinned model snapshot. It then:
    for FlashInfer JIT compilation;
 3. registers ART at step 0;
 4. samples exact vLLM prompt/completion token IDs and logprobs;
-5. closes vLLM before loading the bf16 reference model;
+5. closes vLLM before loading the tokenizer and bf16 reference model from the
+   exact manifest-recorded snapshot, with local-only loading;
 6. requires byte-identical prompt token IDs, mean importance ratio within
    2% of 1, and at most 2% outside the PPO clip window;
 7. reopens the untouched step-0 checkpoint;

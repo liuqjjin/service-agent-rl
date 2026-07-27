@@ -35,6 +35,7 @@ from service_agent.training.contracts import (
     validate_preflight_gate,
     validate_resume_contract,
 )
+from service_agent.training.logprob_check import ProbeRecord, evaluate_probe_records
 from service_agent.training.tau_rollout import (
     MultipleToolCallsError,
     require_single_tool_call,
@@ -255,6 +256,79 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     assert os.environ["VLLM_CUDART_SO_PATH"] == str(cudart)
     assert str(VLLM_BOOTSTRAP.parent) in os.environ["PYTHONPATH"].split(os.pathsep)
     assert os.environ["PATH"].split(os.pathsep)[0] == str(runtime_python.parent)
+
+
+def test_logprob_reference_uses_only_the_verified_local_snapshot(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    snapshot = tmp_path / BASE_MODEL_REVISION
+    snapshot.mkdir()
+    record = ProbeRecord(
+        messages=[{"role": "user", "content": "hello"}],
+        prompt_token_ids=[101, 102],
+        completion_token_ids=[103],
+        rollout_logprobs=[-0.5],
+    )
+    calls: list[tuple[str, Path, dict]] = []
+
+    class Tokenizer:
+        def apply_chat_template(self, messages, **kwargs):
+            assert messages == record.messages
+            return record.prompt_token_ids
+
+    class Model:
+        def eval(self):
+            return self
+
+    class TokenizerLoader:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            calls.append(("tokenizer", Path(source), kwargs))
+            return Tokenizer()
+
+    class ModelLoader:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            calls.append(("model", Path(source), kwargs))
+            return Model()
+
+    torch = ModuleType("torch")
+    torch.bfloat16 = "bfloat16"  # type: ignore[attr-defined]
+    torch.cuda = SimpleNamespace(  # type: ignore[attr-defined]
+        is_available=lambda: True,
+        is_bf16_supported=lambda: True,
+        empty_cache=lambda: None,
+    )
+    transformers = ModuleType("transformers")
+    transformers.AutoTokenizer = TokenizerLoader  # type: ignore[attr-defined]
+    transformers.AutoModelForCausalLM = ModelLoader  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "torch", torch)
+    monkeypatch.setitem(sys.modules, "transformers", transformers)
+    monkeypatch.setattr(
+        "service_agent.training.logprob_check._local_logprobs",
+        lambda model, prompt_ids, completion_ids: [-0.5],
+    )
+
+    result = evaluate_probe_records(
+        [record],
+        tools=[],
+        model_source=snapshot,
+    )
+
+    assert result["status"] == "passed"
+    assert [call[:2] for call in calls] == [
+        ("tokenizer", snapshot),
+        ("model", snapshot),
+    ]
+    assert calls[0][2] == {"local_files_only": True}
+    assert calls[1][2]["local_files_only"] is True
+    assert "revision" not in calls[0][2]
+    assert "revision" not in calls[1][2]
+
+    wrong = tmp_path / "wrong-revision"
+    wrong.mkdir()
+    with pytest.raises(RuntimeError, match="verified model snapshot"):
+        evaluate_probe_records([record], tools=[], model_source=wrong)
 
 
 def test_trainable_model_kwargs_match_pinned_art_signature():

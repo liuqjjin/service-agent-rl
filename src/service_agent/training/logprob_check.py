@@ -16,10 +16,10 @@ import json
 import math
 import statistics
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from service_agent.training.contracts import (
-    BASE_MODEL_ID,
     BASE_MODEL_REVISION,
     apply_chat_template_token_ids,
 )
@@ -139,11 +139,19 @@ def evaluate_probe_records(
     records: list[ProbeRecord],
     *,
     tools: list[dict[str, Any]],
+    model_source: Path,
     ratio_mean_tol: float = 0.02,
     clip_epsilon: float = 0.2,
     max_clip_fraction: float = 0.02,
 ) -> dict[str, Any]:
     """Load the pinned bf16 reference after vLLM closes and evaluate the gate."""
+
+    snapshot = model_source.resolve()
+    if not snapshot.is_dir() or snapshot.name != BASE_MODEL_REVISION:
+        raise RuntimeError(
+            "logprob reference requires the verified model snapshot: "
+            f"{snapshot}"
+        )
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -154,12 +162,12 @@ def evaluate_probe_records(
         raise RuntimeError("step-0 logprob gate requires bf16 support")
 
     tokenizer = AutoTokenizer.from_pretrained(
-        BASE_MODEL_ID,
-        revision=BASE_MODEL_REVISION,
+        snapshot,
+        local_files_only=True,
     )
     model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL_ID,
-        revision=BASE_MODEL_REVISION,
+        snapshot,
+        local_files_only=True,
         dtype=torch.bfloat16,
         device_map={"": "cuda:0"},
     )
@@ -240,6 +248,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--api-base", required=True)
     parser.add_argument("--served-model", required=True)
     parser.add_argument("--contract-json", required=True)
+    parser.add_argument("--model-snapshot", type=Path, required=True)
     parser.add_argument("--n-prompts", type=int, default=6)
     parser.add_argument("--max-tokens", type=int, default=128)
     return parser.parse_args()
@@ -261,7 +270,11 @@ async def _cli(args: argparse.Namespace) -> dict[str, Any]:
         )
     finally:
         await client.close()
-    return evaluate_probe_records(records, tools=contract["tools"])
+    return evaluate_probe_records(
+        records,
+        tools=contract["tools"],
+        model_source=args.model_snapshot,
+    )
 
 
 def main() -> None:

@@ -716,7 +716,11 @@ async def _run_preflight(
         backend = None
         _finish_wandb(model)
 
-        logprob = evaluate_probe_records(records, tools=contract["tools"])
+        logprob = evaluate_probe_records(
+            records,
+            tools=contract["tools"],
+            model_source=Path(manifest["model_snapshot"]),
+        )
         manifest["logprob_gate"] = logprob
         manifest["initial_step"] = initial_step
         _write_json(manifest_path, manifest)
