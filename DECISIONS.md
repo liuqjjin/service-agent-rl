@@ -244,7 +244,8 @@ installed from `vllm_runtime/uv.lock`.
 
 The driver now prepends only the isolated runtime's `bin` directory to the
 child process path. The same pre-GPU probe resolves `ninja`, runs
-`ninja --version`, and requires the result to match the locked Python
-distribution. Its executable path, version, and SHA-256 are recorded beside
-the CUDA bootstrap provenance. No system package or unlocked Python
-dependency is added.
+`ninja --version`, and requires its base version to match the locked Python
+distribution (`1.13.0`; the wheel's binary adds a Kitware feature suffix).
+The distribution version, full binary version, executable path, and SHA-256
+are recorded beside the CUDA bootstrap provenance. No system package or
+unlocked Python dependency is added.

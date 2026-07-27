@@ -229,7 +229,7 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
                     "selected_cudart": str(cudart),
                     "cuda_device_reset": True,
                     "ninja_path": str(ninja),
-                    "ninja_version": "1.13.0",
+                    "ninja_version": "1.13.0.git.kitware.jobserver-pipe-1",
                 }
             )
         )
@@ -248,7 +248,10 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     assert recorded["bootstrap"]["ninja_sha256"] == hashlib.sha256(
         ninja.read_bytes()
     ).hexdigest()
-    assert recorded["bootstrap"]["ninja_version"] == "1.13.0"
+    assert recorded["bootstrap"]["ninja_binary_version"] == (
+        "1.13.0.git.kitware.jobserver-pipe-1"
+    )
+    assert recorded["bootstrap"]["ninja_distribution_version"] == "1.13.0"
     assert os.environ["VLLM_CUDART_SO_PATH"] == str(cudart)
     assert str(VLLM_BOOTSTRAP.parent) in os.environ["PYTHONPATH"].split(os.pathsep)
     assert os.environ["PATH"].split(os.pathsep)[0] == str(runtime_python.parent)

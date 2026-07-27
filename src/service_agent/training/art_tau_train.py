@@ -429,11 +429,17 @@ print(json.dumps({
     ):
         raise RuntimeError("vLLM CUDA bootstrap selected the wrong runtime")
     ninja_path = result.get("ninja_path")
-    ninja_version = result.get("ninja_version")
+    ninja_binary_version = result.get("ninja_version")
+    ninja_distribution_version = runtime_info.get("packages", {}).get("ninja")
     if (
         not isinstance(ninja_path, str)
         or Path(ninja_path).resolve() != ninja.resolve()
-        or ninja_version != runtime_info.get("packages", {}).get("ninja")
+        or not isinstance(ninja_binary_version, str)
+        or not isinstance(ninja_distribution_version, str)
+        or not (
+            ninja_binary_version == ninja_distribution_version
+            or ninja_binary_version.startswith(ninja_distribution_version + ".")
+        )
     ):
         raise RuntimeError("vLLM runtime selected the wrong ninja executable")
 
@@ -446,7 +452,8 @@ print(json.dumps({
             "selected_cudart": selected,
             "ninja_path": ninja_path,
             "ninja_sha256": _file_sha256(ninja),
-            "ninja_version": ninja_version,
+            "ninja_distribution_version": ninja_distribution_version,
+            "ninja_binary_version": ninja_binary_version,
         },
     }
 
