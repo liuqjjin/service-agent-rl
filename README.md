@@ -141,8 +141,8 @@ evaluator to prove replay stays valid (`tests/test_governed_agent_replay.py`).
 
 ```bash
 uv sync                 # Python 3.12; tau2 installed editable from the submodule
-uv run pytest           # 96 tests: splits, leakage, gym fixes, governance,
-                        # replay safety, shim, shim/native parity, statistics
+uv run pytest           # 98 tests: splits, leakage, gym fixes, governance,
+                        # replay, shim parity, GPU contracts, statistics
 ```
 
 Tests need no API keys — models are mocked or driven by scripted stand-ins.

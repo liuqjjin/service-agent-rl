@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import importlib.metadata
 import json
 import os
@@ -71,6 +72,8 @@ VLLM_RUNTIME_DISTRIBUTIONS = (
     "transformers",
     "vllm",
 )
+VLLM_CUDART_ENV = "VLLM_CUDART_SO_PATH"
+VLLM_BOOTSTRAP = Path(__file__).with_name("vllm_bootstrap") / "sitecustomize.py"
 
 
 def parse_args() -> argparse.Namespace:
@@ -257,13 +260,45 @@ def _runtime_system_info(runtime_python: Path) -> dict[str, Any]:
 
     if not runtime_python.is_file():
         raise RuntimeError(f"ART vLLM runtime is not installed: {runtime_python}")
-    script = (
-        "import json, platform; "
-        "from importlib.metadata import version; "
-        f"names = {VLLM_RUNTIME_DISTRIBUTIONS!r}; "
-        "print(json.dumps({'python': platform.python_version(), "
-        "'packages': {name: version(name) for name in names}}, sort_keys=True))"
-    )
+    script = f"""
+import ctypes
+import hashlib
+import json
+import platform
+import site
+from importlib.metadata import version
+from pathlib import Path
+
+names = {VLLM_RUNTIME_DISTRIBUTIONS!r}
+roots = [
+    Path(item) / "nvidia/cuda_runtime/lib"
+    for item in site.getsitepackages()
+    if (Path(item) / "nvidia/cuda_runtime/lib").is_dir()
+]
+if len(roots) != 1:
+    raise RuntimeError(f"expected one vLLM CUDA runtime root, found {{roots}}")
+candidates = sorted(
+    (item for item in roots[0].glob("libcudart.so.*") if item.is_file()),
+    key=lambda item: (len(item.name), item.name),
+)
+if not candidates:
+    raise RuntimeError("vLLM runtime has no real libcudart")
+cudart = candidates[0]
+library = ctypes.CDLL(str(cudart))
+has_reset = hasattr(library, "cudaDeviceReset")
+if not has_reset:
+    raise RuntimeError(f"vLLM CUDA runtime lacks cudaDeviceReset: {{cudart}}")
+digest = hashlib.sha256(cudart.read_bytes()).hexdigest()
+print(json.dumps({{
+    "python": platform.python_version(),
+    "packages": {{name: version(name) for name in names}},
+    "cudart": {{
+        "path": str(cudart),
+        "sha256": digest,
+        "cuda_device_reset": has_reset,
+    }},
+}}, sort_keys=True))
+"""
     completed = subprocess.run(
         [str(runtime_python), "-c", script],
         check=True,
@@ -277,7 +312,107 @@ def _runtime_system_info(runtime_python: Path) -> dict[str, Any]:
     packages = payload.get("packages") if isinstance(payload, dict) else None
     if not isinstance(packages, dict) or set(packages) != set(VLLM_RUNTIME_DISTRIBUTIONS):
         raise RuntimeError("ART vLLM runtime package metadata is incomplete")
+    cudart = payload.get("cudart")
+    if (
+        not isinstance(cudart, dict)
+        or not isinstance(cudart.get("path"), str)
+        or not isinstance(cudart.get("sha256"), str)
+        or cudart.get("cuda_device_reset") is not True
+    ):
+        raise RuntimeError("ART vLLM runtime CUDA provenance is incomplete")
     return payload
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _configure_vllm_runtime_bootstrap(
+    runtime_python: Path,
+    runtime_info: dict[str, Any],
+) -> dict[str, Any]:
+    """Pin and probe the CUDA library selected inside ART's vLLM subprocess."""
+
+    cudart_info = runtime_info.get("cudart")
+    if not isinstance(cudart_info, dict):
+        raise RuntimeError("ART vLLM runtime CUDA provenance is missing")
+    cudart = Path(str(cudart_info.get("path", "")))
+    if not cudart.is_file():
+        raise RuntimeError(f"verified vLLM CUDA runtime is missing: {cudart}")
+    actual_sha = _file_sha256(cudart)
+    if actual_sha != cudart_info.get("sha256"):
+        raise RuntimeError(f"vLLM CUDA runtime hash drift: {cudart}")
+    if cudart_info.get("cuda_device_reset") is not True:
+        raise RuntimeError(f"vLLM CUDA runtime lacks cudaDeviceReset: {cudart}")
+    if not VLLM_BOOTSTRAP.is_file():
+        raise RuntimeError(f"vLLM bootstrap is missing: {VLLM_BOOTSTRAP}")
+
+    existing_cudart = os.environ.get(VLLM_CUDART_ENV)
+    if (
+        existing_cudart
+        and Path(existing_cudart).resolve() != cudart.resolve()
+    ):
+        raise RuntimeError(
+            f"{VLLM_CUDART_ENV} conflicts with the verified runtime: "
+            f"{existing_cudart}"
+        )
+    os.environ[VLLM_CUDART_ENV] = str(cudart)
+
+    bootstrap_dir = str(VLLM_BOOTSTRAP.parent)
+    python_paths = [
+        item
+        for item in os.environ.get("PYTHONPATH", "").split(os.pathsep)
+        if item and item != bootstrap_dir
+    ]
+    os.environ["PYTHONPATH"] = os.pathsep.join([bootstrap_dir, *python_paths])
+
+    probe = """
+import json
+from art_vllm_runtime.patches import apply_vllm_runtime_patches
+
+apply_vllm_runtime_patches()
+from vllm.distributed.device_communicators.cuda_wrapper import CudaRTLibrary
+from vllm.utils.system_utils import find_loaded_library
+
+selected = find_loaded_library("libcudart")
+library = CudaRTLibrary()
+print(json.dumps({
+    "selected_cudart": selected,
+    "cuda_device_reset": "cudaDeviceReset" in library.funcs,
+}, sort_keys=True))
+"""
+    completed = subprocess.run(
+        [str(runtime_python), "-c", probe],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+    )
+    try:
+        result = json.loads(completed.stdout.strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError) as exc:
+        raise RuntimeError("vLLM CUDA bootstrap probe returned invalid output") from exc
+    selected = result.get("selected_cudart")
+    if (
+        not isinstance(selected, str)
+        or Path(selected).resolve() != cudart.resolve()
+        or result.get("cuda_device_reset") is not True
+    ):
+        raise RuntimeError("vLLM CUDA bootstrap selected the wrong runtime")
+
+    return {
+        **runtime_info,
+        "bootstrap": {
+            "path": str(VLLM_BOOTSTRAP),
+            "sha256": _file_sha256(VLLM_BOOTSTRAP),
+            "probe": "passed",
+            "selected_cudart": selected,
+        },
+    }
 
 
 def _system_info(repo_root: Path) -> dict[str, Any]:
@@ -296,6 +431,11 @@ def _system_info(repo_root: Path) -> dict[str, Any]:
             packages[distribution] = importlib.metadata.version(distribution)
         except importlib.metadata.PackageNotFoundError:
             packages[distribution] = None
+    runtime_python = repo_root / "third_party/ART/vllm_runtime/.venv/bin/python"
+    vllm_runtime = _configure_vllm_runtime_bootstrap(
+        runtime_python,
+        _runtime_system_info(runtime_python),
+    )
     return {
         "platform": platform.platform(),
         "python": platform.python_version(),
@@ -306,9 +446,7 @@ def _system_info(repo_root: Path) -> dict[str, Any]:
         "gpu": gpu.name if gpu is not None else None,
         "gpu_memory_bytes": gpu.total_memory if gpu is not None else None,
         "packages": packages,
-        "vllm_runtime": _runtime_system_info(
-            repo_root / "third_party/ART/vllm_runtime/.venv/bin/python"
-        ),
+        "vllm_runtime": vllm_runtime,
     }
 
 

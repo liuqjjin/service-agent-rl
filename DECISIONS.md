@@ -212,3 +212,23 @@ as `base_model`. Unsloth recognizes it as a directory, ART's tokenizer reads
 the same files, and the dedicated vLLM process sees that identical path.
 Manifests and W&B config continue to identify the canonical model ID and
 revision separately.
+
+## D18. vLLM sleep mode binds a verified CUDA runtime, not TileLang's stub
+
+ART's isolated vLLM runtime applies its DeepSeek-V4 patches before it knows
+which model will be served. Those patches import TileLang, which loads
+`libcudart_stub.so`. vLLM 0.23 implements sleep mode by taking the first
+`libcudart` path in `/proc/self/maps`; on the AutoDL image that was the stub,
+which has no `cudaDeviceReset`, rather than the real CUDA 12 runtime already
+installed in the same environment. Preloading another library does not change
+that map order, and disabling sleep mode is not valid on the single-GPU shared
+training path.
+
+Before ART registration, the driver now locates the isolated runtime's own
+`libcudart.so.12`, verifies its SHA-256 and `cudaDeviceReset` symbol, and
+injects a project-owned `sitecustomize` that overrides only vLLM's
+`find_loaded_library("libcudart")` result. A separate runtime process then
+loads all ART patches and instantiates `CudaRTLibrary`; model loading cannot
+start unless that probe selects the verified file. The CUDA library and
+bootstrap paths and hashes are part of the manifest's runtime provenance, so
+preflight, smoke, formal training, and resume all reject drift.

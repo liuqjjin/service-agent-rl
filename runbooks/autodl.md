@@ -133,19 +133,22 @@ not exist in the training process.
 
 The command downloads and verifies the pinned model snapshot. It then:
 
-1. registers ART at step 0;
-2. samples exact vLLM prompt/completion token IDs and logprobs;
-3. closes vLLM before loading the bf16 reference model;
-4. requires byte-identical prompt token IDs, mean importance ratio within
+1. probes ART's isolated runtime and requires its verified real CUDA library,
+   rather than TileLang's linker stub, to provide `cudaDeviceReset`;
+2. registers ART at step 0;
+3. samples exact vLLM prompt/completion token IDs and logprobs;
+4. closes vLLM before loading the bf16 reference model;
+5. requires byte-identical prompt token IDs, mean importance ratio within
    2% of 1, and at most 2% outside the PPO clip window;
-5. reopens the untouched step-0 checkpoint;
-6. runs eight train-core episodes through strict replay with reward finalized
+6. reopens the untouched step-0 checkpoint;
+7. runs eight train-core episodes through strict replay with reward finalized
    exactly once;
-7. exits with `final_step=0`.
+8. exits with `final_step=0`.
 
 The manifest records the exact Python argv, download endpoint, composite
 semantic-contract hash, and separate hashes for the system prompt, tools, and
-tokenizer chat template.
+tokenizer chat template. It also records the selected CUDA runtime and
+bootstrap SHA-256; smoke and formal phases reject drift in either.
 
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl

@@ -5,12 +5,19 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import os
+import runpy
+import sys
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
-from service_agent.training.art_tau_train import _runtime_system_info, group_stats
+from service_agent.training.art_tau_train import (
+    _configure_vllm_runtime_bootstrap,
+    _runtime_system_info,
+    group_stats,
+)
 from service_agent.training.contracts import (
     ART_COMMIT,
     BASE_MODEL_ID,
@@ -36,6 +43,9 @@ from service_agent.training.token_budget import _assistant_message
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_ROOT = ROOT / "third_party/ART"
+VLLM_BOOTSTRAP = (
+    ROOT / "src/service_agent/training/vllm_bootstrap/sitecustomize.py"
+)
 
 
 def test_chat_template_ids_extract_transformers_5_batch_encoding():
@@ -111,6 +121,11 @@ def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
             "transformers": "5.12.1",
             "vllm": "0.23.0+cu129",
         },
+        "cudart": {
+            "path": "/runtime/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+            "sha256": "cudart-sha256",
+            "cuda_device_reset": True,
+        },
     }
 
     def fake_run(command, **kwargs):
@@ -121,6 +136,95 @@ def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
     monkeypatch.setattr("service_agent.training.art_tau_train.subprocess.run", fake_run)
 
     assert _runtime_system_info(runtime_python) == expected
+
+
+def test_vllm_bootstrap_prefers_verified_cudart_over_tilelang_stub(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    vllm = ModuleType("vllm")
+    vllm.__path__ = []  # type: ignore[attr-defined]
+    utils = ModuleType("vllm.utils")
+    utils.__path__ = []  # type: ignore[attr-defined]
+    system_utils = ModuleType("vllm.utils.system_utils")
+
+    def find_loaded_library(name: str) -> str | None:
+        if name == "libcudart":
+            return "/runtime/site-packages/tilelang/lib/libcudart_stub.so"
+        return f"/runtime/{name}.so"
+
+    system_utils.find_loaded_library = find_loaded_library  # type: ignore[attr-defined]
+    utils.system_utils = system_utils  # type: ignore[attr-defined]
+    vllm.utils = utils  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "vllm", vllm)
+    monkeypatch.setitem(sys.modules, "vllm.utils", utils)
+    monkeypatch.setitem(sys.modules, "vllm.utils.system_utils", system_utils)
+    monkeypatch.setenv(
+        "VLLM_CUDART_SO_PATH",
+        "/runtime/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+    )
+
+    runpy.run_path(str(VLLM_BOOTSTRAP), run_name="__vllm_bootstrap_test__")
+
+    assert system_utils.find_loaded_library("libcudart") == (
+        "/runtime/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12"
+    )
+    assert system_utils.find_loaded_library("cumem_allocator") == (
+        "/runtime/cumem_allocator.so"
+    )
+
+
+def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    runtime_python = tmp_path / ".venv/bin/python"
+    runtime_python.parent.mkdir(parents=True)
+    runtime_python.touch()
+    cudart = tmp_path / "site-packages/nvidia/cuda_runtime/lib/libcudart.so.12"
+    cudart.parent.mkdir(parents=True)
+    cudart.write_bytes(b"verified cudart")
+    cudart_sha = hashlib.sha256(cudart.read_bytes()).hexdigest()
+    runtime_info = {
+        "python": "3.12.3",
+        "packages": {"vllm": "0.23.0+cu129"},
+        "cudart": {
+            "path": str(cudart),
+            "sha256": cudart_sha,
+            "cuda_device_reset": True,
+        },
+    }
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+    monkeypatch.delenv("VLLM_CUDART_SO_PATH", raising=False)
+
+    def fake_run(command, **kwargs):
+        assert command[0] == str(runtime_python)
+        assert kwargs["check"] is True
+        assert kwargs["capture_output"] is True
+        assert kwargs["text"] is True
+        assert kwargs["env"]["VLLM_CUDART_SO_PATH"] == str(cudart)
+        assert str(VLLM_BOOTSTRAP.parent) in kwargs["env"]["PYTHONPATH"].split(
+            os.pathsep
+        )
+        return SimpleNamespace(
+            stdout=json.dumps(
+                {
+                    "selected_cudart": str(cudart),
+                    "cuda_device_reset": True,
+                }
+            )
+        )
+
+    monkeypatch.setattr("service_agent.training.art_tau_train.subprocess.run", fake_run)
+
+    recorded = _configure_vllm_runtime_bootstrap(runtime_python, runtime_info)
+
+    assert recorded["cudart"] == runtime_info["cudart"]
+    assert recorded["bootstrap"]["probe"] == "passed"
+    assert recorded["bootstrap"]["path"] == str(VLLM_BOOTSTRAP)
+    assert recorded["bootstrap"]["sha256"] == hashlib.sha256(
+        VLLM_BOOTSTRAP.read_bytes()
+    ).hexdigest()
+    assert os.environ["VLLM_CUDART_SO_PATH"] == str(cudart)
+    assert str(VLLM_BOOTSTRAP.parent) in os.environ["PYTHONPATH"].split(os.pathsep)
 
 
 def test_trainable_model_kwargs_match_pinned_art_signature():
