@@ -232,3 +232,19 @@ loads all ART patches and instantiates `CudaRTLibrary`; model loading cannot
 start unless that probe selects the verified file. The CUDA library and
 bootstrap paths and hashes are part of the manifest's runtime provenance, so
 preflight, smoke, formal training, and resume all reject drift.
+
+## D19. FlashInfer JIT uses the `ninja` already locked with vLLM
+
+The isolated ART runtime contains `ninja==1.13.0` and its executable, but ART
+starts `art-vllm-runtime-server` by absolute path while copying the trainer's
+`PATH`. That does not activate the runtime virtual environment. FlashInfer's
+first sampling-kernel warmup therefore loaded the model and then failed with
+`FileNotFoundError: ninja`, even though the required build tool was already
+installed from `vllm_runtime/uv.lock`.
+
+The driver now prepends only the isolated runtime's `bin` directory to the
+child process path. The same pre-GPU probe resolves `ninja`, runs
+`ninja --version`, and requires the result to match the locked Python
+distribution. Its executable path, version, and SHA-256 are recorded beside
+the CUDA bootstrap provenance. No system package or unlocked Python
+dependency is added.

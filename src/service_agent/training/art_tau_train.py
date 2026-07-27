@@ -66,6 +66,7 @@ SPARSE_REWARD_WINDOW = 10
 VLLM_RUNTIME_DISTRIBUTIONS = (
     "art-vllm-runtime",
     "flashinfer-python",
+    "ninja",
     "torch",
     "torchaudio",
     "torchvision",
@@ -370,8 +371,21 @@ def _configure_vllm_runtime_bootstrap(
     ]
     os.environ["PYTHONPATH"] = os.pathsep.join([bootstrap_dir, *python_paths])
 
+    runtime_bin = runtime_python.parent
+    ninja = runtime_bin / "ninja"
+    if not ninja.is_file() or not os.access(ninja, os.X_OK):
+        raise RuntimeError(f"ART vLLM runtime ninja is missing: {ninja}")
+    path_entries = [
+        item
+        for item in os.environ.get("PATH", "").split(os.pathsep)
+        if item and item != str(runtime_bin)
+    ]
+    os.environ["PATH"] = os.pathsep.join([str(runtime_bin), *path_entries])
+
     probe = """
 import json
+import shutil
+import subprocess
 from art_vllm_runtime.patches import apply_vllm_runtime_patches
 
 apply_vllm_runtime_patches()
@@ -380,9 +394,20 @@ from vllm.utils.system_utils import find_loaded_library
 
 selected = find_loaded_library("libcudart")
 library = CudaRTLibrary()
+ninja = shutil.which("ninja")
+if ninja is None:
+    raise RuntimeError("ninja is not visible to the vLLM runtime")
+ninja_version = subprocess.run(
+    [ninja, "--version"],
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
 print(json.dumps({
     "selected_cudart": selected,
     "cuda_device_reset": "cudaDeviceReset" in library.funcs,
+    "ninja_path": ninja,
+    "ninja_version": ninja_version,
 }, sort_keys=True))
 """
     completed = subprocess.run(
@@ -403,6 +428,14 @@ print(json.dumps({
         or result.get("cuda_device_reset") is not True
     ):
         raise RuntimeError("vLLM CUDA bootstrap selected the wrong runtime")
+    ninja_path = result.get("ninja_path")
+    ninja_version = result.get("ninja_version")
+    if (
+        not isinstance(ninja_path, str)
+        or Path(ninja_path).resolve() != ninja.resolve()
+        or ninja_version != runtime_info.get("packages", {}).get("ninja")
+    ):
+        raise RuntimeError("vLLM runtime selected the wrong ninja executable")
 
     return {
         **runtime_info,
@@ -411,6 +444,9 @@ print(json.dumps({
             "sha256": _file_sha256(VLLM_BOOTSTRAP),
             "probe": "passed",
             "selected_cudart": selected,
+            "ninja_path": ninja_path,
+            "ninja_sha256": _file_sha256(ninja),
+            "ninja_version": ninja_version,
         },
     }
 

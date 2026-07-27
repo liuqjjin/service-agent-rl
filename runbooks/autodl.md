@@ -135,20 +135,23 @@ The command downloads and verifies the pinned model snapshot. It then:
 
 1. probes ART's isolated runtime and requires its verified real CUDA library,
    rather than TileLang's linker stub, to provide `cudaDeviceReset`;
-2. registers ART at step 0;
-3. samples exact vLLM prompt/completion token IDs and logprobs;
-4. closes vLLM before loading the bf16 reference model;
-5. requires byte-identical prompt token IDs, mean importance ratio within
+2. requires the `ninja` executable from that same locked runtime to be visible
+   for FlashInfer JIT compilation;
+3. registers ART at step 0;
+4. samples exact vLLM prompt/completion token IDs and logprobs;
+5. closes vLLM before loading the bf16 reference model;
+6. requires byte-identical prompt token IDs, mean importance ratio within
    2% of 1, and at most 2% outside the PPO clip window;
-6. reopens the untouched step-0 checkpoint;
-7. runs eight train-core episodes through strict replay with reward finalized
+7. reopens the untouched step-0 checkpoint;
+8. runs eight train-core episodes through strict replay with reward finalized
    exactly once;
-8. exits with `final_step=0`.
+9. exits with `final_step=0`.
 
 The manifest records the exact Python argv, download endpoint, composite
 semantic-contract hash, and separate hashes for the system prompt, tools, and
 tokenizer chat template. It also records the selected CUDA runtime and
-bootstrap SHA-256; smoke and formal phases reject drift in either.
+bootstrap plus locked `ninja` paths, versions, and SHA-256 values; smoke and
+formal phases reject drift in any of them.
 
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl

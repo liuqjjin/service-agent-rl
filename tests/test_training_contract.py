@@ -115,6 +115,7 @@ def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
         "packages": {
             "art-vllm-runtime": "0.1.0",
             "flashinfer-python": "0.6.12",
+            "ninja": "1.13.0",
             "torch": "2.11.0+cu128",
             "torchaudio": "2.11.0+cu128",
             "torchvision": "0.26.0+cu128",
@@ -190,13 +191,16 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     runtime_python = tmp_path / ".venv/bin/python"
     runtime_python.parent.mkdir(parents=True)
     runtime_python.touch()
+    ninja = runtime_python.parent / "ninja"
+    ninja.write_bytes(b"verified ninja")
+    ninja.chmod(0o755)
     cudart = tmp_path / "site-packages/nvidia/cuda_runtime/lib/libcudart.so.12"
     cudart.parent.mkdir(parents=True)
     cudart.write_bytes(b"verified cudart")
     cudart_sha = hashlib.sha256(cudart.read_bytes()).hexdigest()
     runtime_info = {
         "python": "3.12.3",
-        "packages": {"vllm": "0.23.0+cu129"},
+        "packages": {"ninja": "1.13.0", "vllm": "0.23.0+cu129"},
         "cudart": {
             "path": str(cudart),
             "sha256": cudart_sha,
@@ -205,6 +209,7 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     }
     monkeypatch.delenv("PYTHONPATH", raising=False)
     monkeypatch.delenv("VLLM_CUDART_SO_PATH", raising=False)
+    monkeypatch.setenv("PATH", "/usr/bin")
 
     def fake_run(command, **kwargs):
         assert command[0] == str(runtime_python)
@@ -215,11 +220,16 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
         assert str(VLLM_BOOTSTRAP.parent) in kwargs["env"]["PYTHONPATH"].split(
             os.pathsep
         )
+        assert kwargs["env"]["PATH"].split(os.pathsep)[0] == str(
+            runtime_python.parent
+        )
         return SimpleNamespace(
             stdout=json.dumps(
                 {
                     "selected_cudart": str(cudart),
                     "cuda_device_reset": True,
+                    "ninja_path": str(ninja),
+                    "ninja_version": "1.13.0",
                 }
             )
         )
@@ -234,8 +244,14 @@ def test_vllm_bootstrap_is_probed_and_recorded_before_gpu_start(
     assert recorded["bootstrap"]["sha256"] == hashlib.sha256(
         VLLM_BOOTSTRAP.read_bytes()
     ).hexdigest()
+    assert recorded["bootstrap"]["ninja_path"] == str(ninja)
+    assert recorded["bootstrap"]["ninja_sha256"] == hashlib.sha256(
+        ninja.read_bytes()
+    ).hexdigest()
+    assert recorded["bootstrap"]["ninja_version"] == "1.13.0"
     assert os.environ["VLLM_CUDART_SO_PATH"] == str(cudart)
     assert str(VLLM_BOOTSTRAP.parent) in os.environ["PYTHONPATH"].split(os.pathsep)
+    assert os.environ["PATH"].split(os.pathsep)[0] == str(runtime_python.parent)
 
 
 def test_trainable_model_kwargs_match_pinned_art_signature():
