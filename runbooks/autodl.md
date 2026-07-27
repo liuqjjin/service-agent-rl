@@ -1,227 +1,246 @@
-# AutoDL training runbook
+# AutoDL GRPO runbook
 
-Everything the GPU box runs, in order, with what you should see at each step.
-The Mac never trains; the GPU box never decides protocol. Both follow this file.
+This is the reproducible GPU procedure. The current instance is one RTX 4090
+with 49,140 MiB VRAM and a 200 GB data disk at `/root/autodl-tmp`. All large
+state lives on that disk. Services bind to localhost only.
 
-Topology:
+The training protocol has three lineages:
 
-```
-art_tau_train.py (trainer venv)         # rollouts + GRPO updates
-  ├── HTTP → shim :8000 (service venv)  # tau2 env + deepseek user sim + evaluator
-  └── ART LocalBackend (same process)   # vLLM serving the 4B + LoRA, Unsloth training
-W&B                                     # curves, configs, evidence
-```
+1. `preflight-r1`: step-0 token/logprob gate, then rollout-only; no update.
+2. `smoke-r1`: one disposable update, authorized by preflight.
+3. `grpo-4b-r1`: fresh formal run, authorized by both earlier manifests.
 
-## 1. Instance
+The official test split stays locked throughout all three.
 
-- GPU: one A100 80GB (safest for 4B LoRA GRPO + vLLM on one card). A 48GB card
-  can work with `--group-size 4` and reduced `max_tokens`; try only after the
-  80GB path is proven.
-- Image: newest PyTorch 2.x / CUDA 12.x image with Python 3.12 available
-  (`python3.12 -V`; otherwise install via uv below, which manages its own).
-- Disk: ≥ 100 GB (base model ~8 GB, vLLM cache, LoRA checkpoints, results).
-- Region/price: whatever is available; nothing here depends on it.
+## Frozen inputs
 
-## 2. One-time setup
+| Input | Value |
+|---|---|
+| Superproject | commit recorded in each manifest |
+| ART | `828b839b1139ac780725f0a22a9bde70a82b4878` |
+| tau2 fork | `2822d9030b621e6f13a190fb14fa08cf1c9c4ca4` |
+| Base model | `Qwen/Qwen3.5-4B` |
+| Model revision | `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` |
+| Policy template | tokenizer at that revision, `enable_thinking=false` |
+| User simulator | `deepseek/deepseek-v4-pro`, thinking disabled, temperature 0 |
+| Training split | frozen train-core, 54 tasks |
+| Selection split | frozen dev, 20 tasks |
+
+## 1. Data-disk layout
 
 ```bash
-# tools
-curl -LsSf https://astral.sh/uv/install.sh | sh && source ~/.bashrc
+mkdir -p /root/autodl-tmp/{work,cache/huggingface,cache/uv,tmp,logs,runs,art}
+export UV_CACHE_DIR=/root/autodl-tmp/cache/uv
+export HF_HOME=/root/autodl-tmp/cache/huggingface
+export WANDB_DIR=/root/autodl-tmp/wandb
+export TMPDIR=/root/autodl-tmp/tmp
+export TOKENIZERS_PARALLELISM=false
+```
 
-# repo, pinned submodules included. service-agent-rl is a private repo, so the
-# box needs credentials first: `gh auth login` (or a PAT in the clone URL).
-# tau2-bench resolves to a fork because the pinned commit is upstream cf71a80
-# plus one gym fix that does not exist in sierra-research's repo (UPSTREAM.md).
-git clone --recurse-submodules https://github.com/liuqjjin/service-agent-rl.git
-cd service-agent-rl
-git submodule status   # expect tau2-bench at 2822d90, ART at 828b839
+Persist those non-secret exports in the shell profile. Do not put API keys
+there. The project `.env` contains `DEEPSEEK_API_KEY` and `WANDB_API_KEY`,
+has mode `0600`, and is never printed or committed.
 
-# secrets -- create .env in the repo root (never committed):
-#   DEEPSEEK_API_KEY=...      # fixed user simulator
-#   WANDB_API_KEY=...         # public evidence
-# China network: also export HF_ENDPOINT=https://hf-mirror.com in ~/.bashrc
+## 2. Runtime installation
 
-# venv 1: environment service (tau2 + this repo, no training deps)
-uv sync                                   # creates .venv used by uv run
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH=/root/.local/bin:$PATH
+uv python install 3.12
 
-# venv 2: trainer (ART with training backend), isolated from the service venv
-uv venv .venv-trainer --python 3.12
+cd /root/autodl-tmp/work/service-agent-rl
+uv sync --python 3.12
+
+uv venv /root/autodl-tmp/work/service-agent-rl/.venv-trainer --python 3.12
+uv pip install --python .venv-trainer/bin/python -e 'third_party/ART[backend]'
+uv pip install --python .venv-trainer/bin/python --no-deps -e .
+uv pip install --python .venv-trainer/bin/python python-dotenv
+```
+
+The service environment owns tau2. The trainer environment owns ART,
+Transformers, Unsloth, torch, and vLLM. The first-party package is installed
+without dependencies in the trainer so it does not resolve another tau2
+version from PyPI.
+
+Record the environment without dumping variables:
+
+```bash
+nvidia-smi
+df -h /root/autodl-tmp
+free -h
+uv run python -V
+.venv-trainer/bin/python -c \
+  'from importlib.metadata import version; import torch; print(version("openpipe-art"), torch.__version__, version("transformers"), version("vllm"), torch.cuda.is_bf16_supported())'
+git status --short --branch
+git submodule status
+```
+
+Then run the Mac-side gates again on the GPU box:
+
+```bash
+uv run pytest
+uv run ruff check
+uv run python -m service_agent.eval.report_ablation
+git diff --exit-code -- reports/governance_ablation.md reports/failure_taxonomy.md
+```
+
+## 3. Shim
+
+Run in its own tmux window:
+
+```bash
+cd /root/autodl-tmp/work/service-agent-rl
+export SHIM_HOST=127.0.0.1
+export SHIM_PORT=8000
+export SHIM_MAX_STEPS=30
+uv run python -m service_agent.serve.tau2_shim \
+  2>&1 | tee /root/autodl-tmp/logs/shim.log
+```
+
+Health checks:
+
+```bash
+curl -fsS http://127.0.0.1:8000/health
+curl -fsS 'http://127.0.0.1:8000/scenarios?domain=telecom&split=train-core' \
+  | uv run python -c 'import json,sys; print(len(json.load(sys.stdin)["scenarios"]))'
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  'http://127.0.0.1:8000/scenarios?domain=telecom&split=test'
+```
+
+The outputs must be healthy, `54`, and `403`. `SHIM_ALLOW_EVAL_SPLITS` must
+not exist in the training process.
+
+## 4. Preflight: zero updates
+
+The command downloads and verifies the pinned model snapshot. It then:
+
+1. registers ART at step 0;
+2. samples exact vLLM prompt/completion token IDs and logprobs;
+3. closes vLLM before loading the bf16 reference model;
+4. requires byte-identical prompt token IDs, mean importance ratio within
+   2% of 1, and at most 2% outside the PPO clip window;
+5. reopens the untouched step-0 checkpoint;
+6. runs eight train-core episodes through strict replay with reward finalized
+   exactly once;
+7. exits with `final_step=0`.
+
+```bash
+cd /root/autodl-tmp/work/service-agent-rl
 source .venv-trainer/bin/activate
-uv pip install -e third_party/ART[backend] -e . 
+python -m service_agent.training.art_tau_train \
+  --phase preflight --run-name preflight-r1 \
+  --art-path /root/autodl-tmp/art/preflight \
+  --out /root/autodl-tmp/runs/preflight-r1 \
+  --hf-cache /root/autodl-tmp/cache/huggingface \
+  --group-size 4 --max-turns 30 \
+  --max-completion-tokens 1024 --max-model-len 16384 \
+  --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
+  2>&1 | tee /root/autodl-tmp/logs/preflight-r1.log
 deactivate
-# If ART's backend extra conflicts with tau2's pins inside one venv, this
-# two-venv split is exactly why: the trainer talks to the service over HTTP
-# and never imports tau2.
 ```
 
-## 3. tmux layout
+Gate artifact:
 
-```bash
-tmux new -s train
-# window 0: shim        window 1: trainer        window 2: watch
-```
+`/root/autodl-tmp/runs/preflight-r1/preflight_manifest.json`
 
-Window 0 — the environment service:
+Do not continue unless its status is `passed`, both token and logprob gates
+pass, strict replay is true, test locking is true, and both steps are zero.
 
-```bash
-cd service-agent-rl
-uv run python -m service_agent.serve.tau2_shim     # SHIM_PORT=8000 default
-```
-
-Expected log: uvicorn startup on 127.0.0.1:8000. Then verify from window 2:
-
-```bash
-curl -s localhost:8000/health                       # {"status":"ok"}
-curl -s "localhost:8000/scenarios?domain=telecom&split=train-core" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(len(d["scenarios"]))'   # 54
-curl -s "localhost:8000/scenarios?domain=telecom&split=test" -o /dev/null -w "%{http_code}\n"  # 403 -- must stay 403 during training
-```
-
-## 4. Preflight (do not skip; ~20 minutes total)
-
-### 4a. Smoke rollout + one update
-
-```bash
-source .venv-trainer/bin/activate
-python -m service_agent.training.art_tau_train --smoke \
-    --base-model Qwen/Qwen3.5-4B --model-name smoke-$(date +%m%d)
-```
-
-Expected: model registers (first run downloads the base model), a
-`step 0: {"groups": 1, "mixed": ...}` line, one train step completing without
-OOM, and a checkpoint under ART's art/ directory. Rollouts hitting the shim
-appear in window 0's log. Cost: a few cents of DeepSeek.
-
-### 4b. Step-0 logprob consistency (the gate that saves you a week)
-
-ART's LocalBackend serves the policy over an OpenAI endpoint. Get its address
-and the inference model name:
-
-```bash
-python - <<'EOF'
-import asyncio, art
-from art.local import LocalBackend
-async def main():
-    backend = LocalBackend()
-    model = art.TrainableModel(name="smoke-<date>", project="service-agent", base_model="Qwen/Qwen3.5-4B")
-    await model.register(backend)
-    print("base_url:", model.inference_base_url)
-    print("model:", model.get_inference_name())
-asyncio.run(main())
-EOF
-
-python -m service_agent.training.logprob_check \
-    --api-base <base_url> --served-model <model> --hf-model Qwen/Qwen3.5-4B
-```
-
-PASS criteria are printed (ratio mean within 2% of 1.0, <2% of tokens outside
-the 0.8-1.2 clip window). On FAIL: the mismatch is chat template or
-tokenization, not hyperparameters. Compare `--chat-template-kwargs` with what
-vLLM applies (thinking flags are the usual culprit), fix, re-run until PASS.
-Do not start training on a FAIL.
-
-## 5. Main run (direct dual-control GRPO)
+## 5. One-update disposable smoke
 
 ```bash
 source .venv-trainer/bin/activate
 python -m service_agent.training.art_tau_train \
-    --model-name grpo-4b-r1 --base-model Qwen/Qwen3.5-4B \
-    --group-size 8 --groups-per-step 4 --max-turns 30 \
-    --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 10 \
-    2>&1 | tee logs/grpo-4b-r1.log
+  --phase smoke --run-name smoke-r1 \
+  --art-path /root/autodl-tmp/art/smoke \
+  --out /root/autodl-tmp/runs/smoke-r1 \
+  --hf-cache /root/autodl-tmp/cache/huggingface \
+  --preflight-manifest \
+    /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json \
+  --group-size 4 --max-turns 30 \
+  --max-completion-tokens 1024 --max-model-len 16384 \
+  --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
+  2>&1 | tee /root/autodl-tmp/logs/smoke-r1.log
+deactivate
 ```
 
-Rough expectations (estimates, not promises):
-- 32 rollouts per step, gathered concurrently; a step is dominated by
-  user-simulator latency: ~10-20 min/step, so 60 steps ≈ 10-20 h.
-- VRAM: ~35-55 GB (vLLM KV cache + LoRA training). OOM → `--group-size 4`
-  first, then lower vLLM `max_model_len` via ART config.
-- DeepSeek cost: ~$0.003/rollout ≈ $6-8 for the full run.
-- Healthy logs: `mixed` groups > 0 most steps; dev avg_reward drifting up by
-  step 20-30; W&B shows reward, KL, loss curves under project `service-agent`.
+The smoke runs two groups and must observe within-group reward variance before
+training. Its manifest must show step 0 to step 1, at least one trainable group,
+a real optimizer update, one checkpoint, strict replay, a W&B URL, and no OOM.
+After its checkpoint and log are backed up, this ART lineage is disposable and
+must never seed the formal run.
 
-### Go / no-go while it runs
+## 6. Formal GRPO
 
-| Symptom | Meaning | Action |
-|---|---|---|
-| `mixed: 0` with `all_zero` dominating for >10 steps | reward too sparse for GRPO | stop; go to §6 SFT bridge |
-| logprob check failed earlier | template mismatch | fix template, never tune lr around it |
-| shim window shows 5xx / trainer stalls | env service died | restart shim; training resumes (ART checkpoints steps) |
-| DeepSeek 429s | user-sim rate limit | lower `--groups-per-step`; resume |
-| loss spikes + reward collapse | update too hot | halve lr; consider `--kl-penalty-coef 0.01` |
-| CUDA OOM | memory | `--group-size 4`, restart (resumes from last step) |
-
-Resume after any interruption: re-run the same command; the script continues
-from `model.get_step()`.
-
-## 6. Fallback: teacher SFT bridge, then GRPO
-
-Only if direct GRPO shows all-zero groups persistently.
+The formal configuration starts with group size 4, two task groups per update,
+four concurrent rollouts, bf16 LoRA, and a 16,384-token context. Preflight
+records p50/p95/p99/max prompt lengths from all 240 committed dev episodes and
+refuses the run if the context cannot cover the observed maximum plus a
+governance-feedback buffer and 1,024 completion tokens.
 
 ```bash
-# 1. Teacher episodes (can run on the Mac against the local 35B, or here):
-uv run python -m service_agent.eval.run_ablation --arm h0 --tasks train-core \
-    --trials 2 --agent-llm "openai//Users/lqj/local-llm/models/Qwen3.6-35B-A3B-4bit" \
-    --agent-api-base http://127.0.0.1:8399/v1 --out results/teacher/r1
-
-# 2. Filter to reward-1.0, governance-clean episodes and export chat JSONL:
-uv run python -m service_agent.training.sft_prepare \
-    --results results/teacher/r1/results.json --out data_protocol/sft_teacher.jsonl
-
-# 3. SFT on the GPU box, then GRPO with the warm-started checkpoint:
-source .venv-trainer/bin/activate
-python - <<'EOF'
-import asyncio, json, art
-from art.local import LocalBackend
-
-async def main():
-    backend = LocalBackend()
-    model = art.TrainableModel(name="grpo-4b-r1", project="service-agent", base_model="Qwen/Qwen3.5-4B")
-    await model.register(backend)
-    trajectories = []
-    for line in open("data_protocol/sft_teacher.jsonl"):
-        s = json.loads(line)
-        trajectories.append(art.Trajectory(
-            messages_and_choices=s["messages"], tools=s["tools"], reward=1.0))
-    await model.train_sft(trajectories)
-asyncio.run(main())
-EOF
-python -m service_agent.training.art_tau_train --model-name grpo-4b-r1 ...  # as §5
+tmux new-session -d -s grpo
+tmux send-keys -t grpo \
+  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-r1 --art-path /root/autodl-tmp/art/formal --out /root/autodl-tmp/runs/grpo-4b-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-r1.log' C-m
 ```
 
-## 7. Final 2x2 evaluation (test split, exactly once)
+The command is resume-safe: rerunning the exact command requires the same
+semantic-contract hash and the manifest step to equal ART's checkpoint step.
+Every update writes the manifest atomically.
 
-All four cells run on THIS box with the same vLLM stack. Do not run until the
-Mac-side dev ablation has frozen Hbest and this file's owner says go.
+The selected checkpoint rule is fixed before training: highest frozen-dev
+average reward among scheduled checkpoints; ties choose the earliest step.
+Every checkpoint is evaluated with the same dev task/trial seeds (common random
+numbers). The test split is not involved.
 
-```bash
-# Serve both policies with one vLLM instance (base + trained LoRA):
-source .venv-trainer/bin/activate
-python -m vllm.entrypoints.openai.api_server --model Qwen/Qwen3.5-4B \
-    --enable-lora --lora-modules rl=<path-to-final-lora-checkpoint> \
-    --port 8300 --chat-template-kwargs '{"enable_thinking": false}' &
+Stop immediately on any of these:
 
-# Four cells, native runner, 40 test tasks x 8 trials each:
-for arm_model in "h0 Qwen/Qwen3.5-4B" "h2 Qwen/Qwen3.5-4B" "h0 rl" "h2 rl"; do
-  set -- $arm_model
-  uv run python -m service_agent.eval.run_ablation --arm $1 --tasks test --trials 8 \
-      --agent-llm "openai/$2" --agent-api-base http://127.0.0.1:8300/v1 \
-      --user-llm deepseek/deepseek-v4-pro --seed 42 --max-concurrency 4 \
-      --out results/final/$1_$2
-done
-```
+- token/logprob gate failure;
+- test endpoint no longer returns 403;
+- prompt/tool/template/revision hash drift;
+- multi-tool choice (fails before any call executes);
+- missing strict replay or reward-finalized-once marker;
+- evaluator or shim 5xx;
+- at most one mixed-reward group over ten consecutive update steps;
+- a second controlled OOM.
 
-(`--tasks test` requires a one-line addition to run_ablation that is
-deliberately absent today; it lands together with the final-eval sign-off so
-the test split cannot be touched by accident. If Hbest turns out to be H1,
-substitute h1 above.)
+For the first OOM only: terminate residual GPU processes, keep the last good
+checkpoint and logs, and retry once after reducing only rollout concurrency,
+vLLM memory utilization, or context length while retaining the measured
+context floor. Do not change learning rate, reward, prompts, tools, model
+revision, group size, or split. A second OOM is a hard gate.
 
-Ship back: `results/final/`, the W&B project link, and the last LoRA
-checkpoint path. The Mac side computes the factorial table, bootstrap CIs,
-and the reports.
+SFT is not automatic. Sparse reward stops the formal driver and requires a
+recorded protocol decision before any teacher data or SFT update is created.
 
-## 8. What to send back after training
+## 7. Training handoff and backup
 
-- W&B run URLs (train + dev curves)
-- `logs/grpo-4b-r1.log`
-- The final checkpoint directory (or its AutoDL path)
-- `results/final/` if §7 was run
+Before any final test run, copy these to the Mac and verify checksums:
+
+- `/root/autodl-tmp/runs/preflight-r1/`
+- `/root/autodl-tmp/runs/smoke-r1/`
+- `/root/autodl-tmp/runs/grpo-4b-r1/`
+- the selected LoRA checkpoint under `/root/autodl-tmp/art/formal/`
+- `/root/autodl-tmp/logs/`
+- W&B run URLs
+- a SHA-256 manifest for every copied file
+
+Confirm again that the test endpoint returns 403 and that no final-results
+directory exists. Stop here and request the exact approval string
+`FINAL_TEST_APPROVED`.
+
+## 8. Final 2x2: approval-gated
+
+The final runner intentionally has no test option yet. Only after the exact
+approval string is received may one commit add the locked final-evaluation
+entry point and set `SHIM_ALLOW_EVAL_SPLITS=1` for that run.
+
+The one final experiment is 40 official test tasks × 8 trials × four frozen
+cells: base/H0, base/H2, RL/H0, RL/H2. All cells share the pinned bf16 base,
+vLLM process, tokenizer, chat template, tool parser, simulator parameters,
+seeds, hardware, and concurrency. There is no retuning after any test output.
+Only a logged infrastructure failure may rerun the same seed.
+
+Afterward, relock the shim, generate the factorial report and bootstrap
+intervals from the four raw result directories, back up all artifacts and
+checksums to the Mac, and rerun tests, Ruff, and report reproducibility.

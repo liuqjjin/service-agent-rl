@@ -93,3 +93,60 @@ records the event in the audit (reason mixed_text_stripped), and reserves
 deny-and-regenerate for actual business-precondition failures. Smoke after
 the change: reward back to H0 parity, and the sole rejection in the run was
 a genuine price_not_confirmed with a successful regeneration.
+
+## D9. The formal checkpoint and tokenization contract are one pinned object
+
+The final policy is `Qwen/Qwen3.5-4B` at revision
+`851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a`. Before GPU work, the downloader
+checks that the repository's `main` still resolves to that SHA, downloads it
+into a dedicated cache, and verifies the returned snapshot path. ART's
+training loader, vLLM engine, and tokenizer are configured for the same
+revision; thinking is disabled with `enable_thinking=false`; training and
+serving both use bf16. The explicit check is necessary because ART's pinned
+training-tokenizer helper does not forward `revision` even though its model
+and engine loaders do.
+
+## D10. Step 0 is a zero-update gate, not a smoke-training by-product
+
+Preflight registers an untouched LoRA lineage, captures vLLM's exact prompt
+and completion token IDs plus rollout logprobs, closes vLLM, and only then
+loads the bf16 reference model. Prompt token IDs must match byte-for-byte and
+importance ratios must pass before any update. A second registration of the
+same untouched step-0 checkpoint runs official train-core episodes through
+strict replay without training. Only that manifest can authorize a separate
+one-update smoke lineage; only preflight plus smoke can authorize a fresh
+formal lineage. This replaces the earlier runbook order, which performed a
+smoke update before the purported step-0 check.
+
+The pinned ART tau-bench client also split multiple tool calls from one model
+message into separate shim steps. That changes tau2 trajectory semantics. The
+training rollout now raises before executing any call when a choice contains
+more than one; fail-closed is preferable to optimizing on a trajectory the
+native evaluator would interpret differently.
+
+## D11. Audit normalizations are events, not extra allow verdicts
+
+`mixed_text_stripped` remains a separate audit record so the formatting rate
+is measurable, but report aggregation removes it from decision counts and
+shows it in its own column. The committed H1/H2 allow totals therefore mean
+actual candidate verdicts rather than “verdicts plus sanitizer events.”
+Audit files are snapshots written with replacement, so repeated cleanup of
+one session cannot append duplicate records.
+
+## D12. GPU phases share one complete protocol, and dev uses common seeds
+
+A semantic prompt hash alone is not enough to authorize training. Preflight,
+smoke, formal startup, and formal resume now compare the superproject, ART and
+tau2 commits; model and revision; tokenizer-derived context budget; bf16
+runtime and package versions; user simulator; rollout limits; and optimization
+settings. Run names are the only phase-specific field omitted from the
+cross-phase comparison. A formal resume additionally requires the same run
+name and checkpoint step.
+
+ART reports a group as trainable only when rewards vary within that group.
+The driver now uses that exact definition: constant fractional rewards such as
+`[0.5, 0.5]` are not called mixed. The one-update smoke refuses to train unless
+at least one group has variance and ART confirms at least one trainable group.
+Formal checkpoint selection uses the same task/trial seeds at every scheduled
+dev evaluation, so a checkpoint is not selected merely because it received an
+easier random draw.

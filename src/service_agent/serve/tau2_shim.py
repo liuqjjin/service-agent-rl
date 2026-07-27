@@ -31,6 +31,7 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
+from tau2.agent.llm_agent import LLMAgent
 from tau2.data_model.message import (
     AssistantMessage,
     Message,
@@ -277,6 +278,18 @@ def _redact_task(task: Task) -> dict[str, Any]:
     return data
 
 
+def _native_agent_contract(env: Environment) -> tuple[str, list[dict[str, Any]]]:
+    """The exact system bytes and tool schemas used by native H0."""
+
+    tools = env.get_tools()
+    agent = LLMAgent(
+        tools=tools,
+        domain_policy=env.get_policy(),
+        llm="contract/none",
+    )
+    return agent.system_prompt, [tool.openai_schema for tool in tools]
+
+
 def _drive_user(session: EnvSession, message: Message) -> tuple[UserMessage, float]:
     """Run the user's turn until the simulator produces a text message.
 
@@ -371,6 +384,15 @@ def create_app() -> FastAPI:
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/training-contract")
+    def training_contract(domain: str = Query(...)) -> dict[str, Any]:
+        try:
+            env = registry.get_env_constructor(domain)()
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f"Unknown domain: {domain}")
+        system_prompt, tools = _native_agent_contract(env)
+        return {"system_prompt": system_prompt, "tools": tools}
 
     @app.get("/scenarios")
     def get_scenarios(
@@ -486,12 +508,16 @@ def create_app() -> FastAPI:
             # immediate stop is deferred: the first step call finalizes.
             session.pending_termination = TerminationReason.USER_STOP
         store.add(session)
+        system_prompt, tools = _native_agent_contract(env)
         return {
             "id": session.id,
             "observation": f"user: {user_msg.content}",
             "info": {
-                "policy": env.get_policy(),
-                "tools": [tool.openai_schema for tool in env.get_tools()],
+                # ART's historical field is named "policy", but its value is
+                # the complete native LLMAgent system prompt. Raw domain policy
+                # here silently trains a different H0 agent.
+                "policy": system_prompt,
+                "tools": tools,
             },
         }
 
@@ -510,7 +536,10 @@ def create_app() -> FastAPI:
                 return {
                     "id": session.id,
                     "observation": f"user: {session.last_user_text}",
-                    "info": {},
+                    "info": {
+                        "strict_replay": True,
+                        "reward_finalized_once": True,
+                    },
                     "reward": reward,
                     "terminated": True,
                     "truncated": False,
@@ -543,6 +572,9 @@ def create_app() -> FastAPI:
             if stop is None and session.step_count >= max_steps:
                 stop = TerminationReason.MAX_STEPS
             reward = _finalize(session, stop) if stop is not None else 0.0
+            if stop is not None:
+                info["strict_replay"] = True
+                info["reward_finalized_once"] = True
             return {
                 "id": session.id,
                 "observation": observation,

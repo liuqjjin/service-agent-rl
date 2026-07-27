@@ -1296,8 +1296,12 @@ name = "service-agent"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "fastapi" },
+    { name = "openai" },
     { name = "pydantic" },
+    { name = "python-dotenv" },
     { name = "tau2", extra = ["gym"] },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -1309,8 +1313,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "fastapi", specifier = ">=0.115.11" },
+    { name = "openai", specifier = ">=2.14.0" },
     { name = "pydantic", specifier = ">=2.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "tau2", extras = ["gym"], editable = "third_party/tau2-bench" },
+    { name = "uvicorn", specifier = ">=0.34.0" },
 ]
 
 [package.metadata.requires-dev]

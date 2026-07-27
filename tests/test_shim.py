@@ -138,6 +138,8 @@ def test_scenarios_eval_splits_are_locked(client, monkeypatch):
 
 
 def test_create_environment(client, monkeypatch, telecom_env_constructor):
+    from tau2.agent.llm_agent import LLMAgent
+
     script_user(
         monkeypatch, ["Hi, my mobile data is not working and my line is suspended."]
     )
@@ -146,7 +148,12 @@ def test_create_environment(client, monkeypatch, telecom_env_constructor):
     assert "mobile data" in payload["observation"]
 
     env = telecom_env_constructor()
-    assert payload["info"]["policy"] == env.get_policy()
+    native_agent = LLMAgent(
+        tools=env.get_tools(),
+        domain_policy=env.get_policy(),
+        llm="scripted/none",
+    )
+    assert payload["info"]["policy"] == native_agent.system_prompt
 
     tools = payload["info"]["tools"]
     assert isinstance(tools, list) and tools
@@ -154,6 +161,23 @@ def test_create_environment(client, monkeypatch, telecom_env_constructor):
     names = {tool["function"]["name"] for tool in tools}
     assert names == {tool.name for tool in env.get_tools()}
     assert "get_customer_by_id" in names
+
+
+def test_training_contract_matches_native_agent(client, telecom_env_constructor):
+    from tau2.agent.llm_agent import LLMAgent
+
+    response = client.get("/training-contract", params={"domain": "telecom"})
+    assert response.status_code == 200
+    payload = response.json()
+
+    env = telecom_env_constructor()
+    native_agent = LLMAgent(
+        tools=env.get_tools(),
+        domain_policy=env.get_policy(),
+        llm="contract/none",
+    )
+    assert payload["system_prompt"] == native_agent.system_prompt
+    assert payload["tools"] == [tool.openai_schema for tool in env.get_tools()]
 
 
 def test_create_environment_unknown_task(client):

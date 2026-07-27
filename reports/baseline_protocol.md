@@ -11,7 +11,7 @@ companion reports; this file is the contract they are produced under.
 | User simulator | DeepSeek official API, `deepseek-v4-pro` | non-thinking (`extra_body.thinking.type=disabled`), temperature 0.0 |
 | Simulator fallback | DashScope `qwen3.7-max-2026-06-08` | dev-only sensitivity checks |
 | Policy model (dev ablation) | Qwen, served locally via mlx_lm.server | temperature 0.0, thinking disabled via `chat_template_kwargs` |
-| Policy model (final 2x2) | `Qwen/Qwen3.5-4B` (exact revision pinned in the runbook) | served by vLLM on the training box; base and RL cells share checkpoint, tokenizer, chat template, tool parser, and stack |
+| Policy model (final 2x2) | `Qwen/Qwen3.5-4B` @ `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` | served by vLLM on the training box; base and RL cells share checkpoint, tokenizer, chat template, tool parser, and stack |
 | Trials | dev: 4 per task; final test: 8 per task | pass^k needs `trials >= k` |
 | Seed | 42 (per-trial seeds derived by the native runner) | `batch.py` seeds trials, orchestrator seeds agent+user |
 | Max steps | 100 | `termination_reason` reported separately, never folded into accuracy |

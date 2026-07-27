@@ -13,13 +13,16 @@ and this file is the one to fix. Do not edit `CLAUDE.md` to resolve a disagreeme
 
 ## Status
 
-The base-model row of the 2x2 is measured on the frozen dev set: `reports/governance_ablation.md`,
-Hbest = H2. The shim, GRPO driver, step-0 logprob gate, SFT bridge, and AutoDL runbook are built
-and unit-tested but have never run on a GPU. No weights have been trained, which is why the
-package is still named `service-agent` rather than anything implying a released RL model.
+The base-model row of the 2x2 is measured on the frozen dev set:
+`reports/governance_ablation.md`, Hbest = H2. The GPU path now has separate
+zero-update preflight, one-update smoke, and formal lineages; exact model,
+tokenization, ART/tau2, runtime, split, replay, and resume contracts are tested
+locally. It has not yet passed a real GPU preflight and no weights have been
+trained, which is why the package is still named `service-agent`.
 
-Local state at the time of writing: working tree clean, 81 tests green, lint clean, both
-submodules at their pins, `main` pushed to `origin`.
+Local Mac gate at the time of writing: 91 tests green, lint clean, both
+submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
+`main` stays untouched.
 
 ## Repository map
 
@@ -45,7 +48,11 @@ src/service_agent/
     report_ablation.py     regenerates both dev reports from committed artifacts
   serve/tau2_shim.py       FastAPI shim: ART's tau-bench protocol over tau2 v1.0.1 natives
   training/
-    art_tau_train.py       GRPO driver (GPU only; imports ART lazily)
+    contracts.py           frozen model/runtime/API contracts and manifest gates
+    model_snapshot.py      exact-revision download plus offline pin after verification
+    tau_rollout.py         ART rollout with fail-closed multi-tool handling
+    token_budget.py        context floor measured from every committed dev prefix
+    art_tau_train.py       preflight/smoke/formal GRPO driver (imports ART lazily)
     logprob_check.py       step-0 rollout/trainer logprob consistency gate
     sft_prepare.py         teacher-trajectory filter and chat-JSONL export (GRPO fallback)
 data_protocol/             frozen dev IDs and the split report. Committed, never regenerated silently
@@ -81,7 +88,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 81 tests, ~5s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 91 tests, ~5s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -236,6 +243,7 @@ needed, models mocked or driven by scripted stand-ins.
 | `test_shim.py` | ART contract, split lock on both endpoints, reward-once, strict replay |
 | `test_shim_native_parity.py` | native and shim agree on tools and reward |
 | `test_factorial.py` | bootstrap and 2x2 arithmetic |
+| `test_training_contract.py` | pins, ART API, bf16/runtime config, phase/resume gates, multi-tool fail-close, true within-group reward variance |
 
 `uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py` yields **10 passed, 3 failed**
 without `OPENAI_API_KEY`: those tests spin up a real LLM user simulator even for the mock domain,
@@ -272,38 +280,23 @@ they can be recomputed from.
 
 ## Known gaps
 
-Each one is a real blocker or a real inaccuracy, not a style preference. Two earlier entries are
-gone because they were fixed: the submodule fix commit is now on a fork that `.gitmodules` points
-at, and `POST /environments` now enforces the same test-split lock as `GET /scenarios`.
+Each one is a real blocker or a real inaccuracy, not a style preference. Fixed
+entries are removed rather than retained as stale warnings: the submodule fork
+and both test-split locks are in place; audit normalization and persistence are
+now unambiguous; the final model revision is pinned; and first-party imports are
+declared directly.
 
-- **The project repo is private.** A fresh clone on the GPU box needs credentials (`gh auth login`
-  or a PAT); `runbooks/autodl.md` §2 says so. The tau2-bench fork is public, so only the
-  superproject needs auth. Making the repo public is a portfolio decision, not a code one.
-- **The audit's `allow` column conflates two different things.** `_sanitize_mixed` writes an
-  `allow`/`mixed_text_stripped` record and the main loop then records the same candidate again, so
-  the "allow" figures in `reports/governance_ablation.md` (980 for H1, 972 for H2) double-count
-  mixed text+tool-call candidates: 413 and 410 of those records respectively, leaving 567 and 562
-  genuine allow verdicts. `agent/governed.py` says "the harness ablation reports the rate", but no
-  report column shows it. Either separate the counts in `audit_summary` or stop double-recording.
-- **The final policy revision is not pinned.** `reports/baseline_protocol.md` promises
-  "`Qwen/Qwen3.5-4B` (exact revision pinned in the runbook)", and the runbook names the model but
-  no revision. The 2x2 requires the base and RL cells to share one checkpoint, so this has to be
-  filled in before the final run. W&B is a separate matter: `WANDB_API_KEY` is listed in
-  `.env.example` and required by `runbooks/autodl.md`, but it is an owner-supplied secret for the
-  GPU run, not a code gap — the measured dev row needed only `DEEPSEEK_API_KEY`.
+- **The project repo is private.** The current GPU box receives the exact
+  branch by rsync over the configured SSH connection. A future independent
+  clone still needs GitHub credentials. Making the repo public is a portfolio
+  decision, not a code one.
+- **The GPU contracts are locally tested but not yet empirically cleared.**
+  The pinned ART/vLLM/Unsloth stack must still pass exact-token/logprob
+  preflight and one real optimizer update on the RTX 4090 before formal GRPO.
 - **`enable_roaming`/`disable_roaming` have no rule.** They are in `WRITE_TOOLS` and fall through
   to `no_specific_rule` (28 such records per dev arm). `main_policy.md:155` only says to enable
   roaming at no cost for a traveling user, so an unconditional allow is defensible — but
   `telecom_rules.py` documents the Change Plan omission and not this one.
-- **`AuditTrail.dump_jsonl` appends**, and `audit_summary` counts every file in the directory. A
-  run resumed via `auto_resume=True` after a crash could therefore double-count governance
-  records. The committed runs are clean (80 audit files for 80 simulations in both arms), so no
-  number is affected today.
-- **First-party code imports three packages the project does not declare**: `fastapi`, `uvicorn`
-  (`serve/`), and `python-dotenv` (`run_ablation`, `art_tau_train`). They resolve today only
-  because tau2 depends on them. `openai` (`logprob_check`) is not in `tau2[gym]` at all and comes
-  from the trainer venv. Declaring the direct imports in `pyproject.toml` would make the
-  dependency honest.
 - **Dev and final serving stacks differ**, disclosed rather than smoothed over: dev ablations ran
   quantized MLX, the final 2x2 is specified on vLLM bf16. Dev results only select Hbest.
 - **Scope caveats that more compute would address**: one domain, one model size, one simulator

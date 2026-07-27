@@ -123,7 +123,7 @@ def run_native(monkeypatch, telecom_tasks):
         if isinstance(m, AssistantMessage) and m.is_tool_call()
         for tc in m.tool_calls
     ]
-    return environment.get_policy(), tool_sequence, float(reward_info.reward)
+    return agent.system_prompt, tool_sequence, float(reward_info.reward)
 
 
 def run_shim(monkeypatch):
