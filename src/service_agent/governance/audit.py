@@ -74,6 +74,10 @@ class AuditTrail:
 
     def dump_jsonl(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("a") as f:
+        # One path belongs to one session and is a snapshot of this in-memory
+        # trail. stop() may be called more than once during cleanup; replacing
+        # the snapshot keeps persistence idempotent instead of duplicating every
+        # record on the second call.
+        with path.open("w") as f:
             for rec in self.records:
                 f.write(json.dumps(asdict(rec)) + "\n")

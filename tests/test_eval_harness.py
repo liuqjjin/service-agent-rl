@@ -1,10 +1,11 @@
 """Eval harness: arm registration and the offline governance analyzer."""
 
 import json
+from pathlib import Path
 
 from tau2.data_model.message import AssistantMessage, ToolCall, ToolMessage, UserMessage
 
-from service_agent.eval.metrics import analyze_trajectory
+from service_agent.eval.metrics import analyze_trajectory, audit_summary
 from service_agent.eval.registration import (
     H1_AGENT,
     H2_AGENT,
@@ -122,3 +123,38 @@ def test_offline_analyzer_ignores_errored_calls():
     assert analysis.executed_writes == 0
     assert analysis.errored_tool_calls == 1
     assert analysis.unauthorized_executed_writes == 0
+
+
+def test_audit_summary_separates_normalization_from_allow(tmp_path: Path):
+    records = [
+        {
+            "session_id": "s1",
+            "task_id": "t1",
+            "attempt": 1,
+            "tool_name": "get_customer_by_id",
+            "arguments_json": '{"customer_id": "C1"}',
+            "decision": "allow",
+            "reason_code": "mixed_text_stripped",
+            "policy_ref": "main_policy.md:9",
+            "tool_call_id": "call-1",
+        },
+        {
+            "session_id": "s1",
+            "task_id": "t1",
+            "attempt": 1,
+            "tool_name": "get_customer_by_id",
+            "arguments_json": '{"customer_id": "C1"}',
+            "decision": "allow",
+            "reason_code": "read_or_generic",
+            "policy_ref": "",
+            "tool_call_id": "call-1",
+        },
+    ]
+    path = tmp_path / "audit_s1.jsonl"
+    path.write_text("\n".join(json.dumps(record) for record in records) + "\n")
+
+    summary = audit_summary(tmp_path)
+
+    assert summary["decisions"] == {"allow": 1}
+    assert summary["normalizations"] == {"mixed_text_stripped": 1}
+    assert summary["regenerations"] == 1

@@ -152,6 +152,7 @@ def audit_summary(audit_dir: Path) -> dict:
     what it refused, including candidates that never became trajectory
     messages and are therefore invisible to the offline replay."""
     decisions: Counter = Counter()
+    normalizations: Counter = Counter()
     reasons: Counter = Counter()
     regenerations = 0
     sessions = 0
@@ -159,6 +160,12 @@ def audit_summary(audit_dir: Path) -> dict:
         sessions += 1
         for line in file.read_text().splitlines():
             rec = json.loads(line)
+            if rec["reason_code"] == "mixed_text_stripped":
+                # The sanitizer records the formatting normalization, then the
+                # main loop records the actual gate verdict for the same
+                # candidate. It is an event, not a second allow decision.
+                normalizations[rec["reason_code"]] += 1
+                continue
             decisions[rec["decision"]] += 1
             if rec["decision"] != "allow":
                 reasons[rec["reason_code"]] += 1
@@ -167,6 +174,7 @@ def audit_summary(audit_dir: Path) -> dict:
     return {
         "sessions_with_audit": sessions,
         "decisions": dict(decisions),
+        "normalizations": dict(normalizations),
         "rejection_reasons": dict(reasons),
         "regenerations": regenerations,
     }

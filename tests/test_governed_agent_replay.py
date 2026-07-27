@@ -8,6 +8,8 @@ whatever we produce. If governance ever intercepted in the wrong place, these
 tests are the ones that break."""
 
 
+import json
+
 from tau2.data_model.message import AssistantMessage, ToolCall, ToolMessage, UserMessage
 from tau2.evaluator.evaluator import EvaluationType, evaluate_simulation
 from tau2.orchestrator.orchestrator import Orchestrator
@@ -303,3 +305,23 @@ def test_regeneration_budget_produces_safe_fallback(monkeypatch, telecom_tasks):
         if isinstance(m, AssistantMessage) and not m.is_tool_call()
     ]
     assert any("double-check the details" in (t or "") for t in fallback_texts)
+
+
+def test_audit_dump_is_idempotent(tmp_path):
+    from service_agent.governance.audit import AuditTrail
+    from service_agent.governance.core import GovernanceResult, ProposedAction
+
+    trail = AuditTrail(session_id="session", task_id="task")
+    trail.record(
+        ProposedAction("get_customer_by_id", {"customer_id": "C1"}, "call-1"),
+        GovernanceResult(Decision.ALLOW, "read_or_generic", ""),
+        attempt=0,
+    )
+    path = tmp_path / "audit_session.jsonl"
+
+    trail.dump_jsonl(path)
+    trail.dump_jsonl(path)
+
+    lines = path.read_text().splitlines()
+    assert len(lines) == 1
+    assert json.loads(lines[0])["tool_call_id"] == "call-1"

@@ -156,23 +156,28 @@ def build() -> tuple[str, str]:
     w("")
     w("## What the live gate did (H1, H2)")
     w("")
-    w("| Arm | allow | require_confirmation | require_evidence | deny | regenerations |")
-    w("|---|---:|---:|---:|---:|---:|")
+    w(
+        "| Arm | allow | mixed text stripped | require_confirmation | "
+        "require_evidence | deny | regenerations |"
+    )
+    w("|---|---:|---:|---:|---:|---:|---:|")
     for arm in ("h1", "h2"):
         a = loaded[arm][2]
         if not a:
             continue
         d = a["decisions"]
+        normalizations = a["normalizations"]
         w(
             f"| {ARM_LABEL[arm]} | {d.get('allow', 0)} | "
+            f"{normalizations.get('mixed_text_stripped', 0)} | "
             f"{d.get('require_confirmation', 0)} | {d.get('require_evidence', 0)} | "
             f"{d.get('deny', 0)} | {a['regenerations']} |"
         )
     w("")
     w(
-        "The audit also records mixed text+tool-call candidates that the gate "
-        "normalizes rather than denies (DECISIONS.md D8): stripping the "
-        "narration and keeping the call, because telecom scores no "
+        "Mixed text+tool-call normalization is reported separately from the "
+        "candidate's actual allow verdict. The gate strips the narration and "
+        "keeps the call (DECISIONS.md D8), because telecom scores no "
         "communication component and the native orchestrator hides that text "
         "from the user anyway."
     )

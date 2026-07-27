@@ -35,12 +35,12 @@ Read this honestly: the gate removes every unauthorized write, and that safety i
 
 ## What the live gate did (H1, H2)
 
-| Arm | allow | require_confirmation | require_evidence | deny | regenerations |
-|---|---:|---:|---:|---:|---:|
-| H1 (gate) | 980 | 63 | 2 | 27 | 97 |
-| H2 (gate+ledger+recovery) | 972 | 55 | 1 | 33 | 102 |
+| Arm | allow | mixed text stripped | require_confirmation | require_evidence | deny | regenerations |
+|---|---:|---:|---:|---:|---:|---:|
+| H1 (gate) | 567 | 413 | 63 | 2 | 27 | 74 |
+| H2 (gate+ledger+recovery) | 562 | 410 | 55 | 1 | 33 | 73 |
 
-The audit also records mixed text+tool-call candidates that the gate normalizes rather than denies (DECISIONS.md D8): stripping the narration and keeping the call, because telecom scores no communication component and the native orchestrator hides that text from the user anyway.
+Mixed text+tool-call normalization is reported separately from the candidate's actual allow verdict. The gate strips the narration and keeps the call (DECISIONS.md D8), because telecom scores no communication component and the native orchestrator hides that text from the user anyway.
 
 ## Cost and latency
 
@@ -49,8 +49,8 @@ Governance overhead shows up as regenerations, not dollars: the local policy mod
 | Arm | mean messages / sim | regenerations | user cost / sim |
 |---|---:|---:|---:|
 | H0 (native) | 63.3 | n/a | $0.0030 |
-| H1 (gate) | 66.3 | 97 | not recorded* |
-| H2 (gate+ledger+recovery) | 65.5 | 102 | $0.0029 |
+| H1 (gate) | 66.3 | 74 | not recorded* |
+| H2 (gate+ledger+recovery) | 65.5 | 73 | $0.0029 |
 
 *The H1 run logged $0.00 user cost for every simulation -- a LiteLLM cost-attribution artifact in that process, not a real difference. The user model and its per-simulation call count match H0 and H2 (~$0.003/sim), and the reward and safety numbers are unaffected.
 
