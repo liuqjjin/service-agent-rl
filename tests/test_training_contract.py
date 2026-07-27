@@ -31,9 +31,29 @@ from service_agent.training.tau_rollout import (
     MultipleToolCallsError,
     require_single_tool_call,
 )
+from service_agent.training.token_budget import _assistant_message
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_ROOT = ROOT / "third_party/ART"
+
+
+def test_dev_token_budget_uses_qwen_tool_argument_mappings():
+    message = {
+        "role": "assistant",
+        "tool_calls": [
+            {
+                "id": "call-1",
+                "name": "lookup_account",
+                "arguments": {"customer_id": "C1001"},
+            }
+        ],
+    }
+
+    visible = _assistant_message(message)
+
+    assert visible["tool_calls"][0]["function"]["arguments"] == {
+        "customer_id": "C1001"
+    }
 
 
 def test_semantic_input_hashes_record_each_exact_model_visible_surface():

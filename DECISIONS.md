@@ -176,3 +176,15 @@ the snapshot directory name against the pin, and forces later loads offline.
 Manifest schema 2 records the endpoint and exact invocation, plus separate
 system-prompt, tool-schema, and tokenizer-template hashes in addition to the
 composite semantic hash.
+
+## D15. Token-budget replay uses the template-level tool-call shape
+
+Committed tau2 trajectories store tool arguments as JSON objects. The first
+GPU preflight exposed that the budget replayer converted those objects to
+OpenAI JSON strings, while the pinned Qwen template iterates
+`tool_call.arguments|items`. ART performs the same string-to-object
+normalization before training tokenization in
+`third_party/ART/src/art/preprocessing/tokenize.py`. The budget replayer now
+builds that template-level mapping directly. This changes neither the
+trajectory nor the OpenAI request; it makes the context measurement follow the
+actual ART/Qwen rendering path instead of failing before model registration.

@@ -12,22 +12,30 @@ from service_agent.training.contracts import CHAT_TEMPLATE_KWARGS
 GOVERNANCE_FEEDBACK_BUFFER = 512
 
 
+def _template_tool_call(call: dict[str, Any]) -> dict[str, Any]:
+    arguments = call.get("arguments") or {}
+    if isinstance(arguments, str):
+        arguments = json.loads(arguments)
+    if not isinstance(arguments, dict):
+        raise TypeError("tool-call arguments must be a JSON object")
+    return {
+        "id": call.get("id", ""),
+        "type": "function",
+        "function": {
+            "name": call["name"],
+            # ART normalizes OpenAI's JSON string to a mapping before applying
+            # Qwen's template, which iterates over tool_call.arguments|items.
+            "arguments": dict(arguments),
+        },
+    }
+
+
 def _assistant_message(message: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {"role": "assistant"}
     if message.get("content") is not None:
         out["content"] = message["content"]
     if message.get("tool_calls"):
-        out["tool_calls"] = [
-            {
-                "id": call.get("id", ""),
-                "type": "function",
-                "function": {
-                    "name": call["name"],
-                    "arguments": json.dumps(call.get("arguments") or {}),
-                },
-            }
-            for call in message["tool_calls"]
-        ]
+        out["tool_calls"] = [_template_tool_call(call) for call in message["tool_calls"]]
     return out
 
 
