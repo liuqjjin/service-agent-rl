@@ -19,6 +19,7 @@ from service_agent.training.contracts import (
     MANIFEST_SCHEMA_VERSION,
     TAU2_COMMIT,
     RuntimeConfig,
+    apply_chat_template_token_ids,
     assert_pinned_art_api,
     build_internal_model_config,
     build_trainable_model_kwargs,
@@ -35,6 +36,21 @@ from service_agent.training.token_budget import _assistant_message
 
 ROOT = Path(__file__).resolve().parents[1]
 ART_ROOT = ROOT / "third_party/ART"
+
+
+def test_chat_template_ids_extract_transformers_5_batch_encoding():
+    class Tokenizer:
+        def apply_chat_template(self, messages, **kwargs):
+            assert messages == [{"role": "user", "content": "Hello"}]
+            assert kwargs["add_generation_prompt"] is True
+            assert kwargs["enable_thinking"] is False
+            return {"input_ids": [101, 102, 103], "attention_mask": [1, 1, 1]}
+
+    assert apply_chat_template_token_ids(
+        Tokenizer(),
+        [{"role": "user", "content": "Hello"}],
+        tools=[],
+    ) == [101, 102, 103]
 
 
 def test_dev_token_budget_uses_qwen_tool_argument_mappings():

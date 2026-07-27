@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from service_agent.training.contracts import CHAT_TEMPLATE_KWARGS
+from service_agent.training.contracts import apply_chat_template_token_ids
 
 GOVERNANCE_FEEDBACK_BUFFER = 512
 
@@ -91,11 +91,10 @@ def measure_dev_token_budget(
                 ):
                     continue
                 if visible["role"] == "assistant":
-                    token_ids = tokenizer.apply_chat_template(
+                    token_ids = apply_chat_template_token_ids(
+                        tokenizer,
                         history,
                         tools=tools,
-                        add_generation_prompt=True,
-                        **CHAT_TEMPLATE_KWARGS,
                     )
                     prompt_lengths.append(len(token_ids))
                 history.append(visible)

@@ -188,3 +188,15 @@ normalization before training tokenization in
 builds that template-level mapping directly. This changes neither the
 trajectory nor the OpenAI request; it makes the context measurement follow the
 actual ART/Qwen rendering path instead of failing before model registration.
+
+## D16. Transformers 5 chat rendering returns a `BatchEncoding`
+
+The GPU trainer has Transformers 5.2.0. Its Qwen tokenizer returns a
+`BatchEncoding` with `input_ids` and `attention_mask` from
+`apply_chat_template`, whereas the Mac service stack and older APIs commonly
+return the ID list directly. Taking `len()` of that mapping produced a
+plausible-looking but false two-token budget for all 4,919 measured prefixes;
+iterating it in the reference logprob gate would likewise have read field
+names instead of IDs. One shared adapter now extracts and validates
+`input_ids` from either API shape. The context budget and the exact-token
+logprob comparison both use that adapter.

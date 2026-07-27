@@ -11,6 +11,7 @@ import ast
 import hashlib
 import json
 import subprocess
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -52,6 +53,36 @@ class RuntimeConfig:
             raise ValueError("rollout_concurrency must be positive")
         if not 0.1 <= self.gpu_memory_utilization <= 0.9:
             raise ValueError("gpu_memory_utilization must be between 0.1 and 0.9")
+
+
+def apply_chat_template_token_ids(
+    tokenizer: Any,
+    messages: list[dict[str, Any]],
+    *,
+    tools: list[dict[str, Any]],
+) -> list[int]:
+    """Return one prompt's IDs across Transformers list/BatchEncoding APIs."""
+
+    encoded = tokenizer.apply_chat_template(
+        messages,
+        tools=tools,
+        add_generation_prompt=True,
+        **CHAT_TEMPLATE_KWARGS,
+    )
+    if isinstance(encoded, Mapping):
+        encoded = encoded.get("input_ids")
+    tolist = getattr(encoded, "tolist", None)
+    if callable(tolist):
+        encoded = tolist()
+    if (
+        isinstance(encoded, list)
+        and len(encoded) == 1
+        and isinstance(encoded[0], list)
+    ):
+        encoded = encoded[0]
+    if not isinstance(encoded, (list, tuple)):
+        raise RuntimeError("chat template did not return token IDs")
+    return [int(token) for token in encoded]
 
 
 def build_internal_model_config(config: RuntimeConfig) -> dict[str, Any]:

@@ -21,7 +21,7 @@ from typing import Any
 from service_agent.training.contracts import (
     BASE_MODEL_ID,
     BASE_MODEL_REVISION,
-    CHAT_TEMPLATE_KWARGS,
+    apply_chat_template_token_ids,
 )
 
 
@@ -170,13 +170,11 @@ def evaluate_probe_records(
     ratios: list[float] = []
     try:
         for record in records:
-            local_prompt_ids = tokenizer.apply_chat_template(
+            local_prompt_ids = apply_chat_template_token_ids(
+                tokenizer,
                 record.messages,
                 tools=tools,
-                add_generation_prompt=True,
-                **CHAT_TEMPLATE_KWARGS,
             )
-            local_prompt_ids = [int(token) for token in local_prompt_ids]
             if local_prompt_ids != record.prompt_token_ids:
                 exact_prompt_ids = False
                 continue
