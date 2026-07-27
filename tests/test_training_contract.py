@@ -13,6 +13,7 @@ from types import ModuleType, SimpleNamespace
 
 import pytest
 
+import service_agent.training.art_tau_train as training_driver
 from service_agent.training.art_tau_train import (
     _configure_vllm_runtime_bootstrap,
     _runtime_system_info,
@@ -331,6 +332,115 @@ def test_logprob_reference_uses_only_the_verified_local_snapshot(
         evaluate_probe_records([record], tools=[], model_source=wrong)
 
 
+def test_art_mask_adapter_preserves_transformers_5_argument_order():
+    calls: list[tuple] = []
+    normalized_position_ids = object()
+
+    class ThreeDimensionalPositionIds:
+        shape = (1, 2, 3)
+
+        def __getitem__(self, index):
+            assert index == 0
+            return normalized_position_ids
+
+    def transformers_target(
+        config,
+        inputs_embeds,
+        attention_mask,
+        cache_position,
+        past_key_values,
+        position_ids,
+        layer_idx,
+    ):
+        calls.append(
+            (
+                config,
+                inputs_embeds,
+                attention_mask,
+                cache_position,
+                past_key_values,
+                position_ids,
+                layer_idx,
+            )
+        )
+        return "mask-result"
+
+    def art_old_signature(
+        config,
+        inputs_embeds,
+        attention_mask,
+        past_key_values,
+        position_ids,
+        layer_idx,
+        encoder_hidden_states=None,
+    ):
+        raise AssertionError("the incompatible ART wrapper must be replaced")
+
+    masking_utils = SimpleNamespace(
+        _preprocess_mask_arguments=art_old_signature,
+    )
+    art_patches = SimpleNamespace(
+        _preprocess_mask_arguments=transformers_target,
+        _patched_preprocess_mask_arguments=art_old_signature,
+    )
+
+    provenance = training_driver._install_transformers_mask_compat(
+        masking_utils=masking_utils,
+        art_patches=art_patches,
+    )
+
+    values = tuple(object() for _ in range(5))
+    config, inputs_embeds, attention_mask, cache_position, past_key_values = values
+    result = masking_utils._preprocess_mask_arguments(
+        config,
+        inputs_embeds,
+        attention_mask,
+        cache_position,
+        past_key_values,
+        ThreeDimensionalPositionIds(),
+        7,
+    )
+
+    assert result == "mask-result"
+    assert calls == [
+        (
+            config,
+            inputs_embeds,
+            attention_mask,
+            cache_position,
+            past_key_values,
+            normalized_position_ids,
+            7,
+        )
+    ]
+    assert provenance["status"] == "installed"
+    assert provenance["transformers_parameter_order"] == [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "cache_position",
+        "past_key_values",
+        "position_ids",
+        "layer_idx",
+    ]
+    assert provenance["art_parameter_order"] == [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "past_key_values",
+        "position_ids",
+        "layer_idx",
+        "encoder_hidden_states",
+    ]
+
+    masking_utils._preprocess_mask_arguments = lambda: None
+    with pytest.raises(RuntimeError, match="ART Transformers mask patch"):
+        training_driver._install_transformers_mask_compat(
+            masking_utils=masking_utils,
+            art_patches=art_patches,
+        )
+
+
 def test_trainable_model_kwargs_match_pinned_art_signature():
     config = RuntimeConfig(run_name="preflight-r1")
     kwargs = build_trainable_model_kwargs(config)
@@ -500,6 +610,16 @@ def _manifest(run_name: str = "run-r1") -> dict:
                     "vllm": "0.23.0+cu129",
                 },
             },
+            "transformers_mask_compat": {
+                "status": "installed",
+                "target": "transformers.masking_utils._preprocess_mask_arguments",
+                "transformers_parameter_order": list(
+                    training_driver.TRANSFORMERS_MASK_PARAMETER_ORDER
+                ),
+                "art_parameter_order": list(
+                    training_driver.ART_MASK_PARAMETER_ORDER
+                ),
+            },
         },
         "user_simulator": {
             "model": "deepseek/deepseek-v4-pro",
@@ -526,6 +646,11 @@ def test_phase_gates_require_the_same_complete_protocol():
 
     drifted = _manifest("smoke-r1")
     drifted["system"]["vllm_runtime"]["packages"]["vllm"] = "different"
+    with pytest.raises(RuntimeError, match="system"):
+        validate_matching_protocol(preflight, drifted, "preflight")
+
+    drifted = _manifest("smoke-r1")
+    drifted["system"]["transformers_mask_compat"]["status"] = "different"
     with pytest.raises(RuntimeError, match="system"):
         validate_matching_protocol(preflight, drifted, "preflight")
 

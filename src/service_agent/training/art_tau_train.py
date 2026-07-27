@@ -18,6 +18,7 @@ import argparse
 import asyncio
 import hashlib
 import importlib.metadata
+import inspect
 import json
 import os
 import platform
@@ -75,6 +76,24 @@ VLLM_RUNTIME_DISTRIBUTIONS = (
 )
 VLLM_CUDART_ENV = "VLLM_CUDART_SO_PATH"
 VLLM_BOOTSTRAP = Path(__file__).with_name("vllm_bootstrap") / "sitecustomize.py"
+TRANSFORMERS_MASK_PARAMETER_ORDER = (
+    "config",
+    "inputs_embeds",
+    "attention_mask",
+    "cache_position",
+    "past_key_values",
+    "position_ids",
+    "layer_idx",
+)
+ART_MASK_PARAMETER_ORDER = (
+    "config",
+    "inputs_embeds",
+    "attention_mask",
+    "past_key_values",
+    "position_ids",
+    "layer_idx",
+    "encoder_hidden_states",
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -455,6 +474,73 @@ print(json.dumps({
             "ninja_distribution_version": ninja_distribution_version,
             "ninja_binary_version": ninja_binary_version,
         },
+    }
+
+
+def _install_transformers_mask_compat(
+    *,
+    masking_utils: Any | None = None,
+    art_patches: Any | None = None,
+) -> dict[str, Any]:
+    """Adapt ART's pre-Transformers-5 mask patch without changing the pin."""
+
+    if masking_utils is None:
+        from transformers import masking_utils as installed_masking_utils
+
+        masking_utils = installed_masking_utils
+    if art_patches is None:
+        from art.transformers import patches as installed_art_patches
+
+        art_patches = installed_art_patches
+
+    original = art_patches._preprocess_mask_arguments
+    incompatible = art_patches._patched_preprocess_mask_arguments
+    current = masking_utils._preprocess_mask_arguments
+    transformers_order = tuple(inspect.signature(original).parameters)
+    art_order = tuple(inspect.signature(incompatible).parameters)
+    if transformers_order != TRANSFORMERS_MASK_PARAMETER_ORDER:
+        raise RuntimeError(
+            "Transformers mask API drift: "
+            f"expected {TRANSFORMERS_MASK_PARAMETER_ORDER}, got {transformers_order}"
+        )
+    if art_order != ART_MASK_PARAMETER_ORDER:
+        raise RuntimeError(
+            "ART Transformers mask patch API drift: "
+            f"expected {ART_MASK_PARAMETER_ORDER}, got {art_order}"
+        )
+    if current is not incompatible:
+        raise RuntimeError(
+            "ART Transformers mask patch is not the active function; "
+            "refusing to replace an unknown patch"
+        )
+
+    def project_mask_adapter(
+        config,
+        inputs_embeds,
+        attention_mask,
+        cache_position,
+        past_key_values,
+        position_ids,
+        layer_idx,
+    ):
+        if position_ids is not None and len(position_ids.shape) == 3:
+            position_ids = position_ids[0]
+        return original(
+            config=config,
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            cache_position=cache_position,
+            past_key_values=past_key_values,
+            position_ids=position_ids,
+            layer_idx=layer_idx,
+        )
+
+    masking_utils._preprocess_mask_arguments = project_mask_adapter
+    return {
+        "status": "installed",
+        "target": "transformers.masking_utils._preprocess_mask_arguments",
+        "transformers_parameter_order": list(transformers_order),
+        "art_parameter_order": list(art_order),
     }
 
 
@@ -1188,6 +1274,12 @@ async def run(args: argparse.Namespace) -> None:
     import art
     from art import tau_bench
     from art.local import LocalBackend
+
+    manifest["system"]["transformers_mask_compat"] = (
+        _install_transformers_mask_compat()
+    )
+    if args.phase != "train":
+        _write_json(manifest_path, manifest)
 
     if args.phase == "preflight":
         await _run_preflight(

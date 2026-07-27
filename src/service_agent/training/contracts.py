@@ -298,6 +298,7 @@ def _shared_protocol_contract(payload: dict[str, Any]) -> dict[str, Any]:
             "bf16_supported",
             "packages",
             "vllm_runtime",
+            "transformers_mask_compat",
         )
     }
     return {

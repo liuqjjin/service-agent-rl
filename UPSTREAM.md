@@ -146,6 +146,24 @@ ART's `TauBenchClient` (`ART/src/art/tau_bench/client.py:109`) expects
 split="test")`. Useful as a smoke example, forbidden as an experimental
 protocol; our training entry points assert train-core only.
 
+**ART's mask patch predates the installed Transformers 5 signature.**
+The pinned wrapper
+(`ART/src/art/transformers/patches.py:14-34`) omits the newer
+`cache_position` argument and forwards all values positionally. The project
+adapter described in DECISIONS.md D21 verifies both signatures before model
+registration and leaves ART unmodified. Run this command from the
+superproject root in the trainer environment:
+
+```bash
+.venv-trainer/bin/python - <<'PY'
+import inspect
+import art
+from art.transformers import patches
+print(inspect.signature(patches._preprocess_mask_arguments))
+print(inspect.signature(patches._patched_preprocess_mask_arguments))
+PY
+```
+
 **ART's rollout builds prompts safely.** `ART/src/art/tau_bench/rollout.py:99-102`
 uses `env.info["policy"]` + observation + tool schemas, not the Task object.
 Its default user simulator is `gpt-4.1-2025-04-14` (`rollout.py:31`), which we

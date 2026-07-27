@@ -139,22 +139,25 @@ The command downloads and verifies the pinned model snapshot. It then:
    rather than TileLang's linker stub, to provide `cudaDeviceReset`;
 2. requires the `ninja` executable from that same locked runtime to be visible
    for FlashInfer JIT compilation;
-3. registers ART at step 0;
-4. samples exact vLLM prompt/completion token IDs and logprobs;
-5. closes vLLM before loading the tokenizer and bf16 reference model from the
+3. verifies ART's pinned attention-mask wrapper against the installed
+   Transformers 5 signature and installs the recorded project adapter;
+4. registers ART at step 0;
+5. samples exact vLLM prompt/completion token IDs and logprobs;
+6. closes vLLM before loading the tokenizer and bf16 reference model from the
    exact manifest-recorded snapshot, with local-only loading;
-6. requires byte-identical prompt token IDs, mean importance ratio within
+7. requires byte-identical prompt token IDs, mean importance ratio within
    2% of 1, and at most 2% outside the PPO clip window;
-7. reopens the untouched step-0 checkpoint;
-8. runs eight train-core episodes through strict replay with reward finalized
+8. reopens the untouched step-0 checkpoint;
+9. runs eight train-core episodes through strict replay with reward finalized
    exactly once;
-9. exits with `final_step=0`.
+10. exits with `final_step=0`.
 
 The manifest records the exact Python argv, download endpoint, composite
 semantic-contract hash, and separate hashes for the system prompt, tools, and
 tokenizer chat template. It also records the selected CUDA runtime and
 bootstrap plus locked `ninja` paths, versions, and SHA-256 values; smoke and
-formal phases reject drift in any of them.
+formal phases reject drift in any of them. The installed attention-mask
+adapter and both upstream parameter orders are recorded and matched too.
 
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl

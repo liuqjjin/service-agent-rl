@@ -266,3 +266,23 @@ revision, and passes that path to both Transformers loaders with
 revision argument at this boundary. The canonical ID remains in the manifest
 for provenance; the verified path is the only source from which the
 tokenizer and bf16 reference weights can be loaded.
+
+## D21. A project adapter closes ART's Transformers 5 mask-signature drift
+
+ART's pinned mask patch
+(`third_party/ART/src/art/transformers/patches.py:14-34`) expects the older
+argument order without `cache_position`.
+Transformers 5.2 inserts `cache_position` before `past_key_values`. During the
+first reference forward, ART's wrapper therefore received a
+`Qwen3_5DynamicCache` as `position_ids` and tried to read its nonexistent
+`shape`. Disabling the cache would hide that one failure while leaving ART's
+intended 3D `position_ids` normalization ineffective during training.
+
+The submodule stays untouched. After importing ART, the training driver now
+requires both exact pinned signatures and requires ART's wrapper to be the
+active function. It then installs a project-owned adapter with the
+Transformers 5 parameter order, preserves the 3D normalization, and delegates
+to the original Transformers implementation by keyword. The two observed
+parameter orders and installation status are recorded in every manifest and
+are part of the cross-phase protocol contract. Unknown patches or future API
+drift fail before model registration.
