@@ -63,6 +63,7 @@ from service_agent.training.token_budget import (
 )
 
 DEFAULT_USER_MODEL = "deepseek/deepseek-v4-pro"
+DEFAULT_LOGPROB_CALCULATION_CHUNK_SIZE = 512
 SPARSE_REWARD_WINDOW = 10
 VLLM_RUNTIME_DISTRIBUTIONS = (
     "art-vllm-runtime",
@@ -115,6 +116,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-model-len", type=int, default=16_384)
     parser.add_argument("--rollout-concurrency", type=int, default=4)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.68)
+    parser.add_argument(
+        "--logprob-calculation-chunk-size",
+        type=int,
+        choices=(256, 512, 1_024),
+        default=DEFAULT_LOGPROB_CALCULATION_CHUNK_SIZE,
+    )
     parser.add_argument("--steps", type=int, default=60)
     parser.add_argument("--learning-rate", type=float, default=5e-6)
     parser.add_argument("--kl-penalty-coef", type=float, default=0.0)
@@ -616,6 +623,9 @@ def _base_manifest(
             "learning_rate": args.learning_rate,
             "kl_penalty_coef": args.kl_penalty_coef,
             "loss_fn": args.loss_fn,
+            "logprob_calculation_chunk_size": (
+                args.logprob_calculation_chunk_size
+            ),
             "val_every": args.val_every,
             "val_trials": args.val_trials,
         },
@@ -929,6 +939,9 @@ async def _run_smoke(
             learning_rate=args.learning_rate,
             loss_fn=args.loss_fn,
             kl_penalty_coef=args.kl_penalty_coef,
+            logprob_calculation_chunk_size=(
+                args.logprob_calculation_chunk_size
+            ),
         )
         if result.step != 1:
             raise RuntimeError(f"smoke must make exactly one update, got step {result.step}")
@@ -1086,6 +1099,9 @@ async def _run_train(
                 learning_rate=args.learning_rate,
                 loss_fn=args.loss_fn,
                 kl_penalty_coef=args.kl_penalty_coef,
+                logprob_calculation_chunk_size=(
+                    args.logprob_calculation_chunk_size
+                ),
             )
             if result.step != step + 1:
                 raise RuntimeError(

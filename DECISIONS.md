@@ -286,3 +286,23 @@ to the original Transformers implementation by keyword. The two observed
 parameter orders and installation status are recorded in every manifest and
 are part of the cross-phase protocol contract. Unknown patches or future API
 drift fail before model registration.
+
+## D22. Bound the exact logprob workspace after the first controlled OOM
+
+The first real one-update smoke completed all eight official rollouts with
+strict replay, reward finalized once, no multi-tool calls, and one mixed
+reward group. Its first training forward then failed at
+`torch.logsumexp(chunk_logits)` while requesting a 970 MiB temporary tensor.
+ART had packed 102 trainable exchanges into 102 rows of length 12,288, so
+reducing rollout concurrency or vLLM memory would not reduce this learner-side
+workspace; the shared-GPU runtime was already asleep at 520 MiB.
+
+`LocalBackend.train` exposes `logprob_calculation_chunk_size` specifically for
+this calculation. The driver now fixes it at 512 instead of ART's 1,024
+default. This partitions the same vocabulary log-sum-exp without changing
+tokens, logits, rewards, advantages, optimizer settings, or model weights.
+The value is written into the cross-phase training contract, passed to every
+smoke and formal update, and rejected if preflight, smoke, training, or resume
+drifts. Because the failed attempt used the earlier contract, all gates are
+rerun from fresh lineages rather than treating the failed smoke as reusable
+evidence.

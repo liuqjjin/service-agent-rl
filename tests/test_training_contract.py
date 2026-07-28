@@ -590,6 +590,7 @@ def _manifest(run_name: str = "run-r1") -> dict:
             "learning_rate": 5e-6,
             "kl_penalty_coef": 0.0,
             "loss_fn": "ppo",
+            "logprob_calculation_chunk_size": 512,
             "val_every": 5,
             "val_trials": 2,
         },
@@ -658,6 +659,41 @@ def test_phase_gates_require_the_same_complete_protocol():
     drifted["semantic_input_hashes"]["tools_sha256"] = "different"
     with pytest.raises(RuntimeError, match="semantic_input_hashes"):
         validate_matching_protocol(preflight, drifted, "preflight")
+
+    drifted = _manifest("smoke-r1")
+    drifted["training"]["logprob_calculation_chunk_size"] = 1_024
+    with pytest.raises(RuntimeError, match="training"):
+        validate_matching_protocol(preflight, drifted, "preflight")
+
+
+def test_every_rl_update_uses_the_manifested_logprob_chunk_size():
+    source = (ROOT / "src/service_agent/training/art_tau_train.py").read_text()
+    tree = ast.parse(source)
+    calls = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "backend"
+        and node.func.attr == "train"
+    ]
+
+    assert len(calls) == 2
+    for call in calls:
+        keyword = next(
+            (
+                item
+                for item in call.keywords
+                if item.arg == "logprob_calculation_chunk_size"
+            ),
+            None,
+        )
+        assert keyword is not None
+        assert isinstance(keyword.value, ast.Attribute)
+        assert isinstance(keyword.value.value, ast.Name)
+        assert keyword.value.value.id == "args"
+        assert keyword.value.attr == "logprob_calculation_chunk_size"
 
 
 def test_resume_requires_the_same_run_and_protocol():

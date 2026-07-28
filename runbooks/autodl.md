@@ -170,6 +170,7 @@ python -m service_agent.training.art_tau_train \
   --group-size 4 --max-turns 30 \
   --max-completion-tokens 1024 --max-model-len 16384 \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
+  --logprob-calculation-chunk-size 512 \
   2>&1 | tee /root/autodl-tmp/logs/preflight-r1.log
 deactivate
 ```
@@ -195,6 +196,7 @@ python -m service_agent.training.art_tau_train \
   --group-size 4 --max-turns 30 \
   --max-completion-tokens 1024 --max-model-len 16384 \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
+  --logprob-calculation-chunk-size 512 \
   2>&1 | tee /root/autodl-tmp/logs/smoke-r1.log
 deactivate
 ```
@@ -216,7 +218,7 @@ governance-feedback buffer and 1,024 completion tokens.
 ```bash
 tmux new-session -d -s grpo
 tmux send-keys -t grpo \
-  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-r1 --art-path /root/autodl-tmp/art/formal --out /root/autodl-tmp/runs/grpo-4b-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-r1.log' C-m
+  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-r1 --art-path /root/autodl-tmp/art/formal --out /root/autodl-tmp/runs/grpo-4b-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --logprob-calculation-chunk-size 512 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-r1.log' C-m
 ```
 
 The command is resume-safe: rerunning the exact command requires the same
@@ -241,9 +243,11 @@ Stop immediately on any of these:
 
 For the first OOM only: terminate residual GPU processes, keep the last good
 checkpoint and logs, and retry once after reducing only rollout concurrency,
-vLLM memory utilization, or context length while retaining the measured
-context floor. Do not change learning rate, reward, prompts, tools, model
-revision, group size, or split. A second OOM is a hard gate.
+vLLM memory utilization, context length while retaining the measured context
+floor, or the mathematically equivalent logprob calculation chunk size. The
+chunk size is recorded in every phase manifest and must match across gates.
+Do not change learning rate, reward, prompts, tools, model revision, group
+size, or split. A second OOM is a hard gate.
 
 SFT is not automatic. Sparse reward stops the formal driver and requires a
 recorded protocol decision before any teacher data or SFT update is created.
