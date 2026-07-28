@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import ast
+import asyncio
+import copy
 import hashlib
 import json
 import os
@@ -14,9 +16,22 @@ from types import ModuleType, SimpleNamespace
 import pytest
 
 import service_agent.training.art_tau_train as training_driver
+import service_agent.training.contracts as training_contracts
 from service_agent.training.art_tau_train import (
+    GRADIENT_STEPS_METRIC,
+    TRAINABLE_GROUPS_METRIC,
     _configure_vllm_runtime_bootstrap,
+    _formal_seed_base,
+    _gather_groups,
+    _register_model,
+    _run_smoke,
     _runtime_system_info,
+    _scenarios_for_formal_step,
+    _smoke_sampling_contract,
+    _smoke_scenarios,
+    _training_progress,
+    _training_work_counts,
+    _validate_smoke_gate,
     group_stats,
 )
 from service_agent.training.contracts import (
@@ -26,11 +41,13 @@ from service_agent.training.contracts import (
     CHAT_TEMPLATE_KWARGS,
     MANIFEST_SCHEMA_VERSION,
     TAU2_COMMIT,
+    TOOL_CALL_PARSER,
     RuntimeConfig,
     apply_chat_template_token_ids,
     assert_pinned_art_api,
     build_internal_model_config,
     build_trainable_model_kwargs,
+    semantic_contract_sha256,
     semantic_input_hashes,
     validate_matching_protocol,
     validate_preflight_gate,
@@ -48,6 +65,39 @@ ART_ROOT = ROOT / "third_party/ART"
 VLLM_BOOTSTRAP = (
     ROOT / "src/service_agent/training/vllm_bootstrap/sitecustomize.py"
 )
+
+
+def _training_args(tmp_path: Path | None = None, **overrides) -> SimpleNamespace:
+    root = tmp_path or Path("/tmp/service-agent-test")
+    values = {
+        "phase": "smoke",
+        "run_name": "smoke-r1",
+        "project": "service-agent",
+        "shim_url": "http://127.0.0.1:8000",
+        "user_model": "deepseek/deepseek-v4-pro",
+        "art_path": root / "art",
+        "out": root / "out",
+        "hf_cache": root / "cache",
+        "preflight_manifest": root / "preflight.json",
+        "smoke_manifest": root / "smoke.json",
+        "group_size": 4,
+        "groups_per_step": 2,
+        "max_turns": 30,
+        "max_completion_tokens": 1_024,
+        "max_model_len": 16_384,
+        "rollout_concurrency": 4,
+        "gpu_memory_utilization": 0.68,
+        "logprob_calculation_chunk_size": 512,
+        "steps": 60,
+        "learning_rate": 5e-6,
+        "kl_penalty_coef": 0.0,
+        "loss_fn": "ppo",
+        "val_every": 5,
+        "val_trials": 2,
+        "seed": 42,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
 
 
 def test_chat_template_ids_extract_transformers_5_batch_encoding():
@@ -105,6 +155,60 @@ def test_semantic_input_hashes_record_each_exact_model_visible_surface():
         ).hexdigest(),
         "tokenizer_chat_template_sha256": hashlib.sha256(template.encode()).hexdigest(),
     }
+
+
+def test_qwen_tool_parser_is_frozen_and_changes_the_semantic_contract(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    inputs = {
+        "system_prompt": "system",
+        "tools": [{"type": "function", "function": {"name": "lookup"}}],
+        "tokenizer_chat_template": "{{ messages }}",
+    }
+
+    assert TOOL_CALL_PARSER == "qwen3_coder"
+    qwen_contract = semantic_contract_sha256(**inputs)
+    monkeypatch.setattr(training_contracts, "TOOL_CALL_PARSER", "hermes")
+
+    assert semantic_contract_sha256(**inputs) != qwen_contract
+
+
+def test_model_registration_overrides_art_with_the_frozen_qwen_parser(tmp_path: Path):
+    registered: dict = {}
+    wandb_config: dict = {}
+
+    class Backend:
+        def __init__(self, *, path: str):
+            self.path = path
+
+    class Model:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+        def update_wandb_config(self, config):
+            wandb_config.update(config)
+
+        async def register(self, backend, **kwargs):
+            registered["backend"] = backend
+            registered.update(kwargs)
+
+    art = SimpleNamespace(TrainableModel=Model)
+    args = _training_args(tmp_path)
+    backend, model = asyncio.run(
+        _register_model(
+            art,
+            Backend,
+            args,
+            snapshot=tmp_path / BASE_MODEL_REVISION,
+        )
+    )
+
+    assert backend is registered["backend"]
+    assert model.kwargs["base_model"] == str(tmp_path / BASE_MODEL_REVISION)
+    assert registered["_openai_client_config"]["server_args"]["tool_call_parser"] == (
+        "qwen3_coder"
+    )
+    assert wandb_config["protocol"]["tool_call_parser"] == "qwen3_coder"
 
 
 def test_runtime_system_info_reads_the_isolated_art_vllm_environment(
@@ -525,6 +629,7 @@ def test_formal_update_requires_complete_matching_preflight_gate():
         "art_commit": ART_COMMIT,
         "base_model": BASE_MODEL_ID,
         "base_model_revision": BASE_MODEL_REVISION,
+        "tool_call_parser": TOOL_CALL_PARSER,
         "semantic_contract_sha256": expected,
         "initial_step": 0,
         "final_step": 0,
@@ -563,11 +668,13 @@ def _manifest(run_name: str = "run-r1") -> dict:
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "phase": "train",
         "run_name": run_name,
+        "lineage_path": f"/art/service-agent/models/{run_name}",
         "repo_commit": "repo-commit",
         "art_commit": ART_COMMIT,
         "tau2_commit": TAU2_COMMIT,
         "base_model": BASE_MODEL_ID,
         "base_model_revision": BASE_MODEL_REVISION,
+        "tool_call_parser": TOOL_CALL_PARSER,
         "semantic_contract_sha256": "contract",
         "semantic_input_hashes": {
             "system_prompt_sha256": "prompt",
@@ -661,12 +768,17 @@ def test_phase_gates_require_the_same_complete_protocol():
         validate_matching_protocol(preflight, drifted, "preflight")
 
     drifted = _manifest("smoke-r1")
+    drifted["tool_call_parser"] = "hermes"
+    with pytest.raises(RuntimeError, match="tool_call_parser"):
+        validate_matching_protocol(preflight, drifted, "preflight")
+
+    drifted = _manifest("smoke-r1")
     drifted["training"]["logprob_calculation_chunk_size"] = 1_024
     with pytest.raises(RuntimeError, match="training"):
         validate_matching_protocol(preflight, drifted, "preflight")
 
 
-def test_every_rl_update_uses_the_manifested_logprob_chunk_size():
+def test_every_backend_training_call_uses_the_manifested_logprob_chunk_size():
     source = (ROOT / "src/service_agent/training/art_tau_train.py").read_text()
     tree = ast.parse(source)
     calls = [
@@ -710,6 +822,17 @@ def test_resume_requires_the_same_run_and_protocol():
     with pytest.raises(RuntimeError, match="run_name"):
         validate_resume_contract(previous, renamed)
 
+    moved = _manifest()
+    moved["lineage_path"] = "/different/art/service-agent/models/run-r1"
+    with pytest.raises(RuntimeError, match="lineage_path"):
+        validate_resume_contract(previous, moved)
+
+    for terminal_status in ("passed", "stopped_sparse_reward"):
+        terminal = _manifest()
+        terminal["status"] = terminal_status
+        with pytest.raises(RuntimeError, match="terminal"):
+            validate_resume_contract(terminal, current)
+
 
 def test_group_stats_uses_within_group_reward_variance():
     def group(*rewards: float) -> SimpleNamespace:
@@ -730,3 +853,376 @@ def test_group_stats_uses_within_group_reward_variance():
     assert stats["all_zero"] == 1
     assert stats["all_one"] == 1
     assert stats["constant_other"] == 1
+
+
+def test_smoke_is_the_contiguous_prefix_of_the_formal_schedule():
+    scenarios = list(range(54))
+    args = _training_args()
+
+    assert _scenarios_for_formal_step(
+        scenarios,
+        step=0,
+        groups_per_step=2,
+        seed=42,
+    ) == [39, 21]
+    assert _scenarios_for_formal_step(
+        scenarios,
+        step=1,
+        groups_per_step=2,
+        seed=42,
+    ) == [44, 30]
+    assert _smoke_scenarios(scenarios, args) == [39, 21, 44, 30]
+    assert _formal_seed_base(args, 0) == 42
+    assert _formal_seed_base(args, 1) == 50
+    assert _smoke_sampling_contract(args) == {
+        "strategy": "contiguous_formal_prefix",
+        "formal_checkpoint_steps": [0, 1],
+        "formal_slots": [0, 1, 2, 3],
+        "groups_per_formal_checkpoint_step": 2,
+        "groups_submitted": 4,
+        "group_size": 4,
+        "policy_seed_base": 42,
+        "policy_seeds": list(range(42, 58)),
+    }
+
+
+def test_gather_groups_maps_formal_policy_and_user_seeds_exactly(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    calls: list[dict] = []
+
+    async def fake_rollout(scenario, model, **kwargs):
+        calls.append({"scenario": scenario, **kwargs})
+        return SimpleNamespace(
+            reward=1.0,
+            metadata={"scenario_id": scenario},
+            metrics={
+                "multi_tool_calls": 0.0,
+                "strict_replay": 1.0,
+                "reward_finalized_once": 1.0,
+                "terminated": 1.0,
+            },
+        )
+
+    class TrajectoryGroup:
+        def __init__(self, trajectories):
+            self.trajectories = trajectories
+
+    async def gather_trajectory_groups(groups):
+        for group in groups:
+            group.trajectories = await asyncio.gather(*group.trajectories)
+        return groups
+
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setattr(training_driver, "rollout", fake_rollout)
+    art = SimpleNamespace(
+        TrajectoryGroup=TrajectoryGroup,
+        gather_trajectory_groups=gather_trajectory_groups,
+    )
+
+    groups = asyncio.run(
+        _gather_groups(
+            art,
+            scenarios=["slot-0", "slot-1", "slot-2", "slot-3"],
+            model=object(),
+            client=object(),
+            args=_training_args(),
+            trials=4,
+            seed_base=42,
+        )
+    )
+
+    assert len(groups) == 4
+    by_seed = {call["policy_seed"]: call for call in calls}
+    assert sorted(by_seed) == list(range(42, 58))
+    for slot, expected_seeds in enumerate(
+        (range(42, 46), range(46, 50), range(50, 54), range(54, 58))
+    ):
+        for seed in expected_seeds:
+            assert by_seed[seed]["scenario"] == f"slot-{slot}"
+            assert by_seed[seed]["user_chat_completion_kwargs"]["seed"] == seed
+
+
+def test_smoke_gate_requires_sampling_variance_and_gradient_work():
+    args = _training_args()
+    sampling = _smoke_sampling_contract(args)
+    valid = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "phase": "smoke",
+        "status": "passed",
+        "tool_call_parser": TOOL_CALL_PARSER,
+        "semantic_contract_sha256": "contract",
+        "sampling": sampling,
+        "initial_step": 0,
+        "final_step": 1,
+        "checkpoint_path": "/art/checkpoints/0001",
+        "strict_replay": True,
+        "stats": {"groups": 4, "rollouts": 16, "mixed": 1},
+        "trainable_groups": 1,
+        "gradient_steps": 88,
+        "gradient_work_performed": True,
+        "wandb_url": "https://wandb.example/run",
+    }
+    _validate_smoke_gate(valid, "contract", sampling)
+
+    mutations = (
+        ("sampling", {"formal_slots": [2, 3]}),
+        ("stats", {"groups": 4, "rollouts": 16, "mixed": 0}),
+        ("stats", {"groups": 3, "rollouts": 12, "mixed": 1}),
+        ("trainable_groups", 0),
+        ("gradient_steps", 0),
+        ("tool_call_parser", "hermes"),
+    )
+    for key, value in mutations:
+        invalid = copy.deepcopy(valid)
+        invalid[key] = value
+        with pytest.raises(RuntimeError, match="smoke gate is not valid"):
+            _validate_smoke_gate(invalid, "contract", sampling)
+
+
+def test_formal_progress_separates_checkpoint_positions_from_gradient_work():
+    records = [
+        {
+            "checkpoint_step": 1,
+            "groups_submitted": 2,
+            "trainable_groups": 0,
+            "gradient_steps": 0,
+            "gradient_work_performed": False,
+        },
+        {
+            "checkpoint_step": 2,
+            "groups_submitted": 2,
+            "trainable_groups": 1,
+            "gradient_steps": 88,
+            "gradient_work_performed": True,
+        },
+        {
+            "checkpoint_step": 3,
+            "groups_submitted": 2,
+            "trainable_groups": 2,
+            "gradient_steps": 41,
+            "gradient_work_performed": True,
+        },
+    ]
+
+    assert _training_progress(records) == {
+        "checkpoint_steps_completed": 3,
+        "trainable_checkpoint_steps": 2,
+        "skipped_checkpoint_steps": 1,
+        "gradient_steps": 129,
+        "groups_submitted": 6,
+        "trainable_groups": 3,
+        "final_checkpoint_step": 3,
+    }
+    assert _training_progress(records, through_checkpoint_step=2) == {
+        "checkpoint_steps_completed": 2,
+        "trainable_checkpoint_steps": 1,
+        "skipped_checkpoint_steps": 1,
+        "gradient_steps": 88,
+        "groups_submitted": 4,
+        "trainable_groups": 1,
+        "final_checkpoint_step": 2,
+    }
+
+
+def test_training_work_metrics_must_agree_with_observed_variance():
+    stats = {"mixed": 1}
+    metrics = {
+        TRAINABLE_GROUPS_METRIC: 1.0,
+        GRADIENT_STEPS_METRIC: 88.0,
+    }
+
+    assert _training_work_counts(stats, metrics) == (1, 88)
+
+    with pytest.raises(RuntimeError, match="trainable-group count"):
+        _training_work_counts(
+            stats,
+            {
+                TRAINABLE_GROUPS_METRIC: 0.0,
+                GRADIENT_STEPS_METRIC: 0.0,
+            },
+        )
+    with pytest.raises(RuntimeError, match="gradient-work metrics"):
+        _training_work_counts(
+            stats,
+            {
+                TRAINABLE_GROUPS_METRIC: 1.0,
+                GRADIENT_STEPS_METRIC: 0.0,
+            },
+        )
+
+
+def test_smoke_refuses_constant_rewards_before_backend_train(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+):
+    args = _training_args(tmp_path)
+    manifest = {
+        "model_snapshot": str(tmp_path / BASE_MODEL_REVISION),
+        "semantic_contract_sha256": "contract",
+    }
+    scenarios = [
+        SimpleNamespace(task=SimpleNamespace(id=f"task-{index}")) for index in range(54)
+    ]
+    groups = [
+        SimpleNamespace(
+            trajectories=[SimpleNamespace(reward=1.0) for _ in range(args.group_size)]
+        )
+        for _ in range(4)
+    ]
+    train_calls = 0
+
+    class Client:
+        async def close(self):
+            return None
+
+    class Backend:
+        async def train(self, *args, **kwargs):
+            nonlocal train_calls
+            train_calls += 1
+
+        async def close(self):
+            return None
+
+    class Model:
+        _wandb_run = SimpleNamespace(url="https://wandb.example/run", finish=lambda: None)
+
+        async def get_step(self):
+            return 0
+
+    async def load_scenarios(tau_bench, client):
+        return scenarios, []
+
+    async def register_model(art, local_backend, run_args, *, snapshot):
+        return Backend(), Model()
+
+    async def gather_groups(art, **kwargs):
+        return groups
+
+    monkeypatch.setenv("WANDB_API_KEY", "test-key")
+    monkeypatch.setattr(training_driver, "_read_json", lambda *args: {})
+    monkeypatch.setattr(training_driver, "validate_preflight_gate", lambda *args: None)
+    monkeypatch.setattr(training_driver, "validate_matching_protocol", lambda *args: None)
+    monkeypatch.setattr(training_driver, "_load_scenarios", load_scenarios)
+    monkeypatch.setattr(training_driver, "_register_model", register_model)
+    monkeypatch.setattr(training_driver, "_gather_groups", gather_groups)
+    tau_bench = SimpleNamespace(TauBenchClient=lambda **kwargs: Client())
+
+    with pytest.raises(RuntimeError, match="no within-group reward variance"):
+        asyncio.run(
+            _run_smoke(
+                SimpleNamespace(),
+                tau_bench,
+                Backend,
+                args,
+                manifest,
+                tmp_path / "smoke_manifest.json",
+            )
+        )
+
+    assert train_calls == 0
+
+
+def test_smoke_records_positive_gradient_work_in_its_gate(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+):
+    args = _training_args(tmp_path)
+    checkpoint = tmp_path / "checkpoints" / "0001"
+    checkpoint.mkdir(parents=True)
+    manifest = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "phase": "smoke",
+        "status": "running",
+        "tool_call_parser": TOOL_CALL_PARSER,
+        "model_snapshot": str(tmp_path / BASE_MODEL_REVISION),
+        "semantic_contract_sha256": "contract",
+    }
+    scenarios = [
+        SimpleNamespace(task=SimpleNamespace(id=f"task-{index}")) for index in range(54)
+    ]
+    reward_rows = (
+        (1.0, 1.0, 1.0, 1.0),
+        (1.0, 1.0, 1.0, 1.0),
+        (1.0, 0.0, 1.0, 0.0),
+        (1.0, 1.0, 1.0, 1.0),
+    )
+    groups = [
+        SimpleNamespace(
+            trajectories=[SimpleNamespace(reward=reward) for reward in rewards]
+        )
+        for rewards in reward_rows
+    ]
+    train_calls = 0
+
+    class Client:
+        async def close(self):
+            return None
+
+    class Backend:
+        async def train(self, model, submitted, **kwargs):
+            nonlocal train_calls
+            train_calls += 1
+            assert submitted is groups
+            return SimpleNamespace(
+                step=1,
+                checkpoint_path=str(checkpoint),
+                metrics={
+                    TRAINABLE_GROUPS_METRIC: 1.0,
+                    GRADIENT_STEPS_METRIC: 88.0,
+                },
+            )
+
+        async def close(self):
+            return None
+
+    class Model:
+        _wandb_run = SimpleNamespace(url="https://wandb.example/run", finish=lambda: None)
+
+        async def get_step(self):
+            return 0
+
+        async def log(self, *args, **kwargs):
+            return None
+
+    async def load_scenarios(tau_bench, client):
+        return scenarios, []
+
+    async def register_model(art, local_backend, run_args, *, snapshot):
+        return Backend(), Model()
+
+    async def gather_groups(art, **kwargs):
+        assert kwargs["scenarios"] == _smoke_scenarios(scenarios, args)
+        assert kwargs["trials"] == 4
+        assert kwargs["seed_base"] == 42
+        return groups
+
+    monkeypatch.setenv("WANDB_API_KEY", "test-key")
+    monkeypatch.setattr(training_driver, "_read_json", lambda *args: {})
+    monkeypatch.setattr(training_driver, "validate_preflight_gate", lambda *args: None)
+    monkeypatch.setattr(training_driver, "validate_matching_protocol", lambda *args: None)
+    monkeypatch.setattr(training_driver, "_load_scenarios", load_scenarios)
+    monkeypatch.setattr(training_driver, "_register_model", register_model)
+    monkeypatch.setattr(training_driver, "_gather_groups", gather_groups)
+    tau_bench = SimpleNamespace(TauBenchClient=lambda **kwargs: Client())
+
+    asyncio.run(
+        _run_smoke(
+            SimpleNamespace(),
+            tau_bench,
+            Backend,
+            args,
+            manifest,
+            tmp_path / "smoke_manifest.json",
+        )
+    )
+
+    assert train_calls == 1
+    assert manifest["trainable_groups"] == 1
+    assert manifest["gradient_steps"] == 88
+    assert manifest["gradient_work_performed"] is True
+    _validate_smoke_gate(
+        manifest,
+        "contract",
+        _smoke_sampling_contract(args),
+    )

@@ -21,8 +21,8 @@ BASE_MODEL_REVISION = "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
 ART_COMMIT = "828b839b1139ac780725f0a22a9bde70a82b4878"
 TAU2_COMMIT = "2822d9030b621e6f13a190fb14fa08cf1c9c4ca4"
 CHAT_TEMPLATE_KWARGS = {"enable_thinking": False}
-TOOL_CALL_PARSER = "hermes"
-MANIFEST_SCHEMA_VERSION = 2
+TOOL_CALL_PARSER = "qwen3_coder"
+MANIFEST_SCHEMA_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -308,6 +308,7 @@ def _shared_protocol_contract(payload: dict[str, Any]) -> dict[str, Any]:
         "tau2_commit": payload.get("tau2_commit"),
         "base_model": payload.get("base_model"),
         "base_model_revision": payload.get("base_model_revision"),
+        "tool_call_parser": payload.get("tool_call_parser"),
         "semantic_contract_sha256": payload.get("semantic_contract_sha256"),
         "semantic_input_hashes": payload.get("semantic_input_hashes"),
         "runtime": runtime,
@@ -341,9 +342,13 @@ def validate_resume_contract(
 ) -> None:
     """Resume only the exact formal run, never a nearby configuration."""
 
+    if previous.get("status") in {"passed", "stopped_sparse_reward"}:
+        raise RuntimeError(
+            f"formal lineage is terminal and cannot resume: {previous.get('status')}"
+        )
     different = [
         key
-        for key in ("phase", "run_name")
+        for key in ("phase", "run_name", "lineage_path")
         if previous.get(key) != current.get(key)
     ]
     if different:
@@ -367,6 +372,7 @@ def validate_preflight_gate(payload: dict[str, Any], expected_contract: str) -> 
         "base model revision": (
             payload.get("base_model_revision") == BASE_MODEL_REVISION
         ),
+        "tool-call parser": payload.get("tool_call_parser") == TOOL_CALL_PARSER,
         "semantic contract": payload.get("semantic_contract_sha256") == expected_contract,
         "fresh step": payload.get("initial_step") == 0,
         "no update": payload.get("final_step") == 0,

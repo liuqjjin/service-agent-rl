@@ -146,6 +146,28 @@ ART's `TauBenchClient` (`ART/src/art/tau_bench/client.py:109`) expects
 split="test")`. Useful as a smoke example, forbidden as an experimental
 protocol; our training entry points assert train-core only.
 
+**ART defaults local vLLM tool parsing to Hermes, but permits an exact
+override.** `ART/src/art/unsloth/service.py:276-286` constructs server
+arguments with `tool_call_parser="hermes"` and then overlays the caller's
+`server_args`. [Qwen's model card at the frozen revision](https://huggingface.co/Qwen/Qwen3.5-4B/blob/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/README.md)
+specifies `qwen3_coder` for vLLM tool use, so the project passes that value
+explicitly and records it in the semantic contract.
+
+```bash
+sed -n '276,286p' third_party/ART/src/art/unsloth/service.py
+```
+
+**An ART step can advance without gradient work.**
+`ART/src/art/local/backend.py:1466-1521` handles a batch with no trainable
+reward groups by copying the current checkpoint to the next numbered
+directory, incrementing the logical step, and emitting zero trainable groups
+and zero gradient steps. Project manifests therefore report checkpoint
+positions and gradient-bearing work separately.
+
+```bash
+sed -n '1466,1521p' third_party/ART/src/art/local/backend.py
+```
+
 **ART's mask patch predates the installed Transformers 5 signature.**
 The pinned wrapper
 (`ART/src/art/transformers/patches.py:14-34`) omits the newer

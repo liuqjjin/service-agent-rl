@@ -15,12 +15,14 @@ and this file is the one to fix. Do not edit `CLAUDE.md` to resolve a disagreeme
 
 The base-model row of the 2x2 is measured on the frozen dev set:
 `reports/governance_ablation.md`, Hbest = H2. The GPU path now has separate
-zero-update preflight, one-update smoke, and formal lineages; exact model,
+update-free preflight, single-train-call smoke, and formal lineages; exact model,
 tokenization, ART/tau2, runtime, split, replay, and resume contracts are tested
-locally. It has not yet passed a real GPU preflight and no weights have been
-trained, which is why the package is still named `service-agent`.
+locally. The RTX PRO 6000 runtime passed a real token/logprob preflight, and a
+diagnostic smoke changed adapter weights. That work exposed the Hermes parser
+and smoke-sampling errors now fixed in manifest schema 3. Fresh official gates
+and formal GRPO still have to finish; no checkpoint is selected yet.
 
-Local Mac gate at the time of writing: 101 tests green, lint clean, both
+Local Mac gate at the time of writing: 111 tests green, lint clean, both
 submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
 `main` stays untouched.
 
@@ -62,7 +64,7 @@ results/dev/{h0,h1,h2}/    the measured dev ablation: run_config, results, metri
 results/compat/            the compatibility-matrix smoke runs behind DECISIONS.md D7
 logs/dev_h*.log            raw stdout of the three dev runs
 UPSTREAM.md                pins, provenance, every code-level claim with a reproducing command
-DECISIONS.md               execution-time judgment calls (D1-D8), with reasoning
+DECISIONS.md               execution-time judgment calls (D1-D25), with reasoning
 ```
 
 Submodule gitlinks, as checked out:
@@ -88,7 +90,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 101 tests, ~5s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 111 tests, ~5s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -128,6 +130,8 @@ Model-serving traps, all found empirically and all handled inside `run_ablation`
 - `deepseek-v4-pro` disables thinking only via `extra_body={"thinking": {"type": "disabled"}}`;
   the top-level `thinking` parameter is ignored through LiteLLM, and the default mode leaks
   `reasoning_content`.
+- Pinned ART defaults local vLLM tool parsing to Hermes. The frozen Qwen3.5 contract overrides it
+  with `qwen3_coder`; the parser is explicit in every manifest and its semantic hash.
 
 The shim and the training entry points:
 
@@ -135,7 +139,7 @@ The shim and the training entry points:
 uv run python -m service_agent.serve.tau2_shim              # SHIM_HOST/SHIM_PORT, default :8000
 curl -s "localhost:8000/scenarios?domain=telecom&split=train-core" | ...   # 54 scenarios
 curl -s "localhost:8000/scenarios?domain=telecom&split=test" -o /dev/null -w "%{http_code}\n"  # 403
-python -m service_agent.training.art_tau_train --smoke      # trainer venv on the GPU box only
+python -m service_agent.training.art_tau_train --help       # exact GPU commands are in the runbook
 python -m service_agent.training.logprob_check --api-base ... --served-model ... \
     --model-snapshot ... --contract-json ...
 ```
@@ -228,7 +232,7 @@ that is regenerated only deliberately (`python -m service_agent.splits` rewrites
 
 ## Test gates
 
-`uv run pytest` must be green before any commit. As of HEAD: 101 passed in ~5s, no API keys
+`uv run pytest` must be green before any commit. As of HEAD: 111 passed in ~5s, no API keys
 needed, models mocked or driven by scripted stand-ins.
 
 | File | What it protects |
@@ -291,9 +295,10 @@ declared directly.
   branch by rsync over the configured SSH connection. A future independent
   clone still needs GitHub credentials. Making the repo public is a portfolio
   decision, not a code one.
-- **The GPU contracts are locally tested but not yet empirically cleared.**
-  The pinned ART/vLLM/Unsloth stack must still pass exact-token/logprob
-  preflight and one real optimizer update on the RTX 4090 before formal GRPO.
+- **Formal GRPO is not complete.** The pinned ART/vLLM/Unsloth stack is
+  empirically compatible with the RTX PRO 6000, including exact-token/logprob
+  parity and positive diagnostic gradient work. Fresh official manifest-v3
+  preflight and smoke gates must pass before the formal lineage starts.
 - **`enable_roaming`/`disable_roaming` have no rule.** They are in `WRITE_TOOLS` and fall through
   to `no_specific_rule` (28 such records per dev arm). `main_policy.md:155` only says to enable
   roaming at no cost for a traveling user, so an unconditional allow is defensible — but

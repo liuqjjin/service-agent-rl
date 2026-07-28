@@ -106,17 +106,17 @@ serving both use bf16. The explicit check is necessary because ART's pinned
 training-tokenizer helper does not forward `revision` even though its model
 and engine loaders do.
 
-## D10. Step 0 is a zero-update gate, not a smoke-training by-product
+## D10. Step 0 is an update-free gate, not a smoke-training by-product
 
 Preflight registers an untouched LoRA lineage, captures vLLM's exact prompt
 and completion token IDs plus rollout logprobs, closes vLLM, and only then
 loads the bf16 reference model. Prompt token IDs must match byte-for-byte and
-importance ratios must pass before any update. A second registration of the
+importance ratios must pass before any gradient work. A second registration of the
 same untouched step-0 checkpoint runs official train-core episodes through
 strict replay without training. Only that manifest can authorize a separate
-one-update smoke lineage; only preflight plus smoke can authorize a fresh
+single-train-call smoke lineage; only preflight plus smoke can authorize a fresh
 formal lineage. This replaces the earlier runbook order, which performed a
-smoke update before the purported step-0 check.
+smoke training call before the purported step-0 check.
 
 The pinned ART tau-bench client also split multiple tool calls from one model
 message into separate shim steps. That changes tau2 trajectory semantics. The
@@ -141,12 +141,15 @@ tau2 commits; model and revision; tokenizer-derived context budget; bf16
 runtime and package versions; user simulator; rollout limits; and optimization
 settings. Run names are the only phase-specific field omitted from the
 cross-phase comparison. A formal resume additionally requires the same run
-name and checkpoint step.
+name, resolved ART lineage path, checkpoint path, and checkpoint step.
+Completed and sparse-reward-stopped lineages are terminal rather than
+restartable by repeating the command.
 
 ART reports a group as trainable only when rewards vary within that group.
 The driver now uses that exact definition: constant fractional rewards such as
-`[0.5, 0.5]` are not called mixed. The one-update smoke refuses to train unless
-at least one group has variance and ART confirms at least one trainable group.
+`[0.5, 0.5]` are not called mixed. The single-train-call smoke refuses to train
+unless at least one group has variance, and its gate requires ART to report both
+a trainable group and positive gradient work.
 Formal checkpoint selection uses the same task/trial seeds at every scheduled
 dev evaluation, so a checkpoint is not selected merely because it received an
 easier random draw.
@@ -289,7 +292,7 @@ drift fail before model registration.
 
 ## D22. Bound the exact logprob workspace after the first controlled OOM
 
-The first real one-update smoke completed all eight official rollouts with
+The first real smoke attempt completed all eight official rollouts with
 strict replay, reward finalized once, no multi-tool calls, and one mixed
 reward group. Its first training forward then failed at
 `torch.logsumexp(chunk_logits)` while requesting a 970 MiB temporary tensor.
@@ -302,7 +305,57 @@ this calculation. The driver now fixes it at 512 instead of ART's 1,024
 default. This partitions the same vocabulary log-sum-exp without changing
 tokens, logits, rewards, advantages, optimizer settings, or model weights.
 The value is written into the cross-phase training contract, passed to every
-smoke and formal update, and rejected if preflight, smoke, training, or resume
+smoke and formal learner call, and rejected if preflight, smoke, training, or resume
 drifts. Because the failed attempt used the earlier contract, all gates are
 rerun from fresh lineages rather than treating the failed smoke as reusable
+evidence.
+
+## D23. Qwen3.5 tool calls use `qwen3_coder`, not ART's Hermes default
+
+Pinned ART initializes its local vLLM server with `hermes` unless `server_args`
+overrides it (`third_party/ART/src/art/unsloth/service.py:276-286`). The
+[frozen Qwen3.5 model card](https://huggingface.co/Qwen/Qwen3.5-4B/blob/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/README.md)
+instead specifies `--enable-auto-tool-choice --tool-call-parser qwen3_coder`
+for vLLM tool use.
+
+On the RTX PRO 6000, Hermes treated Qwen's native function/parameter
+serialization incorrectly: the failed smoke sample produced 0/8 reward.
+Changing only the parser to `qwen3_coder` made the same scenarios and seeds
+8/8. The parser is explicit in manifest schema 3 and remains part of the
+semantic-contract hash, so every Hermes-era gate is invalid and all official
+phases restart from fresh lineages.
+
+## D24. Smoke exercises the first two formal batches
+
+With the corrected parser, formal slots 0-1 and their formal seeds were all-one
+(8/8), so a two-group smoke would ask ART to advance a checkpoint without
+gradient work. A rollout-only scan of the fixed first ten formal steps found
+three mixed groups and would not trigger the sparse-reward stop; the first
+mixed group was slot 2.
+
+Smoke therefore uses the contiguous prefix
+`_scenario_for_slot(train, 0..3, seed=42)` and the identical formal seed
+mapping: four groups and policy/user seeds 42-57, exactly the first two formal
+batches. This is the minimum contiguous prefix that exercises gradient work,
+not a selected successful task. The diagnostic lineage produced one
+mixed/trainable group, one `backend.train` call, checkpoint transition 0 to 1,
+and 88 reported gradient steps
+([W&B](https://wandb.ai/lqj-physics-nudt/service-agent/runs/diag-smoke-qwen3coder-formal-slots0-3-r1)).
+That lineage is disposable; formal training still starts fresh from slot 0. If
+the official smoke has no variance, it fails rather than searching new seeds.
+
+## D25. ART checkpoint steps and gradient work are reported separately
+
+Pinned ART advances its logical step even when no group has reward variance: it
+copies the current checkpoint to the next directory and emits zero for both
+`data/step_num_groups_trainable` and `data/step_num_gradient_steps`
+(`third_party/ART/src/art/local/backend.py:1466-1521`). Therefore
+`checkpoint_step` and `last_completed_step` are lineage positions, not proof
+that weights changed.
+
+Smoke requires positive trainable groups and gradient steps. Formal manifests
+report checkpoint steps, gradient-bearing checkpoint steps, skipped checkpoint
+steps, submitted/trainable groups, and ART gradient steps separately. The
+selected checkpoint also records those totals only through its own step. A
+60-step lineage is never described as 60 optimizer updates without that
 evidence.

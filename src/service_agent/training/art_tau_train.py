@@ -4,8 +4,8 @@ The three phases are deliberately separate lineages:
 
 * preflight: register step 0, prove exact-token/logprob parity, then run
   train-core rollouts without an update;
-* smoke: require the preflight artifact and perform exactly one update in a
-  disposable ART directory;
+* smoke: require the preflight artifact and perform one backend training call
+  with nonzero gradient work in a disposable ART directory;
 * train: require both gates, start a fresh formal lineage, or resume that
   exact lineage from its durable manifest.
 
@@ -64,7 +64,10 @@ from service_agent.training.token_budget import (
 
 DEFAULT_USER_MODEL = "deepseek/deepseek-v4-pro"
 DEFAULT_LOGPROB_CALCULATION_CHUNK_SIZE = 512
+SMOKE_FORMAL_BATCHES = 2
 SPARSE_REWARD_WINDOW = 10
+TRAINABLE_GROUPS_METRIC = "data/step_num_groups_trainable"
+GRADIENT_STEPS_METRIC = "data/step_num_gradient_steps"
 VLLM_RUNTIME_DISTRIBUTIONS = (
     "art-vllm-runtime",
     "flashinfer-python",
@@ -191,6 +194,59 @@ def group_stats(groups: list[Any]) -> dict[str, Any]:
         "all_one": all_one,
         "constant_other": constant_other,
         "reward_mean": round(sum(rewards) / max(len(rewards), 1), 6),
+    }
+
+
+def _metric_count(metrics: dict[str, Any], key: str) -> int:
+    return int(round(float(metrics.get(key, 0.0) or 0.0)))
+
+
+def _training_work_counts(
+    stats: dict[str, Any],
+    metrics: dict[str, Any],
+) -> tuple[int, int]:
+    trainable_groups = _metric_count(metrics, TRAINABLE_GROUPS_METRIC)
+    gradient_steps = _metric_count(metrics, GRADIENT_STEPS_METRIC)
+    mixed_groups = int(stats.get("mixed", 0))
+    if trainable_groups != mixed_groups:
+        raise RuntimeError(
+            "ART trainable-group count disagrees with observed reward variance: "
+            f"{trainable_groups} != {mixed_groups}"
+        )
+    if (trainable_groups > 0) != (gradient_steps > 0):
+        raise RuntimeError(
+            "ART gradient-work metrics disagree: "
+            f"trainable_groups={trainable_groups}, gradient_steps={gradient_steps}"
+        )
+    return trainable_groups, gradient_steps
+
+
+def _training_progress(
+    train_steps: list[dict[str, Any]],
+    *,
+    through_checkpoint_step: int | None = None,
+) -> dict[str, int]:
+    """Summarize lineage positions separately from gradient-bearing work."""
+
+    records = [
+        record
+        for record in train_steps
+        if through_checkpoint_step is None
+        or int(record["checkpoint_step"]) <= through_checkpoint_step
+    ]
+    updating = sum(int(record.get("gradient_steps", 0)) > 0 for record in records)
+    final_step = max(
+        (int(record["checkpoint_step"]) for record in records),
+        default=0,
+    )
+    return {
+        "checkpoint_steps_completed": len(records),
+        "trainable_checkpoint_steps": updating,
+        "skipped_checkpoint_steps": len(records) - updating,
+        "gradient_steps": sum(int(record.get("gradient_steps", 0)) for record in records),
+        "groups_submitted": sum(int(record.get("groups_submitted", 0)) for record in records),
+        "trainable_groups": sum(int(record.get("trainable_groups", 0)) for record in records),
+        "final_checkpoint_step": final_step,
     }
 
 
@@ -601,12 +657,14 @@ def _base_manifest(
         "phase": args.phase,
         "status": "running",
         "run_name": args.run_name,
+        "lineage_path": str(_model_dir(args).resolve()),
         "started_at": _now(),
         "repo_commit": _git_commit(repo_root),
         "art_commit": _git_commit(repo_root / "third_party/ART"),
         "tau2_commit": _git_commit(repo_root / "third_party/tau2-bench"),
         "base_model": BASE_MODEL_ID,
         "base_model_revision": BASE_MODEL_REVISION,
+        "tool_call_parser": TOOL_CALL_PARSER,
         "model_snapshot": str(snapshot),
         "semantic_contract_sha256": semantic_hash,
         "semantic_input_hashes": semantic_inputs,
@@ -669,6 +727,29 @@ def _require_checkpoint(path: str | None, expected_step: int) -> str:
     return str(checkpoint)
 
 
+def _selected_checkpoint(
+    args: argparse.Namespace,
+    dev_evaluations: list[dict[str, Any]],
+    train_steps: list[dict[str, Any]],
+) -> dict[str, Any]:
+    best = max(
+        dev_evaluations,
+        key=lambda item: (item["avg_reward"], -item["step"]),
+    )
+    step = int(best["step"])
+    checkpoint_path = _checkpoint_path(args, step)
+    _require_checkpoint(checkpoint_path, step)
+    return {
+        **best,
+        "selection_rule": "highest frozen-dev average reward; ties choose earliest",
+        "checkpoint_path": checkpoint_path,
+        "training_progress": _training_progress(
+            train_steps,
+            through_checkpoint_step=step,
+        ),
+    }
+
+
 async def _register_model(
     art: Any,
     LocalBackend: Any,
@@ -687,6 +768,7 @@ async def _register_model(
                 "base_model": BASE_MODEL_ID,
                 "base_model_revision": BASE_MODEL_REVISION,
                 "art_commit": ART_COMMIT,
+                "tool_call_parser": TOOL_CALL_PARSER,
                 "phase": args.phase,
             },
             "runtime": asdict(runtime),
@@ -875,16 +957,84 @@ async def _run_preflight(
         await client.close()
 
 
-def _validate_smoke_gate(payload: dict[str, Any], expected_contract: str) -> None:
+def _scenario_for_slot(scenarios: list[Any], slot: int, seed: int) -> Any:
+    epoch, offset = divmod(slot, len(scenarios))
+    order = list(range(len(scenarios)))
+    random.Random(seed + epoch).shuffle(order)
+    return scenarios[order[offset]]
+
+
+def _scenarios_for_formal_step(
+    scenarios: list[Any],
+    *,
+    step: int,
+    groups_per_step: int,
+    seed: int,
+) -> list[Any]:
+    first_slot = step * groups_per_step
+    return [
+        _scenario_for_slot(scenarios, first_slot + index, seed)
+        for index in range(groups_per_step)
+    ]
+
+
+def _smoke_scenarios(scenarios: list[Any], args: argparse.Namespace) -> list[Any]:
+    return [
+        scenario
+        for step in range(SMOKE_FORMAL_BATCHES)
+        for scenario in _scenarios_for_formal_step(
+            scenarios,
+            step=step,
+            groups_per_step=args.groups_per_step,
+            seed=args.seed,
+        )
+    ]
+
+
+def _formal_seed_base(args: argparse.Namespace, step: int) -> int:
+    return args.seed + step * args.groups_per_step * args.group_size
+
+
+def _smoke_sampling_contract(args: argparse.Namespace) -> dict[str, Any]:
+    groups = SMOKE_FORMAL_BATCHES * args.groups_per_step
+    return {
+        "strategy": "contiguous_formal_prefix",
+        "formal_checkpoint_steps": list(range(SMOKE_FORMAL_BATCHES)),
+        "formal_slots": list(range(groups)),
+        "groups_per_formal_checkpoint_step": args.groups_per_step,
+        "groups_submitted": groups,
+        "group_size": args.group_size,
+        "policy_seed_base": args.seed,
+        "policy_seeds": list(range(args.seed, args.seed + groups * args.group_size)),
+    }
+
+
+def _validate_smoke_gate(
+    payload: dict[str, Any],
+    expected_contract: str,
+    expected_sampling: dict[str, Any],
+) -> None:
+    stats = payload.get("stats") or {}
     checks = {
+        "schema version": payload.get("schema_version") == MANIFEST_SCHEMA_VERSION,
         "phase": payload.get("phase") == "smoke",
         "status": payload.get("status") == "passed",
+        "tool-call parser": payload.get("tool_call_parser") == TOOL_CALL_PARSER,
         "semantic contract": payload.get("semantic_contract_sha256") == expected_contract,
+        "sampling contract": payload.get("sampling") == expected_sampling,
         "fresh step": payload.get("initial_step") == 0,
-        "one update": payload.get("final_step") == 1,
+        "one checkpoint transition": payload.get("final_step") == 1,
         "checkpoint": bool(payload.get("checkpoint_path")),
         "strict replay": payload.get("strict_replay") is True,
-        "optimizer update": payload.get("optimizer_update") is True,
+        "submitted groups": int(stats.get("groups", 0))
+        == int(expected_sampling["groups_submitted"]),
+        "completed rollouts": int(stats.get("rollouts", 0))
+        == int(expected_sampling["groups_submitted"])
+        * int(expected_sampling["group_size"]),
+        "mixed reward": int(stats.get("mixed", 0)) >= 1,
+        "trainable group": int(payload.get("trainable_groups", 0)) >= 1,
+        "gradient work": int(payload.get("gradient_steps", 0)) >= 1,
+        "gradient-work flag": payload.get("gradient_work_performed") is True,
         "W&B run": bool(payload.get("wandb_url")),
     }
     failed = [name for name, passed in checks.items() if not passed]
@@ -919,19 +1069,21 @@ async def _run_smoke(
         initial_step = await model.get_step()
         if initial_step != 0:
             raise RuntimeError(f"smoke must start at step 0, got {initial_step}")
+        selected = _smoke_scenarios(train, args)
         groups = await _gather_groups(
             art,
-            scenarios=train[: args.groups_per_step],
+            scenarios=selected,
             model=model,
             client=client,
             args=args,
             trials=args.group_size,
-            seed_base=args.seed + 20_000,
+            seed_base=_formal_seed_base(args, 0),
         )
         stats = group_stats(groups)
         if stats["mixed"] < 1:
             raise RuntimeError(
-                "smoke has no within-group reward variance; refusing a skipped update"
+                "smoke has no within-group reward variance; "
+                "refusing a zero-gradient checkpoint transition"
             )
         result = await backend.train(
             model,
@@ -944,13 +1096,15 @@ async def _run_smoke(
             ),
         )
         if result.step != 1:
-            raise RuntimeError(f"smoke must make exactly one update, got step {result.step}")
+            raise RuntimeError(
+                f"smoke must make one checkpoint transition, got step {result.step}"
+            )
         checkpoint_path = _require_checkpoint(result.checkpoint_path, result.step)
-        if result.metrics.get("data/step_num_groups_trainable", 0.0) < 1.0:
-            raise RuntimeError("ART reported no trainable group in the smoke update")
+        metrics = {key: float(value) for key, value in result.metrics.items()}
+        trainable_groups, gradient_steps = _training_work_counts(stats, metrics)
         wandb_url = _wandb_url(model)
         if not wandb_url:
-            raise RuntimeError("smoke update has no W&B run URL")
+            raise RuntimeError("smoke training call has no W&B run URL")
         await model.log(groups, split="smoke", step=result.step)
         await model.log(split="smoke", step=result.step, metrics=result.metrics)
         manifest.update(
@@ -961,8 +1115,13 @@ async def _run_smoke(
                 "final_step": result.step,
                 "checkpoint_path": checkpoint_path,
                 "strict_replay": True,
-                "optimizer_update": True,
+                "sampling": _smoke_sampling_contract(args),
+                "scenario_ids": [str(scenario.task.id) for scenario in selected],
                 "stats": stats,
+                "metrics": metrics,
+                "trainable_groups": trainable_groups,
+                "gradient_steps": gradient_steps,
+                "gradient_work_performed": True,
                 "wandb_url": wandb_url,
             }
         )
@@ -977,13 +1136,6 @@ async def _run_smoke(
         if model is not None:
             _finish_wandb(model)
         await client.close()
-
-
-def _scenario_for_slot(scenarios: list[Any], slot: int, seed: int) -> Any:
-    epoch, offset = divmod(slot, len(scenarios))
-    order = list(range(len(scenarios)))
-    random.Random(seed + epoch).shuffle(order)
-    return scenarios[order[offset]]
 
 
 async def _validate_dev(
@@ -1028,7 +1180,7 @@ async def _run_train(
     preflight = _read_json(args.preflight_manifest, "preflight manifest")
     smoke = _read_json(args.smoke_manifest, "smoke manifest")
     validate_preflight_gate(preflight, contract_hash)
-    _validate_smoke_gate(smoke, contract_hash)
+    _validate_smoke_gate(smoke, contract_hash, _smoke_sampling_contract(args))
     validate_matching_protocol(preflight, manifest, "preflight")
     validate_matching_protocol(smoke, manifest, "smoke")
     if not os.environ.get("WANDB_API_KEY"):
@@ -1063,22 +1215,28 @@ async def _run_train(
             raise RuntimeError(
                 f"checkpoint/manifest resume mismatch: {start_step} != {recorded_step}"
             )
+        if start_step > 0:
+            expected_checkpoint = _checkpoint_path(args, start_step)
+            if manifest.get("latest_checkpoint_path") != expected_checkpoint:
+                raise RuntimeError(
+                    "checkpoint/manifest path mismatch: "
+                    f"{manifest.get('latest_checkpoint_path')} != {expected_checkpoint}"
+                )
         manifest.setdefault("initial_step", start_step)
         manifest.setdefault("train_steps", [])
         manifest.setdefault("dev_evaluations", [])
+        manifest["progress"] = _training_progress(manifest["train_steps"])
         recent_mixed = [
             int(item["stats"]["mixed"]) for item in manifest["train_steps"][-SPARSE_REWARD_WINDOW:]
         ]
 
         for step in range(start_step, args.steps):
-            selected = [
-                _scenario_for_slot(
-                    train,
-                    step * args.groups_per_step + index,
-                    args.seed,
-                )
-                for index in range(args.groups_per_step)
-            ]
+            selected = _scenarios_for_formal_step(
+                train,
+                step=step,
+                groups_per_step=args.groups_per_step,
+                seed=args.seed,
+            )
             groups = await _gather_groups(
                 art,
                 scenarios=selected,
@@ -1086,7 +1244,7 @@ async def _run_train(
                 client=client,
                 args=args,
                 trials=args.group_size,
-                seed_base=args.seed + step * args.groups_per_step * args.group_size,
+                seed_base=_formal_seed_base(args, step),
             )
             stats = group_stats(groups)
             recent_mixed.append(int(stats["mixed"]))
@@ -1110,15 +1268,22 @@ async def _run_train(
             checkpoint_path = _require_checkpoint(result.checkpoint_path, result.step)
             await model.log(groups, split="train", step=result.step)
             await model.log(split="train", step=result.step, metrics=result.metrics)
+            metrics = {key: float(value) for key, value in result.metrics.items()}
+            trainable_groups, gradient_steps = _training_work_counts(stats, metrics)
             step_record = {
                 "rollout_step": step,
                 "checkpoint_step": result.step,
                 "checkpoint_path": checkpoint_path,
                 "stats": stats,
-                "metrics": {key: float(value) for key, value in result.metrics.items()},
+                "metrics": metrics,
+                "groups_submitted": int(stats["groups"]),
+                "trainable_groups": trainable_groups,
+                "gradient_steps": gradient_steps,
+                "gradient_work_performed": gradient_steps > 0,
                 "completed_at": _now(),
             }
             manifest["train_steps"].append(step_record)
+            manifest["progress"] = _training_progress(manifest["train_steps"])
             manifest["last_completed_step"] = result.step
             manifest["latest_checkpoint_path"] = checkpoint_path
             manifest["wandb_url"] = _wandb_url(model)
@@ -1133,18 +1298,10 @@ async def _run_train(
                     step=result.step,
                 )
                 manifest["dev_evaluations"].append(dev_result)
-                best = max(
+                manifest["selected_checkpoint"] = _selected_checkpoint(
+                    args,
                     manifest["dev_evaluations"],
-                    key=lambda item: (item["avg_reward"], -item["step"]),
-                )
-                manifest["selected_checkpoint"] = {
-                    **best,
-                    "selection_rule": "highest frozen-dev average reward; ties choose earliest",
-                    "checkpoint_path": _checkpoint_path(args, int(best["step"])),
-                }
-                _require_checkpoint(
-                    manifest["selected_checkpoint"]["checkpoint_path"],
-                    int(best["step"]),
+                    manifest["train_steps"],
                 )
                 print(
                     f"step {result.step} dev: "
@@ -1163,7 +1320,7 @@ async def _run_train(
                         "stopped_at": _now(),
                         "reason": (
                             f"at most one mixed-reward group in the last "
-                            f"{SPARSE_REWARD_WINDOW} update steps"
+                            f"{SPARSE_REWARD_WINDOW} checkpoint/rollout steps"
                         ),
                     }
                 )
@@ -1184,24 +1341,17 @@ async def _run_train(
                 step=args.steps,
             )
             manifest["dev_evaluations"].append(dev_result)
-            best = max(
+            manifest["selected_checkpoint"] = _selected_checkpoint(
+                args,
                 manifest["dev_evaluations"],
-                key=lambda item: (item["avg_reward"], -item["step"]),
-            )
-            manifest["selected_checkpoint"] = {
-                **best,
-                "selection_rule": "highest frozen-dev average reward; ties choose earliest",
-                "checkpoint_path": _checkpoint_path(args, int(best["step"])),
-            }
-            _require_checkpoint(
-                manifest["selected_checkpoint"]["checkpoint_path"],
-                int(best["step"]),
+                manifest["train_steps"],
             )
         manifest.update(
             {
                 "status": "passed",
                 "completed_at": _now(),
                 "final_step": await model.get_step(),
+                "progress": _training_progress(manifest["train_steps"]),
                 "wandb_url": _wandb_url(model),
             }
         )

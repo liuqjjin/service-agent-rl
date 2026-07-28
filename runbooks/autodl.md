@@ -1,14 +1,15 @@
 # AutoDL GRPO runbook
 
-This is the reproducible GPU procedure. The current instance is one RTX 4090
-with 49,140 MiB VRAM and a 200 GB data disk at `/root/autodl-tmp`. All large
-state lives on that disk. Services bind to localhost only.
+This is the reproducible GPU procedure. The current instance is one NVIDIA RTX
+PRO 6000 Blackwell Server Edition with 97,887 MiB VRAM and a 200 GB data disk at
+`/root/autodl-tmp`. All large state lives on that disk. Services bind to
+localhost only.
 
 The training protocol has three lineages:
 
-1. `preflight-r1`: step-0 token/logprob gate, then rollout-only; no update.
-2. `smoke-r1`: one disposable update, authorized by preflight.
-3. `grpo-4b-r1`: fresh formal run, authorized by both earlier manifests.
+1. `preflight-qwen3coder-r1`: step-0 token/logprob gate, then rollout-only.
+2. `smoke-qwen3coder-r1`: one disposable backend training call.
+3. `grpo-4b-qwen3coder-r1`: fresh formal run, authorized by both gates.
 
 The official test split stays locked throughout all three.
 
@@ -22,6 +23,7 @@ The official test split stays locked throughout all three.
 | Base model | `Qwen/Qwen3.5-4B` |
 | Model revision | `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` |
 | Policy template | tokenizer at that revision, `enable_thinking=false` |
+| Tool-call parser | `qwen3_coder` |
 | User simulator | `deepseek/deepseek-v4-pro`, thinking disabled, temperature 0 |
 | Training split | frozen train-core, 54 tasks |
 | Selection split | frozen dev, 20 tasks |
@@ -152,78 +154,95 @@ The command downloads and verifies the pinned model snapshot. It then:
    exactly once;
 10. exits with `final_step=0`.
 
-The manifest records the exact Python argv, download endpoint, composite
-semantic-contract hash, and separate hashes for the system prompt, tools, and
-tokenizer chat template. It also records the selected CUDA runtime and
-bootstrap plus locked `ninja` paths, versions, and SHA-256 values; smoke and
-formal phases reject drift in any of them. The installed attention-mask
-adapter and both upstream parameter orders are recorded and matched too.
+The manifest records the exact Python argv, download endpoint,
+`qwen3_coder` parser, composite semantic-contract hash, and separate hashes for
+the system prompt, tools, and tokenizer chat template. It also records the
+selected CUDA runtime and bootstrap plus locked `ninja` paths, versions, and
+SHA-256 values; smoke and formal phases reject drift in any of them. The
+installed attention-mask adapter and both upstream parameter orders are
+recorded and matched too. Manifest schema 3 makes the parser explicit; an
+earlier Hermes manifest cannot authorize any phase.
 
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl
 source .venv-trainer/bin/activate
 python -m service_agent.training.art_tau_train \
-  --phase preflight --run-name preflight-r1 \
-  --art-path /root/autodl-tmp/art/preflight \
-  --out /root/autodl-tmp/runs/preflight-r1 \
+  --phase preflight --run-name preflight-qwen3coder-r1 \
+  --art-path /root/autodl-tmp/art/preflight-qwen3coder-r1 \
+  --out /root/autodl-tmp/runs/preflight-qwen3coder-r1 \
   --hf-cache /root/autodl-tmp/cache/huggingface \
   --group-size 4 --max-turns 30 \
   --max-completion-tokens 1024 --max-model-len 16384 \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
   --logprob-calculation-chunk-size 512 \
-  2>&1 | tee /root/autodl-tmp/logs/preflight-r1.log
+  2>&1 | tee /root/autodl-tmp/logs/preflight-qwen3coder-r1.log
 deactivate
 ```
 
 Gate artifact:
 
-`/root/autodl-tmp/runs/preflight-r1/preflight_manifest.json`
+`/root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json`
 
 Do not continue unless its status is `passed`, both token and logprob gates
 pass, strict replay is true, test locking is true, and both steps are zero.
 
-## 5. One-update disposable smoke
+## 5. Single-train-call disposable smoke
 
 ```bash
 source .venv-trainer/bin/activate
 python -m service_agent.training.art_tau_train \
-  --phase smoke --run-name smoke-r1 \
-  --art-path /root/autodl-tmp/art/smoke \
-  --out /root/autodl-tmp/runs/smoke-r1 \
+  --phase smoke --run-name smoke-qwen3coder-r1 \
+  --art-path /root/autodl-tmp/art/smoke-qwen3coder-r1 \
+  --out /root/autodl-tmp/runs/smoke-qwen3coder-r1 \
   --hf-cache /root/autodl-tmp/cache/huggingface \
   --preflight-manifest \
-    /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json \
-  --group-size 4 --max-turns 30 \
+    /root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json \
+  --group-size 4 --groups-per-step 2 --max-turns 30 \
   --max-completion-tokens 1024 --max-model-len 16384 \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
   --logprob-calculation-chunk-size 512 \
-  2>&1 | tee /root/autodl-tmp/logs/smoke-r1.log
+  2>&1 | tee /root/autodl-tmp/logs/smoke-qwen3coder-r1.log
 deactivate
 ```
 
-The smoke runs two groups and must observe within-group reward variance before
-training. Its manifest must show step 0 to step 1, at least one trainable group,
-a real optimizer update, one checkpoint, strict replay, a W&B URL, and no OOM.
-After its checkpoint and log are backed up, this ART lineage is disposable and
-must never seed the formal run.
+The smoke submits four groups: formal slots 0-3, exactly the first two
+two-group formal batches selected by `_scenario_for_slot`, with the same
+policy/user seed mapping (42-57 at the frozen defaults). It must observe at
+least one mixed-reward group before calling the backend. Its manifest must then
+show checkpoint step 0 to 1, at least one ART trainable group, positive
+`data/step_num_gradient_steps`, one checkpoint, strict replay, a W&B URL, and
+no OOM. If the fixed sample has no variance, stop; do not search for another
+seed. After its checkpoint and log are backed up, this ART lineage is
+disposable and must never seed the formal run.
 
 ## 6. Formal GRPO
 
-The formal configuration starts with group size 4, two task groups per update,
-four concurrent rollouts, bf16 LoRA, and a 16,384-token context. Preflight
-records p50/p95/p99/max prompt lengths from all 240 committed dev episodes and
-refuses the run if the context cannot cover the observed maximum plus a
-governance-feedback buffer and 1,024 completion tokens.
+The formal configuration starts with group size 4, two task groups per
+rollout/checkpoint step, four concurrent rollouts, bf16 LoRA, and a
+16,384-token context. Preflight records p50/p95/p99/max prompt lengths from all
+240 committed dev episodes and refuses the run if the context cannot cover the
+observed maximum plus a governance-feedback buffer and 1,024 completion
+tokens.
 
 ```bash
-tmux new-session -d -s grpo
-tmux send-keys -t grpo \
-  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-r1 --art-path /root/autodl-tmp/art/formal --out /root/autodl-tmp/runs/grpo-4b-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --logprob-calculation-chunk-size 512 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-r1.log' C-m
+tmux new-session -d -s grpo-qwen3coder
+tmux send-keys -t grpo-qwen3coder \
+  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-qwen3coder-r1 --art-path /root/autodl-tmp/art/grpo-4b-qwen3coder-r1 --out /root/autodl-tmp/runs/grpo-4b-qwen3coder-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-qwen3coder-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --logprob-calculation-chunk-size 512 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-qwen3coder-r1.log' C-m
 ```
 
 The command is resume-safe: rerunning the exact command requires the same
-semantic-contract hash and the manifest step to equal ART's checkpoint step.
-Every update writes the manifest atomically.
+semantic-contract hash and resolved ART lineage path, and requires the
+manifest's checkpoint path and step to equal ART's. A passed or
+sparse-reward-stopped lineage is terminal. Every rollout/checkpoint step writes
+the manifest atomically.
+
+`--steps 60` fixes 60 ART rollout/checkpoint positions, not 60 optimizer
+steps. At the pinned ART commit, a batch with no mixed-reward group copies the
+current checkpoint to the next step without gradient work. Each train-step
+record and the top-level `progress` therefore report checkpoint steps,
+gradient-bearing checkpoint steps, skipped checkpoint steps, submitted and
+trainable groups, and `data/step_num_gradient_steps` separately. The selected
+checkpoint records the same totals only through its own step.
 
 The selected checkpoint rule is fixed before training: highest frozen-dev
 average reward among scheduled checkpoints; ties choose the earliest step.
@@ -238,7 +257,7 @@ Stop immediately on any of these:
 - multi-tool choice (fails before any call executes);
 - missing strict replay or reward-finalized-once marker;
 - evaluator or shim 5xx;
-- at most one mixed-reward group over ten consecutive update steps;
+- at most one mixed-reward group over ten consecutive rollout/checkpoint steps;
 - a second controlled OOM.
 
 For the first OOM only: terminate residual GPU processes, keep the last good
@@ -256,10 +275,11 @@ recorded protocol decision before any teacher data or SFT update is created.
 
 Before any final test run, copy these to the Mac and verify checksums:
 
-- `/root/autodl-tmp/runs/preflight-r1/`
-- `/root/autodl-tmp/runs/smoke-r1/`
-- `/root/autodl-tmp/runs/grpo-4b-r1/`
-- the selected LoRA checkpoint under `/root/autodl-tmp/art/formal/`
+- `/root/autodl-tmp/runs/preflight-qwen3coder-r1/`
+- `/root/autodl-tmp/runs/smoke-qwen3coder-r1/`
+- `/root/autodl-tmp/runs/grpo-4b-qwen3coder-r1/`
+- the selected LoRA checkpoint under
+  `/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/`
 - `/root/autodl-tmp/logs/`
 - W&B run URLs
 - a SHA-256 manifest for every copied file

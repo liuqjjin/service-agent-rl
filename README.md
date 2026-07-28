@@ -53,7 +53,7 @@ the governance harness and how much is the model?** A 2x2 factorial answers it.
 From the four cells: harness effect (`Hbest - H0`), model effect (`RL - H0`),
 and the interaction — whether governance and training fix the same failures or
 different ones. The base-model row is measured below. The RL row runs on GPU
-(`runbooks/autodl.md`); everything needed for it is built and tested.
+(`runbooks/autodl.md`); its current gate status is disclosed under Limitations.
 
 ## Dev findings (base model)
 
@@ -141,7 +141,7 @@ evaluator to prove replay stays valid (`tests/test_governed_agent_replay.py`).
 
 ```bash
 uv sync                 # Python 3.12; tau2 installed editable from the submodule
-uv run pytest           # 101 tests: splits, leakage, gym fixes, governance,
+uv run pytest           # 111 tests: splits, leakage, gym fixes, governance,
                         # replay, shim parity, GPU contracts, statistics
 ```
 
@@ -151,10 +151,12 @@ The ablation and RL runs need a served policy model and keys in `.env`;
 
 ## Limitations
 
-- **The RL row is not yet run.** The training path, the step-0 logprob
-  consistency gate, the SFT fallback, and the AutoDL runbook are built and unit
-  tested, but the GRPO run and the final 2x2 on the test split require a GPU and
-  have not executed. Every number here is the base-model row on the dev set.
+- **The RL row is not yet measured.** The pinned stack has run on an RTX PRO
+  6000: exact-token/logprob preflight and a diagnostic training call with
+  changed adapter weights both passed. That work exposed and fixed the Qwen
+  parser and smoke-sampling contracts. Fresh manifest-v3 gates and formal GRPO
+  are the current GPU stage; the final 2x2 test split remains locked. Every
+  result number above is still the base-model row on dev.
 - **The dev serving stack is not the final stack.** Dev ablations run the policy
   on quantized MLX; the final 2x2 runs it on vLLM in bf16. Dev results select
   Hbest; the final table will be produced entirely on the final stack, and the
