@@ -35,7 +35,7 @@ Read this honestly: the gate removes every unauthorized write, and that safety i
 
 ## What the live gate did (H1, H2)
 
-| Arm | allow | mixed text stripped | require_confirmation | require_evidence | deny | regenerations |
+| Arm | allow | mixed text stripped | require_confirmation | require_evidence | deny | retry decision records |
 |---|---:|---:|---:|---:|---:|---:|
 | H1 (gate) | 567 | 413 | 63 | 2 | 27 | 74 |
 | H2 (gate+ledger+recovery) | 562 | 410 | 55 | 1 | 33 | 73 |
@@ -44,9 +44,9 @@ Mixed text+tool-call normalization is reported separately from the candidate's a
 
 ## Cost and latency
 
-Governance overhead shows up as regenerations, not dollars: the local policy model has no API cost, and the user simulator is the same deepseek model with the same call count in every arm, so its cost is governance-independent. The columns that move are the ones the gate actually drives.
+Governance overhead shows up as retry decisions, not dollars: the local policy model has no API cost, and the user simulator is the same deepseek model with the same call count in every arm, so its cost is governance-independent. The columns that move are the ones the gate actually drives.
 
-| Arm | mean messages / sim | regenerations | user cost / sim |
+| Arm | mean messages / sim | retry decision records | user cost / sim |
 |---|---:|---:|---:|
 | H0 (native) | 63.3 | n/a | $0.0030 |
 | H1 (gate) | 66.3 | 74 | not recorded* |

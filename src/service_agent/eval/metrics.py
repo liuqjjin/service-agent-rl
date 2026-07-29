@@ -154,11 +154,14 @@ def audit_summary(audit_dir: Path) -> dict:
     decisions: Counter = Counter()
     normalizations: Counter = Counter()
     reasons: Counter = Counter()
-    regenerations = 0
+    retry_decision_records = 0
     sessions = 0
     for file in sorted(audit_dir.glob("audit_*.jsonl")):
+        lines = file.read_text().splitlines()
+        if not lines:
+            raise ValueError(f"empty audit file: {file}")
         sessions += 1
-        for line in file.read_text().splitlines():
+        for line in lines:
             rec = json.loads(line)
             if rec["reason_code"] == "mixed_text_stripped":
                 # The sanitizer records the formatting normalization, then the
@@ -170,11 +173,14 @@ def audit_summary(audit_dir: Path) -> dict:
             if rec["decision"] != "allow":
                 reasons[rec["reason_code"]] += 1
             if rec["attempt"] > 0:
-                regenerations += 1
+                # One retry candidate can contain multiple tool calls, each
+                # with its own decision record. The audit schema has no turn
+                # identifier, so this cannot be interpreted as retry rounds.
+                retry_decision_records += 1
     return {
         "sessions_with_audit": sessions,
         "decisions": dict(decisions),
         "normalizations": dict(normalizations),
         "rejection_reasons": dict(reasons),
-        "regenerations": regenerations,
+        "retry_decision_records": retry_decision_records,
     }

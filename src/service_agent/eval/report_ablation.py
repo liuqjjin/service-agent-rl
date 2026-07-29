@@ -64,7 +64,13 @@ def _violations_in_successful_episodes(results) -> tuple[int, int]:
 
 
 def build() -> tuple[str, str]:
-    tasks_by_id = {t.id: t for t in registry.get_tasks_loader("telecom")()}
+    # The upstream loader defaults to ``base``, which is train + test.  This
+    # report only classifies committed dev simulations, so make the safe
+    # superset explicit instead of ever instantiating official test tasks.
+    tasks_by_id = {
+        task.id: task
+        for task in registry.get_tasks_loader("telecom")(task_split_name="train")
+    }
     loaded = {arm: _load(arm) for arm in ARMS}
     rbt = {arm: rewards_by_task(loaded[arm][0]) for arm in ARMS}
     phk = {arm: pass_hat_ks(loaded[arm][0], ks=(1, 2, 4)) for arm in ARMS}
@@ -158,7 +164,7 @@ def build() -> tuple[str, str]:
     w("")
     w(
         "| Arm | allow | mixed text stripped | require_confirmation | "
-        "require_evidence | deny | regenerations |"
+        "require_evidence | deny | retry decision records |"
     )
     w("|---|---:|---:|---:|---:|---:|---:|")
     for arm in ("h1", "h2"):
@@ -171,7 +177,7 @@ def build() -> tuple[str, str]:
             f"| {ARM_LABEL[arm]} | {d.get('allow', 0)} | "
             f"{normalizations.get('mixed_text_stripped', 0)} | "
             f"{d.get('require_confirmation', 0)} | {d.get('require_evidence', 0)} | "
-            f"{d.get('deny', 0)} | {a['regenerations']} |"
+            f"{d.get('deny', 0)} | {a['retry_decision_records']} |"
         )
     w("")
     w(
@@ -185,24 +191,26 @@ def build() -> tuple[str, str]:
     w("## Cost and latency")
     w("")
     w(
-        "Governance overhead shows up as regenerations, not dollars: the local "
+        "Governance overhead shows up as retry decisions, not dollars: the local "
         "policy model has no API cost, and the user simulator is the same "
         "deepseek model with the same call count in every arm, so its cost is "
         "governance-independent. The columns that move are the ones the gate "
         "actually drives."
     )
     w("")
-    w("| Arm | mean messages / sim | regenerations | user cost / sim |")
+    w("| Arm | mean messages / sim | retry decision records | user cost / sim |")
     w("|---|---:|---:|---:|")
     for arm in ARMS:
         results = loaded[arm][0]
         sims = results.simulations
         msgs = sum(len(s.messages) for s in sims) / max(len(sims), 1)
-        regens = loaded[arm][2]["regenerations"] if loaded[arm][2] else 0
+        retry_records = (
+            loaded[arm][2]["retry_decision_records"] if loaded[arm][2] else 0
+        )
         ucost = [s.user_cost for s in sims if s.user_cost]
         ucost_str = f"${sum(ucost)/len(sims):.4f}" if ucost else "not recorded*"
-        regen_str = str(regens) if arm != "h0" else "n/a"
-        w(f"| {ARM_LABEL[arm]} | {msgs:.1f} | {regen_str} | {ucost_str} |")
+        retry_str = str(retry_records) if arm != "h0" else "n/a"
+        w(f"| {ARM_LABEL[arm]} | {msgs:.1f} | {retry_str} | {ucost_str} |")
     w("")
     w(
         "*The H1 run logged $0.00 user cost for every simulation -- a LiteLLM "

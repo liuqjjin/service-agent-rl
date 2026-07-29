@@ -385,9 +385,21 @@ directory exists. Stop here and request the exact approval string
 
 ## 8. Final 2x2: approval-gated
 
-The final runner intentionally has no test option yet. Only after the exact
-approval string is received may one commit add the locked final-evaluation
-entry point and set `SHIM_ALLOW_EVAL_SPLITS=1` for that run.
+The exact approval string was received on 2026-07-29. D27 freezes the dedicated
+final-evaluation entry point before the official simulation campaign.
+`run_ablation` still has no test option, and the ART shim remains locked: it is
+a training protocol bridge and cannot layer H2 onto a native evaluation.
+Confirm that its test endpoint continues to return 403 before and after the
+campaign.
+
+D28 records one narrower deviation after approval and after every experimental
+choice was frozen: a legacy dev-report reproducibility check instantiated
+tau2's default `base` task objects, which include the 40 test tasks, although it
+used only committed dev IDs and produced no test episode, metric, or selection
+signal. The dev reporter now requests `train` explicitly. Do not describe the
+state before the formal campaign as test-object-unread; the defensible claim is
+one disclosed post-approval object load and one official test simulation
+campaign.
 
 The one final experiment is 40 official test tasks × 8 trials × four frozen
 cells: base/H0, base/H2, RL/H0, RL/H2. All cells share the pinned bf16 base,
@@ -395,6 +407,109 @@ vLLM process, tokenizer, chat template, tool parser, simulator parameters,
 seeds, hardware, and concurrency. There is no retuning after any test output.
 Only a logged infrastructure failure may rerun the same seed.
 
-Afterward, relock the shim, generate the factorial report and bootstrap
-intervals from the four raw result directories, back up all artifacts and
-checksums to the Mac, and rerun tests, Ruff, and report reproducibility.
+Start one pinned ART vLLM runtime process that exposes the base and selected
+LoRA as two static aliases. Run the final entry point's preflight mode first;
+it does not resolve or instantiate a benchmark split. It must verify repository
+and submodule commits, model and adapter hashes, the serving manifest, both
+model cards, and one automatic non-benchmark tool call from each alias.
+
+The formal command receives only paths and the exact approval through the
+environment. Split, cells, order, trials, seeds, temperatures, completion
+length, simulator, and concurrency are constants rather than CLI choices. It
+writes raw trajectories outside the repository. Existing output is accepted
+only for an exact protocol-hash resume; otherwise the runner fails without
+overwriting anything. Do not inspect native-runner reward lines or compute
+cross-cell summaries until all four cells pass the completeness gate.
+
+Use these exact paths and keep the serving process alive for preflight, smoke,
+and the full campaign:
+
+```bash
+cd /root/autodl-tmp/work/service-agent-rl
+FINAL_BASE=/root/autodl-tmp/cache/huggingface/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+FINAL_ADAPTER=/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0015
+FINAL_SERVING_DIR=/root/autodl-tmp/runs/final-serving-r1
+FINAL_SERVING=$FINAL_SERVING_DIR/serving_manifest.json
+FINAL_RAW=/root/autodl-tmp/runs/final-2x2-r1
+FINAL_SMOKE=/root/autodl-tmp/runs/final-native-smoke-r1
+mkdir -p "$FINAL_SERVING_DIR" /root/autodl-tmp/logs
+
+PREPARED_TMP=$(mktemp "$FINAL_SERVING_DIR/.prepared.XXXXXX")
+uv run python -m service_agent.eval.final_serving manifest \
+  --snapshot "$FINAL_BASE" --adapter "$FINAL_ADAPTER" > "$PREPARED_TMP"
+mv "$PREPARED_TMP" "$FINAL_SERVING_DIR/prepared_manifest.json"
+
+tmux new-session -d -s final-serving-r1 \
+  "cd /root/autodl-tmp/work/service-agent-rl && exec uv run python \
+  -m service_agent.eval.final_serving launch --snapshot '$FINAL_BASE' \
+  --adapter '$FINAL_ADAPTER' > /root/autodl-tmp/logs/final-serving-r1.log 2>&1"
+```
+
+Wait for `curl -fsS http://127.0.0.1:8100/health`, then bind the two
+non-benchmark tool-call probes to the exact launch manifest:
+
+```bash
+PROBE_TMP=$(mktemp "$FINAL_SERVING_DIR/.probe.XXXXXX")
+uv run python -m service_agent.eval.final_serving probe \
+  --snapshot "$FINAL_BASE" --adapter "$FINAL_ADAPTER" > "$PROBE_TMP"
+mv "$PROBE_TMP" "$FINAL_SERVING_DIR/probe_manifest.json"
+
+SERVING_TMP=$(mktemp "$FINAL_SERVING_DIR/.serving.XXXXXX")
+uv run python -m service_agent.eval.final_serving finalize \
+  --prepared-manifest "$FINAL_SERVING_DIR/prepared_manifest.json" \
+  --probe-manifest "$FINAL_SERVING_DIR/probe_manifest.json" > "$SERVING_TMP"
+mv "$SERVING_TMP" "$FINAL_SERVING"
+
+curl -s -o /dev/null -w "%{http_code}\n" \
+  "http://127.0.0.1:8000/scenarios?domain=telecom&split=test"  # must print 403
+```
+
+Preflight does not load a task. Smoke uses the three frozen dev tasks and is an
+operational gate only:
+
+```bash
+uv run python -m service_agent.eval.run_final --preflight \
+  --out "$FINAL_RAW" --serving-manifest "$FINAL_SERVING" \
+  --base-snapshot "$FINAL_BASE" --adapter "$FINAL_ADAPTER"
+uv run python -m service_agent.eval.run_final --smoke \
+  --out "$FINAL_SMOKE" --serving-manifest "$FINAL_SERVING" \
+  --base-snapshot "$FINAL_BASE" --adapter "$FINAL_ADAPTER"
+jq '{status,completed_cells}' "$FINAL_SMOKE/smoke_manifest.json"
+```
+
+Run the approved campaign in a separate tmux session. The log contains native
+progress and must not be tailed or summarized before all four cells complete:
+
+```bash
+tmux new-session -d -s final-2x2-r1 \
+  "cd /root/autodl-tmp/work/service-agent-rl && \
+  FINAL_TEST_APPROVAL=FINAL_TEST_APPROVED uv run python \
+  -m service_agent.eval.run_final --out '$FINAL_RAW' \
+  --serving-manifest '$FINAL_SERVING' --base-snapshot '$FINAL_BASE' \
+  --adapter '$FINAL_ADAPTER' \
+  --smoke-manifest '$FINAL_SMOKE/smoke_manifest.json' \
+  > /root/autodl-tmp/logs/final-2x2-r1.log 2>&1"
+```
+
+While it runs, inspect only process liveness, GPU use, `status`,
+`completed_cells`, and the number of persisted simulations. Do not read
+per-episode rewards. If an infrastructure failure requires a resume, use the
+same command while the same serving process remains alive; the runner refuses
+every protocol, process, task, or result-hash drift.
+
+Afterward, confirm the shim is still locked, create a SHA-256 index over the
+private raw directory, and copy it to the ignored Mac backup. Generate public
+artifacts only from that verified backup:
+
+```bash
+uv run python -m service_agent.eval.report_factorial generate \
+  --raw-root checkpoints/autodl-final-2x2-r1 \
+  --protocol-manifest checkpoints/autodl-final-2x2-r1/final_manifest.json \
+  --serving-manifest checkpoints/autodl-final-serving-r1/serving_manifest.json
+uv run python -m service_agent.eval.report_factorial check \
+  --raw-root checkpoints/autodl-final-2x2-r1 \
+  --protocol-manifest checkpoints/autodl-final-2x2-r1/final_manifest.json \
+  --serving-manifest checkpoints/autodl-final-serving-r1/serving_manifest.json
+uv run pytest
+uv run ruff check
+```

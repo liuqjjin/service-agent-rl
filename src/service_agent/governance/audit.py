@@ -24,7 +24,10 @@ from service_agent.governance.core import GovernanceResult, ProposedAction
 class AuditRecord:
     session_id: str
     task_id: str
-    attempt: int  # 0 = first candidate for this turn, 1+ = regenerations
+    # 0 = first candidate for this turn; 1+ = retry candidate index. A
+    # multi-tool candidate produces one record per proposed action, so records
+    # with attempt > 0 are not themselves a count of regeneration rounds.
+    attempt: int
     tool_name: str
     arguments_json: str
     decision: str
@@ -67,7 +70,8 @@ class AuditTrail:
     def rejected_candidates(self) -> list[AuditRecord]:
         return [r for r in self.records if r.decision != "allow"]
 
-    def regeneration_count(self) -> int:
+    def retry_decision_record_count(self) -> int:
+        """Count adjudicated action records emitted by retry candidates."""
         return sum(1 for r in self.records if r.attempt > 0)
 
     # -- persistence -----------------------------------------------------------

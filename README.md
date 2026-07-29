@@ -54,8 +54,8 @@ From the four cells: harness effect (`Hbest - H0`), model effect (`RL - H0`),
 and the interaction — whether governance and training fix the same failures or
 different ones. The base-model row is measured below. The RL row runs on GPU
 (`runbooks/autodl.md`). GRPO has produced a frozen-dev-selected candidate, but
-the RL evaluation row remains unmeasured because the final test split is still
-locked.
+the RL evaluation row remains unmeasured until the approved final campaign
+completes.
 
 ## Dev findings (base model)
 
@@ -120,6 +120,15 @@ non-benchmark token. The backup does not contain the base weights, so recovery
 requires downloading that exact revision; it is not a standalone offline model
 bundle.
 
+The final 40-task x 8-trial x 4-cell native-runner campaign is now explicitly
+approved and frozen, with one dual-alias bf16 vLLM process and checkpoint 0015.
+No final episode has been reported yet. DECISIONS.md D28 also records one
+post-approval, post-freeze protocol deviation: a legacy dev-report check
+instantiated tau2's default `base` task objects, which include test, before the
+loader was corrected to request `train` explicitly. It emitted no test
+episode, metric, or selection signal, but it is disclosed rather than called a
+clean pre-access state.
+
 Reproduce a single arm (needs a served policy model and `DEEPSEEK_API_KEY` in
 `.env`):
 
@@ -154,8 +163,10 @@ precisely. The pieces I built:
 - **Two upstream bug fixes** to tau2's gym wrapper (seed propagation and a
   thread leak), with reproducing tests, on a branch ready to submit as a PR.
 - **The evaluation and analysis harness**: ablation arms over the native runner,
-  one-yardstick governance metrics, paired bootstrap, mechanical failure
-  taxonomy, and the RL training path.
+  one-yardstick governance metrics, the approval-gated final 40x8x4 runner,
+  dual-alias serving provenance, paired task bootstrap, mechanical failure
+  taxonomy, a privacy-checked public evidence package, and the RL training
+  path.
 
 I do not reimplement the environment, the user simulator, the evaluator, or the
 RL trainer. The value is in understanding where enterprise agents actually break
@@ -178,8 +189,8 @@ evaluator to prove replay stays valid (`tests/test_governed_agent_replay.py`).
 
 ```bash
 uv sync                 # Python 3.12; tau2 installed editable from the submodule
-uv run pytest           # 114 tests: splits, leakage, gym fixes, governance,
-                        # replay, shim parity, GPU contracts, statistics
+uv run pytest           # 170 tests: splits, leakage, gym fixes, governance,
+                        # replay, serving, final protocol, privacy, statistics
 ```
 
 Tests need no API keys — models are mocked or driven by scripted stand-ins.
@@ -191,10 +202,11 @@ The ablation and RL runs need a served policy model and keys in `.env`;
 - **The RL row is not yet measured.** Official preflight and smoke passed, and
   formal GRPO selected checkpoint 0015 before its controlled sparse-reward
   stop. That proves the training path and leaves a reproducible candidate; it
-  does not supply the RL/H0 or RL/H2 evaluation cells. The final 2x2 test split
-  remains locked, so every task-performance result in the main table is still
-  the base-model row on dev. Teacher-data generation and SFT remain frozen
-  unless a new protocol decision authorizes a fresh lineage.
+  does not supply the RL/H0 or RL/H2 evaluation cells. The one final campaign
+  is approved and frozen but has not yet reported, so every task-performance
+  result in the main table is still the base-model row on dev. Teacher-data
+  generation and SFT remain frozen unless a new protocol decision authorizes a
+  fresh lineage.
 - **The dev serving stack is not the final stack.** Dev ablations run the policy
   on quantized MLX; the final 2x2 runs it on vLLM in bf16. Dev results select
   Hbest; the final table will be produced entirely on the final stack, and the

@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+import pytest
 from tau2.data_model.message import AssistantMessage, ToolCall, ToolMessage, UserMessage
 
 from service_agent.eval.metrics import analyze_trajectory, audit_summary
@@ -49,6 +50,25 @@ def test_smoke3_covers_each_family():
         "mobile_data_issue",
         "service_issue",
     }
+
+
+def test_dev_report_requests_train_split_explicitly(monkeypatch):
+    from tau2.registry import registry
+
+    from service_agent.eval import report_ablation
+
+    original = registry.get_tasks_loader("telecom")
+    requested: list[str | None] = []
+
+    def loader(task_split_name=None):
+        requested.append(task_split_name)
+        return original(task_split_name=task_split_name)
+
+    monkeypatch.setattr(registry, "get_tasks_loader", lambda name: loader)
+
+    report_ablation.build()
+
+    assert requested == ["train"]
 
 
 def test_offline_analyzer_flags_cold_write():
@@ -157,4 +177,11 @@ def test_audit_summary_separates_normalization_from_allow(tmp_path: Path):
 
     assert summary["decisions"] == {"allow": 1}
     assert summary["normalizations"] == {"mixed_text_stripped": 1}
-    assert summary["regenerations"] == 1
+    assert summary["retry_decision_records"] == 1
+
+
+def test_audit_summary_rejects_empty_files(tmp_path: Path):
+    (tmp_path / "audit_empty.jsonl").write_text("")
+
+    with pytest.raises(ValueError, match="empty audit file"):
+        audit_summary(tmp_path)

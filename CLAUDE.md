@@ -13,7 +13,11 @@ chose checkpoint 0015 at mean reward 0.925; this is selection telemetry, not a f
 ART/W&B doubles cumulative group counters because rollout and backend records both carry them;
 the manifest/backend totals are 48 submitted, 5 trainable, and 445 gradient steps. Checkpoint
 0015 passed an explicit pinned-base recovery smoke; the backup itself excludes base weights.
-The RL evaluation row is not measured, SFT is not authorized, and the test split remains locked.
+The final runner and analysis protocol are frozen after explicit approval, but the RL evaluation
+row is not measured until the one official campaign completes. SFT remains unauthorized.
+DECISIONS.md D28 discloses a post-approval, post-freeze test-task-object load by the legacy dev
+reporter; it produced no test episode, metric, or selection signal and is not described as clean
+pre-access.
 
 ## Commands
 
@@ -76,7 +80,9 @@ These are correctness constraints, not preferences. Breaking any of them invalid
    The evaluator replays trajectory writes via `set_state`; a logged-but-unexecuted write
    corrupts the DB-match reward. Rejected candidates go to the audit trace only.
 2. Never train on `test`, `full`, or `base` splits (`full`/`base` contain `test`).
-   Training uses train-core only; dev (20 frozen IDs) for all selection; test touched once.
+   Training uses train-core only; dev (20 frozen IDs) drives all selection; the official test
+   simulation campaign runs once after approval. D28 records the narrower post-approval
+   task-object access deviation and must remain disclosed.
 3. Model prompts are built by whitelist. `str(task)`, `task.evaluation_criteria`,
    `task.initial_state`, `user_scenario`, and task IDs must never reach a prompt.
    Leak tests assert on serialized substrings, not field names.

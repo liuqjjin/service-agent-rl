@@ -26,10 +26,14 @@ terminal position. This is checkpoint-selection telemetry, not a final 2x2
 result. ART/W&B doubles group counters across rollout and backend records; the
 manifest/backend totals remain 48 submitted, 5 trainable, and 445 gradient
 steps. Checkpoint 0015 passed an explicit pinned-base recovery smoke, while the
-backup itself excludes base weights. The RL evaluation row remains unmeasured
-and the test split is locked.
+backup itself excludes base weights. The final 2x2 runner, dual-alias serving
+contract, and public report generator are frozen after explicit approval; the
+RL evaluation row remains unmeasured until that one campaign completes.
+DECISIONS.md D28 discloses one post-approval, post-freeze test-task-object load
+by the legacy dev reporter before it was corrected to request `train`
+explicitly. It produced no test episode, metric, or selection signal.
 
-Local Mac gate at the time of writing: 114 tests green, lint clean, both
+Local Mac gate at the time of writing: 170 tests green, lint clean, both
 submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
 `main` stays untouched.
 
@@ -56,6 +60,9 @@ src/service_agent/
     factorial.py           paired bootstrap, 2x2 effects, mechanical failure taxonomy
     report_ablation.py     regenerates both dev reports from committed artifacts
     report_grpo.py         validates official GPU manifests and regenerates the GRPO report
+    final_serving.py       frozen base+LoRA vLLM launch, provenance, dual-alias probes
+    run_final.py           approval-gated native 40x8x4 runner and strict resume
+    report_factorial.py    raw-grid validation, public evidence, final report rebuild
   serve/tau2_shim.py       FastAPI shim: ART's tau-bench protocol over tau2 v1.0.1 natives
   training/
     contracts.py           frozen model/runtime/API contracts and manifest gates
@@ -73,7 +80,7 @@ results/compat/            the compatibility-matrix smoke runs behind DECISIONS.
 results/gpu/               byte-identical official manifests, process exits, checksums
 logs/dev_h*.log            raw stdout of the three dev runs
 UPSTREAM.md                pins, provenance, every code-level claim with a reproducing command
-DECISIONS.md               execution-time judgment calls (D1-D26), with reasoning
+DECISIONS.md               execution-time judgment calls (D1-D28), with reasoning
 ```
 
 Submodule gitlinks, as checked out:
@@ -99,7 +106,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 114 tests, ~8s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 170 tests, ~10s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -239,11 +246,13 @@ Two more that are project practice rather than numbered rules: `data_protocol/` 
 that is regenerated only deliberately (`python -m service_agent.splits` rewrites it).
 `governance_ablation.md` and `failure_taxonomy.md` come from `report_ablation.py`;
 `grpo_training.md` comes from `report_grpo.py`; `baseline_protocol.md` is the hand-maintained
-experiment contract. Edit the corresponding source rather than generated Markdown.
+experiment contract. After the campaign, `factorial_results.md` and `results/final/`
+come from `report_factorial.py`. Edit the corresponding source rather than generated
+Markdown.
 
 ## Test gates
 
-`uv run pytest` must be green before any commit. As of HEAD: 114 passed in ~8s, no API keys
+`uv run pytest` must be green before any commit. As of HEAD: 170 passed in ~10s, no API keys
 needed, models mocked or driven by scripted stand-ins.
 
 | File | What it protects |
@@ -259,6 +268,9 @@ needed, models mocked or driven by scripted stand-ins.
 | `test_shim.py` | ART contract, split lock on both endpoints, reward-once, strict replay |
 | `test_shim_native_parity.py` | native and shim agree on tools and reward |
 | `test_factorial.py` | bootstrap and 2x2 arithmetic |
+| `test_final_serving.py` | exact dual-alias launch, model/runtime hashes, live probe contract |
+| `test_final_protocol.py` | approval order, fixed native cells, process binding, strict resume |
+| `test_factorial_report.py` | exact raw grid, provenance, privacy, 10k bootstrap, public rebuild |
 | `test_training_contract.py` | pins, ART API, bf16/runtime config, CUDA-runtime bootstrap, phase/resume gates, multi-tool fail-close, true within-group reward variance |
 | `test_grpo_report.py` | official phase consistency, rebuilt training progress, test lock, selected checkpoint, generated report |
 
@@ -270,8 +282,11 @@ is environmental, not a regression — do not "fix" it.
 The reports are also a gate of sorts: `service_agent.eval.report_ablation` regenerates
 `reports/governance_ablation.md` and `reports/failure_taxonomy.md`, while
 `service_agent.eval.report_grpo` regenerates `reports/grpo_training.md`, byte-identically from
-their committed run artifacts. If a change makes them differ, either the change is wrong or the
-reports need regenerating in the same commit, with the difference explained.
+their committed run artifacts. After the final campaign,
+`service_agent.eval.report_factorial check` must also rebuild the public
+factorial package and report byte-identically. If a change makes them differ,
+either the change is wrong or the reports need regenerating in the same commit,
+with the difference explained.
 
 ## Conventions
 

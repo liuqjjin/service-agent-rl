@@ -416,3 +416,62 @@ run it to 60 positions. This decision does not authorize teacher-data
 generation or SFT. Either action would require a separate decision and a fresh
 lineage before the final-test approval; absent that decision, checkpoint 0015
 remains the RL candidate.
+
+## D27. The final test is one locked native-runner campaign
+
+The user supplied the exact approval string `FINAL_TEST_APPROVED` on
+2026-07-29, after checkpoint 0015, H2, and the serving stack had already been
+frozen. This authorizes one final campaign: 40 official telecom test tasks,
+eight native-runner trials, and the four cells `base_h0`, `base_h2`, `rl_h0`,
+and `rl_h2`. It does not authorize another selection pass, a new checkpoint,
+or test-driven parser, prompt, policy, or harness changes.
+
+The four cells run through tau2's native runner. H2 exists at the native agent
+generation boundary, while ART's tau-bench shim is only a training bridge and
+cannot layer that governor onto an evaluation cell. The shim therefore stays
+locked: its test endpoint must continue to return 403 throughout the final
+campaign. The dedicated final entry point is the only first-party code allowed
+to load the official test split, and it checks the exact approval before
+resolving that loader.
+
+The campaign fixes the cell order, common native-runner seed mapping, policy
+temperature 0, maximum completion length 1,024, concurrency 3, maximum 100
+steps, and the non-thinking DeepSeek simulator at temperature 0. One pinned
+vLLM process exposes the frozen bf16 base and checkpoint-0015 LoRA as separate
+static aliases with the same tokenizer, chat template, `qwen3_coder` parser,
+hardware, and engine arguments. Preflight must prove both aliases with a
+non-benchmark automatic tool-call probe before the final entry point can run.
+
+No reward or safety aggregate is reviewed or used to change the protocol
+between cells; native-runner progress logs are retained without becoming a
+selection surface. A process interruption or a recorded `infrastructure_error`
+may resume only the identical
+`(cell, task, trial, seed)` under a byte-identical protocol manifest; any other
+drift fails closed. Analysis begins only after all 1,280 records form the exact
+four-cell Cartesian grid and contain no unresolved infrastructure result.
+
+## D28. A post-approval dev-report check instantiated the default base split
+
+After D27 had frozen every model, checkpoint, harness, serving, simulator, and
+analysis choice, and after the user supplied `FINAL_TEST_APPROVED`, a local
+byte-reproducibility check called `report_ablation.build()`. That legacy code
+called tau2's telecom task loader without a split. Upstream defaults the call
+to `base`, whose 114 IDs are the 74 train IDs plus all 40 official test IDs.
+The check therefore instantiated official test task objects before the formal
+runner, contrary to the stronger operational claim that no test task object
+would be loaded outside the dedicated final entry point.
+
+The data flow was narrower than a test evaluation: the code built an
+ID-to-task mapping, then looked up only the already committed frozen-dev
+simulation IDs to regenerate the existing dev failure taxonomy. No test task
+content was printed or manually inspected, no test episode or metric was
+produced, and the regenerated dev reports were byte-identical. Because the
+access happened after every experimental choice was frozen, it supplied no
+selection signal. It nevertheless counts as test-data access and is disclosed
+rather than relabeled as a clean pre-access state.
+
+`report_ablation.build()` now requests `task_split_name="train"` explicitly,
+and a regression test records the requested split. The final 2x2 remains the
+only test simulation campaign and is still run exactly as frozen in D27, but
+the final report must retain this distinction: one inadvertent post-approval
+task-object load occurred before the one official evaluation campaign.
