@@ -17,12 +17,19 @@ The base-model row of the 2x2 is measured on the frozen dev set:
 `reports/governance_ablation.md`, Hbest = H2. The GPU path now has separate
 update-free preflight, single-train-call smoke, and formal lineages; exact model,
 tokenization, ART/tau2, runtime, split, replay, and resume contracts are tested
-locally. The RTX PRO 6000 runtime passed a real token/logprob preflight, and a
-diagnostic smoke changed adapter weights. That work exposed the Hermes parser
-and smoke-sampling errors now fixed in manifest schema 3. Fresh official gates
-and formal GRPO still have to finish; no checkpoint is selected yet.
+locally. Official manifest-v3 preflight and smoke passed on the RTX PRO 6000.
+Formal GRPO completed 24 logical checkpoint positions, reported five trainable
+groups and 445 ART gradient steps, then entered terminal
+`stopped_sparse_reward` under the fixed ten-position rule. Frozen-dev selection
+chose checkpoint 0015 at mean reward 0.925; checkpoint 0024 is only the latest
+terminal position. This is checkpoint-selection telemetry, not a final 2x2
+result. ART/W&B doubles group counters across rollout and backend records; the
+manifest/backend totals remain 48 submitted, 5 trainable, and 445 gradient
+steps. Checkpoint 0015 passed an explicit pinned-base recovery smoke, while the
+backup itself excludes base weights. The RL evaluation row remains unmeasured
+and the test split is locked.
 
-Local Mac gate at the time of writing: 111 tests green, lint clean, both
+Local Mac gate at the time of writing: 114 tests green, lint clean, both
 submodules at their pins. GPU work happens only on `codex/autodl-grpo-final`;
 `main` stays untouched.
 
@@ -48,6 +55,7 @@ src/service_agent/
     metrics.py             offline governance replay (one yardstick incl. H0) + audit aggregation
     factorial.py           paired bootstrap, 2x2 effects, mechanical failure taxonomy
     report_ablation.py     regenerates both dev reports from committed artifacts
+    report_grpo.py         validates official GPU manifests and regenerates the GRPO report
   serve/tau2_shim.py       FastAPI shim: ART's tau-bench protocol over tau2 v1.0.1 natives
   training/
     contracts.py           frozen model/runtime/API contracts and manifest gates
@@ -58,13 +66,14 @@ src/service_agent/
     logprob_check.py       step-0 rollout/trainer logprob consistency gate
     sft_prepare.py         teacher-trajectory filter and chat-JSONL export (GRPO fallback)
 data_protocol/             frozen dev IDs and the split report. Committed, never regenerated silently
-reports/                   baseline protocol, governance ablation, failure taxonomy
+reports/                   baseline protocol, governance ablation, failure taxonomy, GRPO outcome
 runbooks/autodl.md         the GPU sequence end to end
 results/dev/{h0,h1,h2}/    the measured dev ablation: run_config, results, metrics, audit JSONL
 results/compat/            the compatibility-matrix smoke runs behind DECISIONS.md D7
+results/gpu/               byte-identical official manifests, process exits, checksums
 logs/dev_h*.log            raw stdout of the three dev runs
 UPSTREAM.md                pins, provenance, every code-level claim with a reproducing command
-DECISIONS.md               execution-time judgment calls (D1-D25), with reasoning
+DECISIONS.md               execution-time judgment calls (D1-D26), with reasoning
 ```
 
 Submodule gitlinks, as checked out:
@@ -90,7 +99,7 @@ installed editable from the submodule via `[tool.uv.sources]`.
 
 ```bash
 uv sync                  # create/refresh .venv
-uv run pytest            # our tests only (testpaths = ["tests"]); 111 tests, ~5s, no API keys
+uv run pytest            # our tests only (testpaths = ["tests"]); 114 tests, ~8s, no API keys
 uv run ruff check        # line-length 100, rules E4/E7/E9/F/I
 uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py   # upstream; see below
 ```
@@ -227,12 +236,14 @@ any of them invalidates results, which is worse than a bug: the numbers still lo
    and be reproducible by a command, UPSTREAM.md style.
 
 Two more that are project practice rather than numbered rules: `data_protocol/` is frozen output
-that is regenerated only deliberately (`python -m service_agent.splits` rewrites it), and
-`reports/*.md` are generated — edit `report_ablation.py`, not the markdown.
+that is regenerated only deliberately (`python -m service_agent.splits` rewrites it).
+`governance_ablation.md` and `failure_taxonomy.md` come from `report_ablation.py`;
+`grpo_training.md` comes from `report_grpo.py`; `baseline_protocol.md` is the hand-maintained
+experiment contract. Edit the corresponding source rather than generated Markdown.
 
 ## Test gates
 
-`uv run pytest` must be green before any commit. As of HEAD: 111 passed in ~5s, no API keys
+`uv run pytest` must be green before any commit. As of HEAD: 114 passed in ~8s, no API keys
 needed, models mocked or driven by scripted stand-ins.
 
 | File | What it protects |
@@ -249,6 +260,7 @@ needed, models mocked or driven by scripted stand-ins.
 | `test_shim_native_parity.py` | native and shim agree on tools and reward |
 | `test_factorial.py` | bootstrap and 2x2 arithmetic |
 | `test_training_contract.py` | pins, ART API, bf16/runtime config, CUDA-runtime bootstrap, phase/resume gates, multi-tool fail-close, true within-group reward variance |
+| `test_grpo_report.py` | official phase consistency, rebuilt training progress, test lock, selected checkpoint, generated report |
 
 `uv run pytest third_party/tau2-bench/tests/test_gym/test_gym.py` yields **10 passed, 3 failed**
 without `OPENAI_API_KEY`: those tests spin up a real LLM user simulator even for the mock domain,
@@ -256,9 +268,10 @@ so the orchestrator thread dies on a credentials error. That happens at the pris
 is environmental, not a regression — do not "fix" it.
 
 The reports are also a gate of sorts: `service_agent.eval.report_ablation` regenerates
-`reports/governance_ablation.md` and `reports/failure_taxonomy.md` byte-identically from the
-committed run artifacts. If a change makes them differ, either the change is wrong or the reports
-need regenerating in the same commit, with the difference explained.
+`reports/governance_ablation.md` and `reports/failure_taxonomy.md`, while
+`service_agent.eval.report_grpo` regenerates `reports/grpo_training.md`, byte-identically from
+their committed run artifacts. If a change makes them differ, either the change is wrong or the
+reports need regenerating in the same commit, with the difference explained.
 
 ## Conventions
 
@@ -277,7 +290,9 @@ they can be recomputed from.
   even that; a hash-guard test enforces the boundary.
 - Add a `--tasks test` option, unlock `SHIM_ALLOW_EVAL_SPLITS`, or run anything against the test
   split without an explicit decision recorded in `DECISIONS.md`.
-- Hand-edit `reports/*.md` or `data_protocol/*.json`.
+- Hand-edit generated reports or `data_protocol/*.json`.
+- Resume the terminal sparse-stopped lineage, generate teacher data, or run SFT without a new
+  recorded protocol decision.
 - Commit `.env`, `planning/`, weights, or `wandb/` (all gitignored — keep it that way).
 - Substitute the local 35B for the formal 4B policy in any reported cell (DECISIONS.md D2), or
   compare numbers across a user-simulator change (D1).
@@ -295,10 +310,11 @@ declared directly.
   branch by rsync over the configured SSH connection. A future independent
   clone still needs GitHub credentials. Making the repo public is a portfolio
   decision, not a code one.
-- **Formal GRPO is not complete.** The pinned ART/vLLM/Unsloth stack is
-  empirically compatible with the RTX PRO 6000, including exact-token/logprob
-  parity and positive diagnostic gradient work. Fresh official manifest-v3
-  preflight and smoke gates must pass before the formal lineage starts.
+- **The final RL row is not measured.** Official GRPO stopped under its
+  predeclared sparse-reward gate and selected checkpoint 0015 on frozen dev.
+  The candidate is reproducible, but no final test cell has run. SFT remains a
+  separate, unauthorized protocol; choosing it later requires a new decision
+  and a fresh lineage rather than resuming the terminal one.
 - **`enable_roaming`/`disable_roaming` have no rule.** They are in `WRITE_TOOLS` and fall through
   to `no_specific_rule` (28 such records per dev arm). `main_policy.md:155` only says to enable
   roaming at no cost for a traveling user, so an unconditional allow is defensible — but

@@ -6,6 +6,11 @@ registers the governed agent arms, aggregates governance metrics, and pins
 run configuration.
 """
 
-from service_agent.eval.registration import register_governed_agents
-
 __all__ = ["register_governed_agents"]
+
+
+def register_governed_agents() -> None:
+    """Register H1/H2 without importing tau2 for unrelated offline reports."""
+    from service_agent.eval.registration import register_governed_agents as register
+
+    register()

@@ -7,11 +7,11 @@ companion reports; this file is the contract they are produced under.
 
 | Component | Value | Notes |
 |---|---|---|
-| Environment | tau2-bench telecom @ `cf71a80` | submodule pin; native runner only |
+| Environment | tau2-bench telecom @ `2822d90` | actual gitlink: upstream `cf71a80` plus the isolated gym seed/thread-lifecycle fix; native runner only |
 | User simulator | DeepSeek official API, `deepseek-v4-pro` | non-thinking (`extra_body.thinking.type=disabled`), temperature 0.0 |
 | Simulator fallback | DashScope `qwen3.7-max-2026-06-08` | dev-only sensitivity checks |
 | Policy model (dev ablation) | Qwen, served locally via mlx_lm.server | temperature 0.0, thinking disabled via `chat_template_kwargs` |
-| Policy model (final 2x2) | `Qwen/Qwen3.5-4B` @ `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` | served by vLLM on the training box; base and RL cells share checkpoint, tokenizer, chat template, tool parser, and stack |
+| Policy model (final 2x2) | `Qwen/Qwen3.5-4B` @ `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` | both rows share the frozen base revision, tokenizer, chat template, tool parser, and vLLM stack; the two harness cells within each row share identical weights, while the RL row additionally loads its selected adapter |
 | Trials | dev: 4 per task; final test: 8 per task | pass^k needs `trials >= k` |
 | Seed | 42 (per-trial seeds derived by the native runner) | `batch.py` seeds trials, orchestrator seeds agent+user |
 | Max steps | 100 | `termination_reason` reported separately, never folded into accuracy |
@@ -45,5 +45,8 @@ trajectory replay by design.
   is produced on the final stack.
 - The dev set steers all selection; the official test split is touched once,
   at the end, with the four frozen cells.
+- Checkpoint 0015 is the selected candidate from the sparse-stopped GRPO
+  lineage. Its 0.925 frozen-dev selection reward is not a final 2x2 result and
+  is not compared to the quantized MLX dev ablation as an RL effect.
 - Simulator identity is part of the benchmark definition: all cells share one
   simulator build, and no number is compared across simulator changes.

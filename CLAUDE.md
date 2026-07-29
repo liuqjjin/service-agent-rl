@@ -5,10 +5,15 @@ The research question: how much reliability comes from a deterministic governanc
 from RL post-training, measured with a 2x2 factorial (base/RL model x native/governed harness).
 
 Status: base-model row of the 2x2 measured on dev (reports/governance_ablation.md, Hbest = H2).
-Shim, training path, logprob gate, SFT bridge, and AutoDL runbook built and tested. The RTX PRO
-6000 runtime passed a real token/logprob preflight, and a diagnostic smoke changed adapter
-weights; that work exposed the parser/smoke contracts now fixed in manifest schema 3. Fresh
-official gates, formal GRPO, and the final 2x2 are not complete. The test split remains locked.
+The official manifest-v3 preflight and smoke passed on the RTX PRO 6000. Formal GRPO completed
+24 logical checkpoint positions, reported five trainable groups and 445 ART-reported gradient
+steps, then entered terminal `stopped_sparse_reward` under the fixed ten-position rule.
+Frozen-dev selection
+chose checkpoint 0015 at mean reward 0.925; this is selection telemetry, not a final 2x2 result.
+ART/W&B doubles cumulative group counters because rollout and backend records both carry them;
+the manifest/backend totals are 48 submitted, 5 trainable, and 445 gradient steps. Checkpoint
+0015 passed an explicit pinned-base recovery smoke; the backup itself excludes base weights.
+The RL evaluation row is not measured, SFT is not authorized, and the test split remains locked.
 
 ## Commands
 

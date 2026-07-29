@@ -1,0 +1,1005 @@
+{
+  "art_commit": "828b839b1139ac780725f0a22a9bde70a82b4878",
+  "base_model": "Qwen/Qwen3.5-4B",
+  "base_model_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+  "dev_evaluations": [
+    {
+      "avg_reward": 0.85,
+      "rollouts": 40,
+      "stats": {
+        "all_one": 14,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 20,
+        "mixed": 6,
+        "reward_mean": 0.85,
+        "rollouts": 40
+      },
+      "step": 5
+    },
+    {
+      "avg_reward": 0.85,
+      "rollouts": 40,
+      "stats": {
+        "all_one": 15,
+        "all_zero": 1,
+        "constant_other": 0,
+        "groups": 20,
+        "mixed": 4,
+        "reward_mean": 0.85,
+        "rollouts": 40
+      },
+      "step": 10
+    },
+    {
+      "avg_reward": 0.925,
+      "rollouts": 40,
+      "stats": {
+        "all_one": 17,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 20,
+        "mixed": 3,
+        "reward_mean": 0.925,
+        "rollouts": 40
+      },
+      "step": 15
+    },
+    {
+      "avg_reward": 0.9,
+      "rollouts": 40,
+      "stats": {
+        "all_one": 16,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 20,
+        "mixed": 4,
+        "reward_mean": 0.9,
+        "rollouts": 40
+      },
+      "step": 20
+    }
+  ],
+  "events": [],
+  "initial_step": 0,
+  "invocation": {
+    "argv": [
+      ".venv-trainer/bin/python",
+      "-m",
+      "service_agent.training.art_tau_train",
+      "--phase",
+      "train",
+      "--run-name",
+      "grpo-4b-qwen3coder-r1",
+      "--art-path",
+      "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1",
+      "--out",
+      "/root/autodl-tmp/runs/grpo-4b-qwen3coder-r1",
+      "--hf-cache",
+      "/root/autodl-tmp/cache/huggingface",
+      "--preflight-manifest",
+      "/root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json",
+      "--smoke-manifest",
+      "/root/autodl-tmp/runs/smoke-qwen3coder-r1/smoke_manifest.json",
+      "--group-size",
+      "4",
+      "--groups-per-step",
+      "2",
+      "--max-turns",
+      "30",
+      "--max-completion-tokens",
+      "1024",
+      "--max-model-len",
+      "16384",
+      "--rollout-concurrency",
+      "4",
+      "--gpu-memory-utilization",
+      "0.68",
+      "--logprob-calculation-chunk-size",
+      "512",
+      "--steps",
+      "60",
+      "--learning-rate",
+      "5e-6",
+      "--loss-fn",
+      "ppo",
+      "--val-every",
+      "5",
+      "--val-trials",
+      "2"
+    ],
+    "hf_endpoint": "https://hf-mirror.com"
+  },
+  "last_completed_step": 24,
+  "latest_checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0024",
+  "lineage_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1",
+  "model_snapshot": "/root/autodl-tmp/cache/huggingface/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+  "phase": "train",
+  "progress": {
+    "checkpoint_steps_completed": 24,
+    "final_checkpoint_step": 24,
+    "gradient_steps": 445,
+    "groups_submitted": 48,
+    "skipped_checkpoint_steps": 19,
+    "trainable_checkpoint_steps": 5,
+    "trainable_groups": 5
+  },
+  "reason": "at most one mixed-reward group in the last 10 checkpoint/rollout steps",
+  "repo_commit": "e557bbffdee8e283f3a522e6a088ca74bf3ff907",
+  "run_name": "grpo-4b-qwen3coder-r1",
+  "runtime": {
+    "base_model": "Qwen/Qwen3.5-4B",
+    "gpu_memory_utilization": 0.68,
+    "lora_alpha": 32,
+    "lora_rank": 16,
+    "max_completion_tokens": 1024,
+    "max_model_len": 16384,
+    "project": "service-agent",
+    "rollout_concurrency": 4,
+    "run_name": "grpo-4b-qwen3coder-r1",
+    "seed": 42
+  },
+  "schema_version": 3,
+  "selected_checkpoint": {
+    "avg_reward": 0.925,
+    "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0015",
+    "rollouts": 40,
+    "selection_rule": "highest frozen-dev average reward; ties choose earliest",
+    "stats": {
+      "all_one": 17,
+      "all_zero": 0,
+      "constant_other": 0,
+      "groups": 20,
+      "mixed": 3,
+      "reward_mean": 0.925,
+      "rollouts": 40
+    },
+    "step": 15,
+    "training_progress": {
+      "checkpoint_steps_completed": 15,
+      "final_checkpoint_step": 15,
+      "gradient_steps": 349,
+      "groups_submitted": 30,
+      "skipped_checkpoint_steps": 11,
+      "trainable_checkpoint_steps": 4,
+      "trainable_groups": 4
+    }
+  },
+  "semantic_contract_sha256": "91fa4cb5c06414976cf029003ad621b36becfe154ee86201c726f331ec9d6fb6",
+  "semantic_input_hashes": {
+    "system_prompt_sha256": "b76554cc96138af12ae5a6a053b213a08148a4edb6e2de9d19cd63eb7ac5ddac",
+    "tokenizer_chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "tools_sha256": "2e0247eb453d015c5ef856e402776dec0e161230c273595f44107a2b4c93975a"
+  },
+  "started_at": "2026-07-28T12:04:31.606844+00:00",
+  "status": "stopped_sparse_reward",
+  "stopped_at": "2026-07-28T18:32:36.019195+00:00",
+  "system": {
+    "bf16_supported": true,
+    "cuda_available": true,
+    "cuda_runtime": "12.8",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_bytes": 101975851008,
+    "packages": {
+      "openpipe-art": "0.5.18",
+      "transformers": "5.2.0",
+      "trl": "0.20.0",
+      "unsloth": "2026.3.3",
+      "wandb": "0.28.0"
+    },
+    "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+    "python": "3.12.13",
+    "torch": "2.11.0+cu128",
+    "transformers_mask_compat": {
+      "art_parameter_order": [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "past_key_values",
+        "position_ids",
+        "layer_idx",
+        "encoder_hidden_states"
+      ],
+      "status": "installed",
+      "target": "transformers.masking_utils._preprocess_mask_arguments",
+      "transformers_parameter_order": [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "cache_position",
+        "past_key_values",
+        "position_ids",
+        "layer_idx"
+      ]
+    },
+    "vllm_runtime": {
+      "bootstrap": {
+        "ninja_binary_version": "1.13.0.git.kitware.jobserver-pipe-1",
+        "ninja_distribution_version": "1.13.0",
+        "ninja_path": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/bin/ninja",
+        "ninja_sha256": "696f9628a79d9ce50314cf9556d7cd1a1d1ec52b8fd52828f6f9db1719565b67",
+        "path": "/root/autodl-tmp/work/service-agent-rl/src/service_agent/training/vllm_bootstrap/sitecustomize.py",
+        "probe": "passed",
+        "selected_cudart": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+        "sha256": "64ceec18a55e3f19e80bd38a23ce2c3090f30fa994f479a3e386d64907198ab3"
+      },
+      "cudart": {
+        "cuda_device_reset": true,
+        "path": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+        "sha256": "c3a75b33af334a3486d197dbd1584a2985183ba4688d237a2be5f2f679329920"
+      },
+      "packages": {
+        "art-vllm-runtime": "0.1.0",
+        "flashinfer-python": "0.6.12",
+        "ninja": "1.13.0",
+        "torch": "2.11.0+cu128",
+        "torchaudio": "2.11.0+cu128",
+        "torchvision": "0.26.0+cu128",
+        "transformers": "5.12.1",
+        "vllm": "0.23.0+cu129"
+      },
+      "python": "3.12.13"
+    }
+  },
+  "tau2_commit": "2822d9030b621e6f13a190fb14fa08cf1c9c4ca4",
+  "test_split_locked": true,
+  "token_budget": {
+    "generation_prefixes": 4919,
+    "governance_feedback_buffer": 512,
+    "prompt_tokens_max": 14290,
+    "prompt_tokens_p50": 9359,
+    "prompt_tokens_p95": 11451,
+    "prompt_tokens_p99": 12235,
+    "required_prompt_capacity": 14802,
+    "simulations": 240,
+    "source": "results/dev/{h0,h1,h2}/results.json"
+  },
+  "tool_call_parser": "qwen3_coder",
+  "train_steps": [
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0001",
+      "checkpoint_step": 1,
+      "completed_at": "2026-07-28T12:11:44.256313+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 1.3279005978256464
+      },
+      "rollout_step": 0,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0002",
+      "checkpoint_step": 2,
+      "completed_at": "2026-07-28T12:49:23.970612+00:00",
+      "gradient_steps": 76,
+      "gradient_work_performed": true,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_non_padding_train_tokens": 761988.0,
+        "data/step_num_gradient_steps": 76.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 1.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_packed_sequences": 76.0,
+        "data/step_packed_train_tokens": 1089536.0,
+        "data/step_padding_ratio": 0.3006307272086464,
+        "data/step_trainable_assistant_tokens": 9708.0,
+        "loss/entropy": 0.1544552376052659,
+        "loss/grad_norm": 2.5424298122525215,
+        "loss/learning_rate": 5.000000000000009e-06,
+        "loss/train": 0.07576109312082592,
+        "prefix_tree/compression_ratio": 1.0,
+        "prefix_tree/logical_tokens": 761988.0,
+        "prefix_tree/physical_tokens": 761988.0,
+        "time/step_backend_train_s": 1906.9223096426576
+      },
+      "rollout_step": 1,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 1,
+        "reward_mean": 0.875,
+        "rollouts": 8
+      },
+      "trainable_groups": 1
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0003",
+      "checkpoint_step": 3,
+      "completed_at": "2026-07-28T12:55:44.681962+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.1219730731099844
+      },
+      "rollout_step": 2,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0004",
+      "checkpoint_step": 4,
+      "completed_at": "2026-07-28T13:00:56.540422+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.12309205159544945
+      },
+      "rollout_step": 3,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0005",
+      "checkpoint_step": 5,
+      "completed_at": "2026-07-28T13:04:23.970110+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.12457360327243805
+      },
+      "rollout_step": 4,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0006",
+      "checkpoint_step": 6,
+      "completed_at": "2026-07-28T13:31:49.804007+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.15752301178872585
+      },
+      "rollout_step": 5,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0007",
+      "checkpoint_step": 7,
+      "completed_at": "2026-07-28T14:16:07.558450+00:00",
+      "gradient_steps": 96,
+      "gradient_work_performed": true,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_non_padding_train_tokens": 958642.0,
+        "data/step_num_gradient_steps": 96.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 1.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_packed_sequences": 96.0,
+        "data/step_packed_train_tokens": 1376256.0,
+        "data/step_padding_ratio": 0.30344209216889956,
+        "data/step_trainable_assistant_tokens": 10598.0,
+        "loss/entropy": 0.12052679622623448,
+        "loss/grad_norm": 2.158809744520113,
+        "loss/learning_rate": 5.00000000000001e-06,
+        "loss/train": 0.08190556553502877,
+        "prefix_tree/compression_ratio": 1.0,
+        "prefix_tree/logical_tokens": 958642.0,
+        "prefix_tree/physical_tokens": 958642.0,
+        "time/step_backend_train_s": 2312.7300238404423
+      },
+      "rollout_step": 6,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 1,
+        "reward_mean": 0.75,
+        "rollouts": 8
+      },
+      "trainable_groups": 1
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0008",
+      "checkpoint_step": 8,
+      "completed_at": "2026-07-28T14:21:01.045760+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.1334818359464407
+      },
+      "rollout_step": 7,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0009",
+      "checkpoint_step": 9,
+      "completed_at": "2026-07-28T14:24:46.444269+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.14133836701512337
+      },
+      "rollout_step": 8,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0010",
+      "checkpoint_step": 10,
+      "completed_at": "2026-07-28T15:06:19.338130+00:00",
+      "gradient_steps": 90,
+      "gradient_work_performed": true,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_non_padding_train_tokens": 921430.0,
+        "data/step_num_gradient_steps": 90.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 1.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_packed_sequences": 90.0,
+        "data/step_packed_train_tokens": 1290240.0,
+        "data/step_padding_ratio": 0.2858460441468258,
+        "data/step_trainable_assistant_tokens": 11437.0,
+        "loss/entropy": 0.13445309994535315,
+        "loss/grad_norm": 2.004737656646305,
+        "loss/learning_rate": 5.00000000000001e-06,
+        "loss/train": -0.04853940539889866,
+        "prefix_tree/compression_ratio": 1.0,
+        "prefix_tree/logical_tokens": 921430.0,
+        "prefix_tree/physical_tokens": 921430.0,
+        "time/step_backend_train_s": 2171.497774327174
+      },
+      "rollout_step": 9,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 1,
+        "reward_mean": 0.875,
+        "rollouts": 8
+      },
+      "trainable_groups": 1
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0011",
+      "checkpoint_step": 11,
+      "completed_at": "2026-07-28T15:33:56.494914+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.12111654132604599
+      },
+      "rollout_step": 10,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0012",
+      "checkpoint_step": 12,
+      "completed_at": "2026-07-28T15:37:40.247986+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.15495401993393898
+      },
+      "rollout_step": 11,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0013",
+      "checkpoint_step": 13,
+      "completed_at": "2026-07-28T15:40:54.759233+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.16142211109399796
+      },
+      "rollout_step": 12,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0014",
+      "checkpoint_step": 14,
+      "completed_at": "2026-07-28T16:20:14.794776+00:00",
+      "gradient_steps": 87,
+      "gradient_work_performed": true,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_non_padding_train_tokens": 876808.0,
+        "data/step_num_gradient_steps": 87.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 1.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_packed_sequences": 87.0,
+        "data/step_packed_train_tokens": 1247232.0,
+        "data/step_padding_ratio": 0.2969968698686367,
+        "data/step_trainable_assistant_tokens": 11400.0,
+        "loss/entropy": 0.12223038764606262,
+        "loss/grad_norm": 1.8061364957655983,
+        "loss/learning_rate": 5.00000000000001e-06,
+        "loss/train": -0.010882159759258402,
+        "prefix_tree/compression_ratio": 1.0,
+        "prefix_tree/logical_tokens": 876808.0,
+        "prefix_tree/physical_tokens": 876808.0,
+        "time/step_backend_train_s": 2094.739217516035
+      },
+      "rollout_step": 13,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 1,
+        "reward_mean": 0.875,
+        "rollouts": 8
+      },
+      "trainable_groups": 1
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0015",
+      "checkpoint_step": 15,
+      "completed_at": "2026-07-28T16:24:50.242507+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.2117123957723379
+      },
+      "rollout_step": 14,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0016",
+      "checkpoint_step": 16,
+      "completed_at": "2026-07-28T16:51:35.792801+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.14609801582992077
+      },
+      "rollout_step": 15,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 1,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 0.5,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0017",
+      "checkpoint_step": 17,
+      "completed_at": "2026-07-28T16:56:02.443373+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.1303772982209921
+      },
+      "rollout_step": 16,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0018",
+      "checkpoint_step": 18,
+      "completed_at": "2026-07-28T17:41:01.840169+00:00",
+      "gradient_steps": 96,
+      "gradient_work_performed": true,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_non_padding_train_tokens": 988045.0,
+        "data/step_num_gradient_steps": 96.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 1.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_packed_sequences": 96.0,
+        "data/step_packed_train_tokens": 1376256.0,
+        "data/step_padding_ratio": 0.28207760765439,
+        "data/step_trainable_assistant_tokens": 10884.0,
+        "loss/entropy": 0.1433742839920645,
+        "loss/grad_norm": 2.130786193534732,
+        "loss/learning_rate": 5.00000000000001e-06,
+        "loss/train": 0.05754072964191437,
+        "prefix_tree/compression_ratio": 1.0,
+        "prefix_tree/logical_tokens": 988045.0,
+        "prefix_tree/physical_tokens": 988045.0,
+        "time/step_backend_train_s": 2304.376037683338
+      },
+      "rollout_step": 17,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 1,
+        "reward_mean": 0.625,
+        "rollouts": 8
+      },
+      "trainable_groups": 1
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0019",
+      "checkpoint_step": 19,
+      "completed_at": "2026-07-28T17:45:56.489857+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.14006420969963074
+      },
+      "rollout_step": 18,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0020",
+      "checkpoint_step": 20,
+      "completed_at": "2026-07-28T17:50:44.249460+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.151753144338727
+      },
+      "rollout_step": 19,
+      "stats": {
+        "all_one": 1,
+        "all_zero": 1,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 0.5,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0021",
+      "checkpoint_step": 21,
+      "completed_at": "2026-07-28T18:19:48.213925+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.1430097408592701
+      },
+      "rollout_step": 20,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0022",
+      "checkpoint_step": 22,
+      "completed_at": "2026-07-28T18:23:41.920272+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.18378245271742344
+      },
+      "rollout_step": 21,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0023",
+      "checkpoint_step": 23,
+      "completed_at": "2026-07-28T18:27:39.741001+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.14816894195973873
+      },
+      "rollout_step": 22,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    },
+    {
+      "checkpoint_path": "/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/service-agent/models/grpo-4b-qwen3coder-r1/checkpoints/0024",
+      "checkpoint_step": 24,
+      "completed_at": "2026-07-28T18:32:36.017931+00:00",
+      "gradient_steps": 0,
+      "gradient_work_performed": false,
+      "groups_submitted": 2,
+      "metrics": {
+        "data/step_num_gradient_steps": 0.0,
+        "data/step_num_groups_submitted": 2.0,
+        "data/step_num_groups_trainable": 0.0,
+        "data/step_num_scenarios": 2.0,
+        "data/step_num_trajectories": 8.0,
+        "data/step_trainable_assistant_tokens": 0.0,
+        "time/step_backend_train_s": 0.14952892251312733
+      },
+      "rollout_step": 23,
+      "stats": {
+        "all_one": 2,
+        "all_zero": 0,
+        "constant_other": 0,
+        "groups": 2,
+        "mixed": 0,
+        "reward_mean": 1.0,
+        "rollouts": 8
+      },
+      "trainable_groups": 0
+    }
+  ],
+  "training": {
+    "group_size": 4,
+    "groups_per_step": 2,
+    "kl_penalty_coef": 0.0,
+    "learning_rate": 5e-06,
+    "logprob_calculation_chunk_size": 512,
+    "loss_fn": "ppo",
+    "max_turns": 30,
+    "steps": 60,
+    "val_every": 5,
+    "val_trials": 2
+  },
+  "user_simulator": {
+    "model": "deepseek/deepseek-v4-pro",
+    "temperature": 0.0,
+    "thinking": "disabled"
+  },
+  "wandb_url": "https://wandb.ai/lqj-physics-nudt/service-agent/runs/grpo-4b-qwen3coder-r1"
+}

@@ -1,0 +1,202 @@
+{
+  "art_commit": "828b839b1139ac780725f0a22a9bde70a82b4878",
+  "base_model": "Qwen/Qwen3.5-4B",
+  "base_model_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+  "completed_at": "2026-07-28T11:13:12.901937+00:00",
+  "events": [],
+  "final_step": 0,
+  "initial_step": 0,
+  "invocation": {
+    "argv": [
+      ".venv-trainer/bin/python",
+      "-m",
+      "service_agent.training.art_tau_train",
+      "--phase",
+      "preflight",
+      "--run-name",
+      "preflight-qwen3coder-r1",
+      "--art-path",
+      "/root/autodl-tmp/art/preflight-qwen3coder-r1",
+      "--out",
+      "/root/autodl-tmp/runs/preflight-qwen3coder-r1",
+      "--hf-cache",
+      "/root/autodl-tmp/cache/huggingface",
+      "--group-size",
+      "4",
+      "--max-turns",
+      "30",
+      "--max-completion-tokens",
+      "1024",
+      "--max-model-len",
+      "16384",
+      "--rollout-concurrency",
+      "4",
+      "--gpu-memory-utilization",
+      "0.68",
+      "--logprob-calculation-chunk-size",
+      "512"
+    ],
+    "hf_endpoint": "https://hf-mirror.com"
+  },
+  "lineage_path": "/root/autodl-tmp/art/preflight-qwen3coder-r1/service-agent/models/preflight-qwen3coder-r1",
+  "logprob_gate": {
+    "clip_fraction_before_first_update": 0.0,
+    "mean_abs_logprob_delta": 0.006681285528904916,
+    "prompt_token_ids_exact": true,
+    "prompts": 6,
+    "ratio_mean": 1.0008679734411163,
+    "ratio_median": 1.0,
+    "ratio_p95": 1.0125352266570748,
+    "ratio_p99": 1.1168758670225047,
+    "status": "passed",
+    "thresholds": {
+      "abs_ratio_mean_minus_one": 0.02,
+      "clip_fraction": 0.02,
+      "clip_window": [
+        0.8,
+        1.2
+      ]
+    },
+    "tokens": 431
+  },
+  "model_snapshot": "/root/autodl-tmp/cache/huggingface/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+  "phase": "preflight",
+  "repo_commit": "e557bbffdee8e283f3a522e6a088ca74bf3ff907",
+  "rollout_only": {
+    "multi_tool_calls": 0,
+    "reward_finalized_once": true,
+    "stats": {
+      "all_one": 2,
+      "all_zero": 0,
+      "constant_other": 0,
+      "groups": 2,
+      "mixed": 0,
+      "reward_mean": 1.0,
+      "rollouts": 8
+    },
+    "status": "passed",
+    "strict_replay": true,
+    "test_split_locked": true
+  },
+  "run_name": "preflight-qwen3coder-r1",
+  "runtime": {
+    "base_model": "Qwen/Qwen3.5-4B",
+    "gpu_memory_utilization": 0.68,
+    "lora_alpha": 32,
+    "lora_rank": 16,
+    "max_completion_tokens": 1024,
+    "max_model_len": 16384,
+    "project": "service-agent",
+    "rollout_concurrency": 4,
+    "run_name": "preflight-qwen3coder-r1",
+    "seed": 42
+  },
+  "schema_version": 3,
+  "semantic_contract_sha256": "91fa4cb5c06414976cf029003ad621b36becfe154ee86201c726f331ec9d6fb6",
+  "semantic_input_hashes": {
+    "system_prompt_sha256": "b76554cc96138af12ae5a6a053b213a08148a4edb6e2de9d19cd63eb7ac5ddac",
+    "tokenizer_chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "tools_sha256": "2e0247eb453d015c5ef856e402776dec0e161230c273595f44107a2b4c93975a"
+  },
+  "started_at": "2026-07-28T11:06:34.320293+00:00",
+  "status": "passed",
+  "system": {
+    "bf16_supported": true,
+    "cuda_available": true,
+    "cuda_runtime": "12.8",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_bytes": 101975851008,
+    "packages": {
+      "openpipe-art": "0.5.18",
+      "transformers": "5.2.0",
+      "trl": "0.20.0",
+      "unsloth": "2026.3.3",
+      "wandb": "0.28.0"
+    },
+    "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+    "python": "3.12.13",
+    "torch": "2.11.0+cu128",
+    "transformers_mask_compat": {
+      "art_parameter_order": [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "past_key_values",
+        "position_ids",
+        "layer_idx",
+        "encoder_hidden_states"
+      ],
+      "status": "installed",
+      "target": "transformers.masking_utils._preprocess_mask_arguments",
+      "transformers_parameter_order": [
+        "config",
+        "inputs_embeds",
+        "attention_mask",
+        "cache_position",
+        "past_key_values",
+        "position_ids",
+        "layer_idx"
+      ]
+    },
+    "vllm_runtime": {
+      "bootstrap": {
+        "ninja_binary_version": "1.13.0.git.kitware.jobserver-pipe-1",
+        "ninja_distribution_version": "1.13.0",
+        "ninja_path": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/bin/ninja",
+        "ninja_sha256": "696f9628a79d9ce50314cf9556d7cd1a1d1ec52b8fd52828f6f9db1719565b67",
+        "path": "/root/autodl-tmp/work/service-agent-rl/src/service_agent/training/vllm_bootstrap/sitecustomize.py",
+        "probe": "passed",
+        "selected_cudart": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+        "sha256": "64ceec18a55e3f19e80bd38a23ce2c3090f30fa994f479a3e386d64907198ab3"
+      },
+      "cudart": {
+        "cuda_device_reset": true,
+        "path": "/root/autodl-tmp/work/service-agent-rl/third_party/ART/vllm_runtime/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/libcudart.so.12",
+        "sha256": "c3a75b33af334a3486d197dbd1584a2985183ba4688d237a2be5f2f679329920"
+      },
+      "packages": {
+        "art-vllm-runtime": "0.1.0",
+        "flashinfer-python": "0.6.12",
+        "ninja": "1.13.0",
+        "torch": "2.11.0+cu128",
+        "torchaudio": "2.11.0+cu128",
+        "torchvision": "0.26.0+cu128",
+        "transformers": "5.12.1",
+        "vllm": "0.23.0+cu129"
+      },
+      "python": "3.12.13"
+    }
+  },
+  "tau2_commit": "2822d9030b621e6f13a190fb14fa08cf1c9c4ca4",
+  "test_split_locked": true,
+  "token_budget": {
+    "generation_prefixes": 4919,
+    "governance_feedback_buffer": 512,
+    "prompt_tokens_max": 14290,
+    "prompt_tokens_p50": 9359,
+    "prompt_tokens_p95": 11451,
+    "prompt_tokens_p99": 12235,
+    "required_prompt_capacity": 14802,
+    "simulations": 240,
+    "source": "results/dev/{h0,h1,h2}/results.json"
+  },
+  "tool_call_parser": "qwen3_coder",
+  "training": {
+    "group_size": 4,
+    "groups_per_step": 2,
+    "kl_penalty_coef": 0.0,
+    "learning_rate": 5e-06,
+    "logprob_calculation_chunk_size": 512,
+    "loss_fn": "ppo",
+    "max_turns": 30,
+    "steps": 60,
+    "val_every": 5,
+    "val_trials": 2
+  },
+  "user_simulator": {
+    "model": "deepseek/deepseek-v4-pro",
+    "temperature": 0.0,
+    "thinking": "disabled"
+  },
+  "wandb_url": "https://wandb.ai/lqj-physics-nudt/service-agent/runs/preflight-qwen3coder-r1"
+}

@@ -7,9 +7,10 @@ localhost only.
 
 The training protocol has three lineages:
 
-1. `preflight-qwen3coder-r1`: step-0 token/logprob gate, then rollout-only.
-2. `smoke-qwen3coder-r1`: one disposable backend training call.
-3. `grpo-4b-qwen3coder-r1`: fresh formal run, authorized by both gates.
+1. `preflight-qwen3coder-r1`: step-0 token/logprob gate, then rollout-only — passed.
+2. `smoke-qwen3coder-r1`: one disposable backend training call — passed.
+3. `grpo-4b-qwen3coder-r1`: fresh formal run, authorized by both gates — terminal
+   `stopped_sparse_reward` at checkpoint position 0024.
 
 The official test split stays locked throughout all three.
 
@@ -166,6 +167,7 @@ earlier Hermes manifest cannot authorize any phase.
 ```bash
 cd /root/autodl-tmp/work/service-agent-rl
 source .venv-trainer/bin/activate
+set -o pipefail
 python -m service_agent.training.art_tau_train \
   --phase preflight --run-name preflight-qwen3coder-r1 \
   --art-path /root/autodl-tmp/art/preflight-qwen3coder-r1 \
@@ -176,7 +178,11 @@ python -m service_agent.training.art_tau_train \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
   --logprob-calculation-chunk-size 512 \
   2>&1 | tee /root/autodl-tmp/logs/preflight-qwen3coder-r1.log
+preflight_rc=${PIPESTATUS[0]}
+printf '%s\n' "$preflight_rc" \
+  > /root/autodl-tmp/logs/preflight-qwen3coder-r1.exit
 deactivate
+test "$preflight_rc" -eq 0
 ```
 
 Gate artifact:
@@ -190,6 +196,7 @@ pass, strict replay is true, test locking is true, and both steps are zero.
 
 ```bash
 source .venv-trainer/bin/activate
+set -o pipefail
 python -m service_agent.training.art_tau_train \
   --phase smoke --run-name smoke-qwen3coder-r1 \
   --art-path /root/autodl-tmp/art/smoke-qwen3coder-r1 \
@@ -202,7 +209,11 @@ python -m service_agent.training.art_tau_train \
   --rollout-concurrency 4 --gpu-memory-utilization 0.68 \
   --logprob-calculation-chunk-size 512 \
   2>&1 | tee /root/autodl-tmp/logs/smoke-qwen3coder-r1.log
+smoke_rc=${PIPESTATUS[0]}
+printf '%s\n' "$smoke_rc" \
+  > /root/autodl-tmp/logs/smoke-qwen3coder-r1.exit
 deactivate
+test "$smoke_rc" -eq 0
 ```
 
 The smoke submits four groups: formal slots 0-3, exactly the first two
@@ -225,10 +236,34 @@ observed maximum plus a governance-feedback buffer and 1,024 completion
 tokens.
 
 ```bash
-tmux new-session -d -s grpo-qwen3coder
+tmux new-session -d -s grpo-qwen3coder bash
 tmux send-keys -t grpo-qwen3coder \
-  'cd /root/autodl-tmp/work/service-agent-rl && source .venv-trainer/bin/activate && python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-qwen3coder-r1 --art-path /root/autodl-tmp/art/grpo-4b-qwen3coder-r1 --out /root/autodl-tmp/runs/grpo-4b-qwen3coder-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-qwen3coder-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --logprob-calculation-chunk-size 512 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-qwen3coder-r1.log' C-m
+  'set -o pipefail; cd /root/autodl-tmp/work/service-agent-rl || exit $?; source .venv-trainer/bin/activate || exit $?; python -m service_agent.training.art_tau_train --phase train --run-name grpo-4b-qwen3coder-r1 --art-path /root/autodl-tmp/art/grpo-4b-qwen3coder-r1 --out /root/autodl-tmp/runs/grpo-4b-qwen3coder-r1 --hf-cache /root/autodl-tmp/cache/huggingface --preflight-manifest /root/autodl-tmp/runs/preflight-qwen3coder-r1/preflight_manifest.json --smoke-manifest /root/autodl-tmp/runs/smoke-qwen3coder-r1/smoke_manifest.json --group-size 4 --groups-per-step 2 --max-turns 30 --max-completion-tokens 1024 --max-model-len 16384 --rollout-concurrency 4 --gpu-memory-utilization 0.68 --logprob-calculation-chunk-size 512 --steps 60 --learning-rate 5e-6 --loss-fn ppo --val-every 5 --val-trials 2 2>&1 | tee /root/autodl-tmp/logs/grpo-4b-qwen3coder-r1.log; grpo_rc=${PIPESTATUS[0]}; printf "%s\n" "$grpo_rc" > /root/autodl-tmp/logs/grpo-4b-qwen3coder-r1.exit; exit "$grpo_rc"' C-m
 ```
+
+Recorded outcome: the official lineage completed 24 of the requested 60
+rollout/checkpoint positions. It reported five trainable groups, five
+gradient-bearing checkpoint positions, 19 skipped positions, and 445 ART
+gradient steps. Scheduled frozen-dev means were 0.850 at 0005, 0.850 at 0010,
+0.925 at 0015, and 0.900 at 0020, so the fixed rule selected checkpoint 0015.
+The last ten positions contained one mixed-reward group in total and triggered
+the predeclared sparse-reward stop at 0024.
+
+The driver persisted `status=stopped_sparse_reward` atomically and then raised
+the protocol error that ends the process. The resulting shell exit 1 is
+expected for this terminal manifest and is not an OOM, CUDA error, or
+infrastructure crash. Rerunning the command to chase the requested 60
+positions is forbidden: the exact lineage is terminal. The Bash `PIPESTATUS`
+capture is required because `tee` otherwise hides the Python process's exit;
+the three `.exit` files are committed under each phase as `process.exit`.
+
+ART writes each position's submitted/trainable group counters on both the
+rollout log record and the following backend-metrics record. Its cumulative
+W&B state therefore displays 96 submitted and 10 trainable groups. Count
+unique training work from the 24 manifest `train_steps` or the 24 backend
+records: both give 48 submitted, 5 trainable, and 445 gradient steps.
+Gradient steps occur only on backend records, so that counter is not doubled.
+`results/gpu/WANDB_COUNTER_AUDIT.json` records this reconciliation.
 
 The command is resume-safe: rerunning the exact command requires the same
 semantic-contract hash and resolved ART lineage path, and requires the
@@ -246,8 +281,8 @@ checkpoint records the same totals only through its own step.
 
 The selected checkpoint rule is fixed before training: highest frozen-dev
 average reward among scheduled checkpoints; ties choose the earliest step.
-Every checkpoint is evaluated with the same dev task/trial seeds (common random
-numbers). The test split is not involved.
+Every scheduled validation checkpoint is evaluated with the same dev
+task/trial seeds (common random numbers). The test split is not involved.
 
 Stop immediately on any of these:
 
@@ -268,8 +303,9 @@ chunk size is recorded in every phase manifest and must match across gates.
 Do not change learning rate, reward, prompts, tools, model revision, group
 size, or split. A second OOM is a hard gate.
 
-SFT is not automatic. Sparse reward stops the formal driver and requires a
-recorded protocol decision before any teacher data or SFT update is created.
+SFT is not automatic. D26 freezes checkpoint 0015 as the current GRPO
+candidate and does not authorize teacher data or SFT. Any fallback would
+require a new decision and a fresh lineage.
 
 ## 7. Training handoff and backup
 
@@ -278,11 +314,70 @@ Before any final test run, copy these to the Mac and verify checksums:
 - `/root/autodl-tmp/runs/preflight-qwen3coder-r1/`
 - `/root/autodl-tmp/runs/smoke-qwen3coder-r1/`
 - `/root/autodl-tmp/runs/grpo-4b-qwen3coder-r1/`
-- the selected LoRA checkpoint under
-  `/root/autodl-tmp/art/grpo-4b-qwen3coder-r1/`
-- `/root/autodl-tmp/logs/`
+- all three ART lineages, including selected checkpoint 0015 and latest
+  terminal checkpoint 0024 under `/root/autodl-tmp/art/`
+- the three official logs and process-exit files plus `shim.log` under
+  `/root/autodl-tmp/logs/`
 - W&B run URLs
 - a SHA-256 manifest for every copied file
+
+Commit byte-identical copies of the three phase manifests and process exits
+under `results/gpu/`; keep LoRA weights, trajectories, tensors, and raw logs in
+the ignored local backup. Regenerate `reports/grpo_training.md` from the
+committed evidence and require its tests to pass.
+
+Recorded handoff: `checkpoints/autodl-backup-2026-07-28-qwen3coder-r1/`
+contains the 292 indexed training-source files (about 3.3 GB) plus the later
+recovery-proof manifest. Independently generated remote and local SHA-256
+lists for those 292 sources match byte for byte; the canonical list has SHA-256
+`a5c9d4c9e630dbfc422a41f4fb37298eef781466e0877d2b185226665107f724`.
+`results/gpu/BACKUP_SHA256SUMS` is its committed copy. The backup directory is
+ignored by Git; deleting the AutoDL instance before verifying that local
+directory would discard the recoverable LoRA weights.
+
+The backup does not include the bf16 base-model snapshot. It is recoverable,
+but not a standalone offline bundle: download the exact frozen revision first,
+load that snapshot explicitly, and then attach checkpoint 0015. Do not rely on
+the source-machine path embedded in `adapter_config.json`. The following
+minimal check is intentionally unrelated to tau2 and does not access a split:
+
+```bash
+export RESTORE_BASE=/path/to/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+export RESTORE_ADAPTER=/path/to/backed-up/checkpoints/0015
+.venv-trainer/bin/python - <<'PY'
+import os
+import torch
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+base = os.environ["RESTORE_BASE"]
+adapter = os.environ["RESTORE_ADAPTER"]
+tokenizer = AutoTokenizer.from_pretrained(base, local_files_only=True)
+model = AutoModelForCausalLM.from_pretrained(
+    base,
+    local_files_only=True,
+    dtype=torch.bfloat16,
+    device_map={"": 0},
+)
+model = PeftModel.from_pretrained(
+    model,
+    adapter,
+    local_files_only=True,
+    is_trainable=False,
+)
+inputs = tokenizer("Reply with one word: ready", return_tensors="pt").to("cuda:0")
+with torch.inference_mode():
+    output = model.generate(**inputs, max_new_tokens=1, do_sample=False)
+assert output.shape[-1] == inputs["input_ids"].shape[-1] + 1
+PY
+```
+
+Recorded recovery smoke: checkpoint 0015 was copied to
+`/root/autodl-tmp/restore-proof-cp0015-r1/`, loaded against the explicit pinned
+base on the RTX PRO 6000, and generated one token. The adapter hash remained
+`1018931f9483c71ae20fbd59c76ab6a0c73137d4aefe9c8ad823175931b2c898`;
+`results/gpu/restore-cp0015-r1/restore_manifest.json` is the byte-identical
+result copied back to the Mac.
 
 Confirm again that the test endpoint returns 403 and that no final-results
 directory exists. Stop here and request the exact approval string

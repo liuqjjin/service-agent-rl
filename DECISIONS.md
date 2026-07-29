@@ -16,10 +16,12 @@ changing it mid-project invalidates every earlier number; tau2's default
 
 ## D2. Local Qwen3.6-35B-A3B (4-bit) is a tool, not a subject
 
-Used for smoke tests, teacher-trajectory generation (SFT bridge), and failure
-analysis. Never substituted for the formal Qwen 4B policy in any reported cell:
-the 2x2 requires base and RL cells to share one checkpoint, tokenizer, chat
-template, tool parser, and inference stack.
+Used for smoke tests and failure analysis. It is reserved as a possible
+teacher for the SFT bridge only after a separate protocol decision. Never
+substituted for the formal Qwen 4B policy in any reported cell: within each
+model row, native and governed cells share identical weights. The base and RL
+rows share the base revision, tokenizer, chat template, tool parser, and
+inference stack; the RL row additionally loads its selected adapter.
 
 ## D3. Dev selection is deterministic, not seeded-random
 
@@ -359,3 +361,58 @@ steps, submitted/trainable groups, and ART gradient steps separately. The
 selected checkpoint also records those totals only through its own step. A
 60-step lineage is never described as 60 optimizer updates without that
 evidence.
+
+## D26. Freeze checkpoint 0015 as the candidate from the sparse-stopped lineage
+
+The official schema-3 preflight and smoke both passed under semantic contract
+`91fa4cb5c06414976cf029003ad621b36becfe154ee86201c726f331ec9d6fb6`.
+Formal GRPO requested 60 rollout/checkpoint positions and completed 24. Across
+the complete lineage, ART reported five trainable groups, five
+gradient-bearing checkpoint positions, 19 skipped positions, and 445 gradient
+steps. The final ten positions contained one mixed-reward group, so the
+predeclared sparsity rule wrote terminal status `stopped_sparse_reward` and
+then ended the process with its expected protocol error. This was not a passed
+60-position run, an OOM, or an infrastructure crash.
+
+The fixed checkpoint rule selected 0015: the scheduled frozen-dev means were
+0.850 at 0005, 0.850 at 0010, 0.925 at 0015, and 0.900 at 0020. Checkpoint
+0024 is the latest terminal lineage position, not the selected model.
+Checkpoint 0015 is therefore frozen as the current GRPO candidate for the
+approval-gated final 2x2. Its 0.925 value is selection telemetry within this
+bf16 lineage, not an RL evaluation result and not evidence of a +0.013 gain
+over the separate quantized-MLX dev ablation.
+
+The byte-identical formal manifest is
+`results/gpu/grpo-4b-qwen3coder-r1/train_manifest.json` (SHA-256
+`a011cdc352ef360d63e8e3f4db81b4b8152bac71bc84a7184407c8c35b2bdea3`).
+The backed-up selected adapter is SHA-256
+`1018931f9483c71ae20fbd59c76ab6a0c73137d4aefe9c8ad823175931b2c898`.
+The recorded W&B run is
+[grpo-4b-qwen3coder-r1](https://wandb.ai/lqj-physics-nudt/service-agent/runs/grpo-4b-qwen3coder-r1),
+and `reports/grpo_training.md` regenerates the analysis from all three phase
+manifests.
+
+The ART history contains 24 rollout records, 24 backend-train records, and four
+dev records. Both records for each formal position carry submitted/trainable
+group counters, so ART's cumulative W&B state sums them to 96/10; the manifest
+and the backend-record subset each reconstruct the authoritative 48 submitted,
+five trainable, and 445 gradient-step totals. Gradient steps exist only on the
+backend records and remain 445. This is a disclosed logging aggregation
+artifact, not evidence of 96 distinct groups or a second training pass. The
+committed `results/gpu/WANDB_COUNTER_AUDIT.json` is recomputed from the hashed
+raw history and state when the ignored backup is available.
+
+The 3.3 GB backup deliberately excludes the pinned bf16 base weights and is not
+a standalone offline bundle. Recovery must download
+`Qwen/Qwen3.5-4B@851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a`, load that snapshot
+explicitly, and attach the backed-up adapter; the source-machine absolute path
+inside `adapter_config.json` is not the recovery contract. This was exercised
+after backup with checkpoint 0015 copied to a separate directory: the explicit
+base and adapter loaded on the RTX PRO 6000 and generated one non-benchmark
+token. `results/gpu/restore-cp0015-r1/restore_manifest.json` records the proof.
+
+The exact formal lineage remains terminal: do not resume, reseed, retune, or
+run it to 60 positions. This decision does not authorize teacher-data
+generation or SFT. Either action would require a separate decision and a fresh
+lineage before the final-test approval; absent that decision, checkpoint 0015
+remains the RL candidate.

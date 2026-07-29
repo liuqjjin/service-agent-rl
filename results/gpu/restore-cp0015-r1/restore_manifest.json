@@ -1,0 +1,20 @@
+{
+  "adapter_checkpoint": 15,
+  "adapter_relocated": true,
+  "adapter_sha256": "1018931f9483c71ae20fbd59c76ab6a0c73137d4aefe9c8ad823175931b2c898",
+  "base_model": "Qwen/Qwen3.5-4B",
+  "base_model_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+  "base_snapshot_explicit": true,
+  "checked_at": "2026-07-29T04:58:11.958934+00:00",
+  "device": "cuda:0",
+  "dtype": "torch.bfloat16",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "loaded_adapter_names": [
+    "default"
+  ],
+  "model_class": "Qwen3_5ForCausalLM",
+  "new_tokens_generated": 1,
+  "schema_version": 1,
+  "status": "passed",
+  "test_split_accessed": false
+}

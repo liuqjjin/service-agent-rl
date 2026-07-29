@@ -53,7 +53,9 @@ the governance harness and how much is the model?** A 2x2 factorial answers it.
 From the four cells: harness effect (`Hbest - H0`), model effect (`RL - H0`),
 and the interaction — whether governance and training fix the same failures or
 different ones. The base-model row is measured below. The RL row runs on GPU
-(`runbooks/autodl.md`); its current gate status is disclosed under Limitations.
+(`runbooks/autodl.md`). GRPO has produced a frozen-dev-selected candidate, but
+the RL evaluation row remains unmeasured because the final test split is still
+locked.
 
 ## Dev findings (base model)
 
@@ -82,6 +84,41 @@ writes it would have blocked; for H1/H2 it counts what leaked past (zero). The
 violations break down as 24 unconfirmed refuel prices, 8 resumes over unpaid
 overdue bills, 3 resumes past a contract-end date, 1 refuel with an unread
 price — all business rules the tools do not enforce.
+
+## GPU training outcome
+
+The official manifest-v3 preflight and smoke both passed on an RTX PRO 6000.
+Preflight matched vLLM and learner prompt token IDs exactly, kept the pre-update
+importance-ratio mean at 1.000868, and passed strict replay without an update.
+Smoke then proved one real backend training call: one trainable reward group,
+72 ART-reported gradient steps, and a checkpoint transition from 0000 to 0001.
+
+Formal GRPO requested 60 rollout/checkpoint positions and completed 24. Only
+five submitted groups had within-group reward variance; ART reported 445
+gradient steps across them, while 19 positions correctly skipped gradient
+work. The predeclared sparse-reward gate then stopped the lineage with terminal
+status `stopped_sparse_reward`. This is a controlled protocol stop, not a
+completed 60-position run and not an infrastructure crash.
+
+ART logs each position's group counters once with rollout metrics and once with
+backend metrics. Its cumulative W&B view therefore shows 96 submitted / 10
+trainable groups, while the 24 unique manifest records and backend records both
+give the authoritative 48 / 5 / 445 totals. Gradient steps appear only on the
+backend records and are not doubled. `reports/grpo_training.md` binds this
+reconciliation to the hashed raw history and state files.
+
+The fixed frozen-dev rule selected checkpoint 0015 at mean reward 0.925 from
+the scheduled evaluations (0005: 0.850, 0010: 0.850, 0015: 0.925, 0020:
+0.900). Checkpoint 0024 is only the latest terminal position. These are
+selection measurements within the bf16 training lineage, not the RL cell of
+the final 2x2, and 0.925 must not be compared to the 0.912 MLX base-dev number
+above as an estimate of model improvement. The validated manifests, exact
+process exits, and generated analysis are in `results/gpu/` and
+`reports/grpo_training.md`. The selected adapter was also reloaded from a
+separate recovery directory against the exact pinned bf16 base and generated a
+non-benchmark token. The backup does not contain the base weights, so recovery
+requires downloading that exact revision; it is not a standalone offline model
+bundle.
 
 Reproduce a single arm (needs a served policy model and `DEEPSEEK_API_KEY` in
 `.env`):
@@ -141,7 +178,7 @@ evaluator to prove replay stays valid (`tests/test_governed_agent_replay.py`).
 
 ```bash
 uv sync                 # Python 3.12; tau2 installed editable from the submodule
-uv run pytest           # 111 tests: splits, leakage, gym fixes, governance,
+uv run pytest           # 114 tests: splits, leakage, gym fixes, governance,
                         # replay, shim parity, GPU contracts, statistics
 ```
 
@@ -151,12 +188,13 @@ The ablation and RL runs need a served policy model and keys in `.env`;
 
 ## Limitations
 
-- **The RL row is not yet measured.** The pinned stack has run on an RTX PRO
-  6000: exact-token/logprob preflight and a diagnostic training call with
-  changed adapter weights both passed. That work exposed and fixed the Qwen
-  parser and smoke-sampling contracts. Fresh manifest-v3 gates and formal GRPO
-  are the current GPU stage; the final 2x2 test split remains locked. Every
-  result number above is still the base-model row on dev.
+- **The RL row is not yet measured.** Official preflight and smoke passed, and
+  formal GRPO selected checkpoint 0015 before its controlled sparse-reward
+  stop. That proves the training path and leaves a reproducible candidate; it
+  does not supply the RL/H0 or RL/H2 evaluation cells. The final 2x2 test split
+  remains locked, so every task-performance result in the main table is still
+  the base-model row on dev. Teacher-data generation and SFT remain frozen
+  unless a new protocol decision authorizes a fresh lineage.
 - **The dev serving stack is not the final stack.** Dev ablations run the policy
   on quantized MLX; the final 2x2 runs it on vLLM in bf16. Dev results select
   Hbest; the final table will be produced entirely on the final stack, and the
@@ -177,7 +215,8 @@ src/service_agent/
   serve/tau2_shim.py       ART client protocol over tau2 natives
   eval/                    ablation arms, one-yardstick metrics, factorial stats, reports
   training/                GRPO driver, logprob gate, SFT bridge
-reports/                   baseline protocol, governance ablation, failure taxonomy
+reports/                   baseline, governance ablation, failure taxonomy, GRPO outcome
+results/gpu/               official phase manifests, process exits, checksums
 runbooks/autodl.md         the GPU training sequence, end to end
 UPSTREAM.md                pins, provenance, every verified code-level claim
 DECISIONS.md               execution-time judgment calls, with reasoning
