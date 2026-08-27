@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">service-agent 双控制执行架构</title>
+  <desc id="desc">LLM 提出工具调用，治理层依据对话证据决定是否授权；允许的调用进入正式轨迹并由 tau2 严格重放，拒绝的调用仅进入审计并触发有界重生成。GRPO 始终在原生 H0 环境训练。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      text { font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #0f172a; }
+      .title { font-size: 28px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #475569; }
+      .section { font-size: 17px; font-weight: 700; }
+      .label { font-size: 15px; font-weight: 600; }
+      .small { font-size: 13px; fill: #475569; }
+      .tiny { font-size: 12px; fill: #64748b; }
+      .arrow { stroke: #334155; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 7 6; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" rx="24" fill="#f8fafc"/>
+  <text x="48" y="48" class="title">service-agent：双控制执行架构</text>
+  <text x="48" y="76" class="subtitle">概率模型负责提出动作，确定性治理层负责授权执行；二者在生成边界分离</text>
+
+  <rect x="48" y="118" width="230" height="168" rx="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="72" y="151" class="section">策略模型</text>
+  <text x="72" y="184" class="label">Qwen3.5-4B</text>
+  <text x="72" y="210" class="small">读取 system、用户消息、</text>
+  <text x="72" y="231" class="small">工具结果与工具 schema</text>
+  <rect x="72" y="249" width="180" height="24" rx="12" fill="#bae6fd"/>
+  <text x="162" y="266" text-anchor="middle" class="tiny">输出候选工具调用</text>
+
+  <rect x="332" y="104" width="492" height="202" rx="20" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+  <text x="356" y="137" class="section">GovernedLLMAgent：生成边界</text>
+  <rect x="356" y="158" width="202" height="116" rx="14" fill="#ffffff" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="376" y="187" class="label">EvidenceState</text>
+  <text x="376" y="213" class="small">仅积累模型已看见的证据</text>
+  <text x="376" y="235" class="small">账单、线路、报价、确认</text>
+  <text x="376" y="257" class="small">tool_call_id 严格关联结果</text>
+  <rect x="588" y="158" width="212" height="116" rx="14" fill="#ffffff" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="608" y="187" class="label">TelecomGovernor</text>
+  <text x="608" y="213" class="small">逐条执行策略前置条件</text>
+  <text x="608" y="235" class="small">幂等账本 + 有界恢复</text>
+  <text x="608" y="257" class="small">ALLOW / 确认 / 证据 / 拒绝</text>
+
+  <path d="M278 202 H332" class="arrow"/>
+  <text x="305" y="190" text-anchor="middle" class="tiny">候选动作</text>
+  <path d="M558 216 H588" class="arrow"/>
+
+  <rect x="874" y="92" width="278" height="214" rx="20" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="898" y="126" class="section">允许路径</text>
+  <rect x="898" y="146" width="230" height="42" rx="11" fill="#d1fae5"/>
+  <text x="1013" y="172" text-anchor="middle" class="label">写入正式 trajectory</text>
+  <path d="M1013 188 V210" class="arrow"/>
+  <rect x="898" y="211" width="230" height="42" rx="11" fill="#d1fae5"/>
+  <text x="1013" y="237" text-anchor="middle" class="label">tau2 环境执行</text>
+  <path d="M1013 253 V274" class="arrow"/>
+  <text x="1013" y="294" text-anchor="middle" class="small">evaluator 可严格重放</text>
+  <path d="M800 181 C836 181 840 166 874 166" class="arrow"/>
+  <text x="837" y="157" class="tiny">ALLOW</text>
+
+  <rect x="874" y="342" width="278" height="202" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="898" y="376" class="section">拒绝路径</text>
+  <rect x="898" y="396" width="230" height="40" rx="11" fill="#ffedd5"/>
+  <text x="1013" y="421" text-anchor="middle" class="label">只写 AuditTrail</text>
+  <path d="M1013 436 V456" class="arrow"/>
+  <rect x="898" y="457" width="230" height="40" rx="11" fill="#ffedd5"/>
+  <text x="1013" y="482" text-anchor="middle" class="label">私有反馈并重新生成</text>
+  <text x="1013" y="521" text-anchor="middle" class="small">最多 2 次；之后返回固定安全文本</text>
+  <path d="M800 242 C838 242 840 404 874 404" class="arrow"/>
+  <text x="842" y="327" class="tiny">拒绝 / 补证据</text>
+
+  <rect x="48" y="350" width="776" height="194" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="72" y="383" class="section">为什么拦截必须发生在 Agent 内部</text>
+  <text x="72" y="416" class="small">tau2 evaluator 不读取 live 环境，而是把正式 trajectory 中的写调用重放到新环境。</text>
+  <text x="72" y="442" class="small">因此，“记录后再跳过执行”仍会在重放时执行，或因缺少配对 ToolMessage 而失败。</text>
+  <text x="72" y="468" class="small">被拒绝动作必须从未进入正式 trajectory；审计记录与评测轨迹严格分离。</text>
+  <rect x="72" y="493" width="724" height="30" rx="15" fill="#f1f5f9"/>
+  <text x="434" y="513" text-anchor="middle" class="label">核心不变量：Governance rejects before the trajectory</text>
+
+  <rect x="48" y="584" width="1104" height="88" rx="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="72" y="615" class="section">GRPO 训练路径：保持原生 H0，避免混淆模型效应与治理效应</text>
+  <rect x="72" y="632" width="176" height="26" rx="13" fill="#dbeafe"/>
+  <text x="160" y="650" text-anchor="middle" class="tiny">ART TauBenchClient</text>
+  <path d="M248 645 H302" class="arrow"/>
+  <rect x="302" y="632" width="176" height="26" rx="13" fill="#dbeafe"/>
+  <text x="390" y="650" text-anchor="middle" class="tiny">FastAPI tau2 shim</text>
+  <path d="M478 645 H532" class="arrow"/>
+  <rect x="532" y="632" width="176" height="26" rx="13" fill="#dbeafe"/>
+  <text x="620" y="650" text-anchor="middle" class="tiny">原生 H0 环境</text>
+  <path d="M708 645 H762" class="arrow"/>
+  <rect x="762" y="632" width="340" height="26" rx="13" fill="#dbeafe"/>
+  <text x="932" y="650" text-anchor="middle" class="tiny">GRPO / LoRA 更新（治理仅在评测时叠加）</text>
+</svg>

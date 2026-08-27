@@ -1,235 +1,204 @@
 # service-agent
 
-An LLM agent's tool call is an intent, not an authorization. This project makes
-that distinction concrete on tau2-bench's telecom domain: a deterministic
-execution-governance layer that decides whether a proposed write is allowed to
-run, and a 2x2 experiment that separates how much reliability comes from that
-governance layer versus from RL post-training of the model itself.
+> [项目展示与实验声明](声明.md)
 
-The telecom write tools execute whatever they are asked. `send_payment_request`
-does not check whether the bill is already paid; `refuel_data`'s active-line
-check is commented out; neither enforces the business preconditions the policy
-places on the agent. A capable model still gets those preconditions wrong, and
-task reward hides it: on the dev set, the base model runs **36 policy-violating
-writes, 34 of them in episodes that still scored full reward.** Reward alone
-certifies the model clean while it breaks policy dozens of times. That gap is
-the whole problem, and closing it is the whole project.
+LLM Agent 发出的工具调用只是“执行意图”，并不等于“执行授权”。本项目在
+tau2-bench 的电信客服领域中具体实现了这一划分：通过确定性的执行治理层判断模型提出
+的写操作是否可以真正执行，并使用 2×2 实验区分 Agent 可靠性有多少来自治理框架，
+有多少来自模型的 RL 后训练。
 
-## The argument
+tau2-bench 的电信写工具会直接执行收到的请求：`send_payment_request` 不检查账单是否
+已经支付，`refuel_data` 的号码激活状态检查也被注释掉了；但业务策略明确要求 Agent
+在执行前满足这些前置条件。即使模型能力较强，仍会违反这些条件，而任务奖励不一定能
+发现问题：在 dev 集上，基础模型执行了 **36 次违反策略的写操作，其中 34 次所在的
+episode 仍获得满分奖励。** 这说明只看任务奖励，会把一个多次违反策略的模型判为成功。
+本项目要解决的正是这一缺口。
 
-The claim is verifiable, not rhetorical. Every assertion below reproduces from
-the pinned upstream code (`third_party/tau2-bench` at `cf71a80`):
+![service-agent 双控制执行架构](docs/assets/service-agent-architecture.svg)
+
+## 核心论点
+
+下面的结论都可以从固定版本的上游代码中复核
+（`third_party/tau2-bench`，上游基线 `cf71a80`）：
 
 ```bash
-# The write tools admit they do not enforce policy
+# 写工具本身没有执行这些策略检查
 grep -n "does not check\|Always check" \
   third_party/tau2-bench/src/tau2/domains/telecom/tools.py
 grep -n "Line must be active to refuel" \
-  third_party/tau2-bench/src/tau2/domains/telecom/tools.py   # commented out
+  third_party/tau2-bench/src/tau2/domains/telecom/tools.py   # 该检查已被注释
 
-# The policy puts those checks on the agent
+# 业务策略把这些检查责任交给 Agent
 grep -n "will not check\|not allowed to lift\|maximum amount\|one tool call" \
   third_party/tau2-bench/data/tau2/domains/telecom/main_policy.md
 ```
 
-UPSTREAM.md lists every such finding with file and line. The governance layer
-closes the gap in code: each candidate write is checked against evidence
-gathered from the conversation itself — the customer read, the bill status seen,
-the price the user actually confirmed — before it is allowed to execute. Rules
-are derived from the policy line by line (`src/service_agent/governance/telecom_rules.py`),
-never from task answers.
+`UPSTREAM.md` 按文件和行号列出了所有上游证据。治理层在代码中关闭了这个缺口：每个候选
+写操作在真正执行前，都要根据对话中已经出现的证据进行检查，例如读到的客户信息、账单
+状态、Agent 报出的价格，以及用户随后给出的确认。规则逐行来自业务策略
+（`src/service_agent/governance/telecom_rules.py`），不会读取任务答案。
 
-## What this measures: a 2x2
+## 2×2 实验设计
 
-The research question is not "can an agent do telecom support" — the frontier
-already trains tau2 RL agents. It is: **when reliability improves, how much is
-the governance harness and how much is the model?** A 2x2 factorial answers it.
+本项目研究的不是“Agent 能不能完成电信客服任务”，而是：**当可靠性提高时，改进究竟
+来自执行治理框架，还是来自模型后训练？** 2×2 因子实验用于回答这个问题。
 
-| | Native harness | Governed harness |
+| | 原生执行框架 | 治理执行框架 |
 |---|---|---|
-| **Base model** | H0 | Hbest |
-| **RL model** | RL | Hbest + RL |
+| **基础模型** | H0 | Hbest |
+| **RL 模型** | RL | Hbest + RL |
 
-From the four cells: harness effect (`Hbest - H0`), model effect (`RL - H0`),
-and the interaction — whether governance and training fix the same failures or
-different ones. The base-model row is measured below. The RL row runs on GPU
-(`runbooks/autodl.md`). GRPO has produced a frozen-dev-selected candidate, but
-the RL evaluation row remains unmeasured until the approved final campaign
-completes.
+四个实验格可以计算治理框架效应（`Hbest - H0`）、模型效应（`RL - H0`）以及二者的
+交互效应，从而判断治理与训练解决的是相同问题还是不同问题。基础模型一行已经完成测量。
+RL 模型在 GPU 路径上运行（`runbooks/autodl.md`）；GRPO 已生成由冻结 dev 集选出的
+候选 checkpoint，但最终 RL 评测行仍需由批准后的正式实验产生。
 
-## Dev findings (base model)
+## 开发集治理消融结果
 
-20 frozen dev tasks x 4 trials per arm, one fixed policy model (Qwen3.5-4B,
-8-bit, thinking off) and one fixed user simulator (deepseek-v4-pro, non-thinking,
-temperature 0). Three harness arms: H0 native, H1 precondition gate, H2 gate +
-idempotency ledger + bounded recovery. Full report: `reports/governance_ablation.md`.
+实验使用 20 个冻结 dev 任务，每个任务、每个实验臂运行 4 次。策略模型固定为
+Qwen3.5-4B 8-bit（关闭 thinking），用户模拟器固定为 `deepseek-v4-pro`
+（关闭 thinking，temperature 0）。三个实验臂分别为：H0 原生 Agent、H1 前置条件门控、
+H2 门控 + 幂等账本 + 有界恢复。完整报告见 `reports/governance_ablation.md`。
 
-| Arm | avg reward | pass^4 | unauthorized writes | max-steps failures |
+| 实验臂 | 平均奖励 | pass^4 | 未授权写操作 | 达到最大步数的失败数 |
 |---|---:|---:|---:|---:|
-| H0 (native) | 0.912 | 0.850 | 36 | 7 |
-| H1 (gate) | 0.850 | 0.750 | 0 | 12 |
-| H2 (gate + ledger + recovery) | 0.900 | 0.850 | 0 | 8 |
+| H0（原生） | 0.912 | 0.850 | 36 | 7 |
+| H1（门控） | 0.850 | 0.750 | 0 | 12 |
+| H2（门控 + 幂等 + 恢复） | 0.900 | 0.850 | 0 | 8 |
 
-The gate removes every unauthorized write, and the safety is not free: forcing
-the compliant path pushes a 4B model to max-steps where it used to cut corners
-(H1-H0 reward = -0.062, 95% CI [-0.125, -0.013], significant over a 10k paired
-bootstrap on tasks). Bounded recovery earns most of it back by turning
-tool-error loops into completed episodes (H2-H0 = -0.013, CI [-0.037, +0.000],
-not significant), at zero violations. Hbest = H2.
+治理门控移除了全部已检测到的未授权写操作，但安全不是免费的：强制模型走合规路径后，
+4B 模型有时会达到最大步数，而原先它会通过跳过确认或忽略前置条件提前完成任务。
+H1-H0 的奖励差为 -0.062，95% 置信区间为 [-0.125, -0.013]，基于任务级 10,000 次
+配对 bootstrap，差异显著。H2-H0 为 -0.013，置信区间为 [-0.037, +0.000]，差异不显著。
+按照项目预先固定的安全优先规则，Hbest = H2。
 
-"Unauthorized writes" is one yardstick across all arms: every arm's official
-trajectories are replayed through the same governor that gates H1/H2 live
-(`src/service_agent/eval/metrics.py`). For H0 the gate never ran, so it counts
-writes it would have blocked; for H1/H2 it counts what leaked past (zero). The
-violations break down as 24 unconfirmed refuel prices, 8 resumes over unpaid
-overdue bills, 3 resumes past a contract-end date, 1 refuel with an unread
-price — all business rules the tools do not enforce.
+所有实验臂都使用同一个指标口径：`src/service_agent/eval/metrics.py` 将正式 trajectory
+重新交给同一个 governor 判定。对于 H0，这统计的是如果当时启用治理层，本应被阻止的
+已执行写操作；对于 H1/H2，这统计的是从实时门控中泄漏出去的写操作，结果为 0。
+36 次违规包括：24 次未确认价格的数据加油、8 次在逾期账单未支付时恢复服务、3 次超过
+合约结束日期后恢复服务，以及 1 次未读取价格就进行数据加油。这些业务约束均没有由工具
+自身强制执行。
 
-## GPU training outcome
+![冻结开发集治理消融结果](docs/assets/governance-ablation.svg)
 
-The official manifest-v3 preflight and smoke both passed on an RTX PRO 6000.
-Preflight matched vLLM and learner prompt token IDs exactly, kept the pre-update
-importance-ratio mean at 1.000868, and passed strict replay without an update.
-Smoke then proved one real backend training call: one trainable reward group,
-72 ART-reported gradient steps, and a checkpoint transition from 0000 to 0001.
+## 显卡训练结果
 
-Formal GRPO requested 60 rollout/checkpoint positions and completed 24. Only
-five submitted groups had within-group reward variance; ART reported 445
-gradient steps across them, while 19 positions correctly skipped gradient
-work. The predeclared sparse-reward gate then stopped the lineage with terminal
-status `stopped_sparse_reward`. This is a controlled protocol stop, not a
-completed 60-position run and not an infrastructure crash.
+正式 manifest-v3 preflight 和 smoke 均已在 NVIDIA RTX PRO 6000 上通过。Preflight
+确认了 vLLM 与 learner 的 prompt token ID 完全一致，将首次更新前的重要性比率均值控制
+在 1.000868，并在不更新参数的情况下通过严格 trajectory replay。Smoke 随后验证了一次
+真实的后端训练调用：1 个可训练奖励组、72 个 ART 梯度步，以及 checkpoint 0000→0001。
 
-ART logs each position's group counters once with rollout metrics and once with
-backend metrics. Its cumulative W&B view therefore shows 96 submitted / 10
-trainable groups, while the 24 unique manifest records and backend records both
-give the authoritative 48 / 5 / 445 totals. Gradient steps appear only on the
-backend records and are not doubled. `reports/grpo_training.md` binds this
-reconciliation to the hashed raw history and state files.
+正式 GRPO 计划运行 60 个 rollout/checkpoint 位置，实际完成 24 个位置。只有 5 个提交组
+具有组内奖励方差并执行了梯度训练，ART 共报告 445 个梯度步；其余 19 个位置按协议跳过
+梯度更新。随后，预先声明的稀疏奖励门禁触发，lineage 以终态
+`stopped_sparse_reward` 结束。这是协议控制的停止，不是基础设施故障，也不等于完成了
+全部 60 个位置。
 
-The fixed frozen-dev rule selected checkpoint 0015 at mean reward 0.925 from
-the scheduled evaluations (0005: 0.850, 0010: 0.850, 0015: 0.925, 0020:
-0.900). Checkpoint 0024 is only the latest terminal position. These are
-selection measurements within the bf16 training lineage, not the RL cell of
-the final 2x2, and 0.925 must not be compared to the 0.912 MLX base-dev number
-above as an estimate of model improvement. The validated manifests, exact
-process exits, and generated analysis are in `results/gpu/` and
-`reports/grpo_training.md`. The selected adapter was also reloaded from a
-separate recovery directory against the exact pinned bf16 base and generated a
-non-benchmark token. The backup does not contain the base weights, so recovery
-requires downloading that exact revision; it is not a standalone offline model
-bundle.
+ART 会在 rollout 记录和后端记录中各写一次位置级组计数，因此 W&B 累积视图显示
+96 个 submitted groups 和 10 个 trainable groups。去重后的 24 条 manifest 记录与
+24 条后端记录都给出权威总数：48 个 submitted groups、5 个 trainable groups、
+445 个梯度步。梯度步只存在于后端记录中，因此没有被翻倍。
+`reports/grpo_training.md` 使用带哈希的原始 history 和 state 文件完成了这一核对。
 
-The final 40-task x 8-trial x 4-cell native-runner campaign is now explicitly
-approved and frozen, with one dual-alias bf16 vLLM process and checkpoint 0015.
-No final episode has been reported yet. DECISIONS.md D28 also records one
-post-approval, post-freeze protocol deviation: a legacy dev-report check
-instantiated tau2's default `base` task objects, which include test, before the
-loader was corrected to request `train` explicitly. It emitted no test
-episode, metric, or selection signal, but it is disclosed rather than called a
-clean pre-access state.
+按照训练前固定的冻结 dev 选择规则，计划内评测结果为：checkpoint 0005 = 0.850、
+0010 = 0.850、0015 = 0.925、0020 = 0.900，因此选择 checkpoint 0015。
+Checkpoint 0024 只是 lineage 的最后终止位置。0.925 属于 bf16 训练 lineage 内部的
+checkpoint 选择数据，不是最终 2×2 的 RL 实验格结果，也不能直接与上文 MLX 基础模型的
+0.912 比较并解释为模型提升。
 
-Reproduce a single arm (needs a served policy model and `DEEPSEEK_API_KEY` in
-`.env`):
+经过校验的 manifests、进程退出状态和生成报告位于 `results/gpu/` 与
+`reports/grpo_training.md`。选中的 adapter 还在独立恢复目录中，与精确固定的 bf16
+基础模型组合并成功生成了一个非 benchmark token。备份不包含基础模型权重，因此恢复时
+仍需下载固定 revision；它不是可独立离线加载的完整模型包。
+
+最终 40 任务 × 8 trials × 4 cells 的原生 runner 实验协议已经批准并冻结，使用同一个
+双 alias bf16 vLLM 进程和 checkpoint 0015。当前尚未产生最终 episode。
+`DECISIONS.md` D28 还记录了一次协议偏差：旧版 dev 报告检查曾实例化 tau2 默认的
+`base` 任务对象，其中包含 test；修正后 loader 会显式请求 `train`。该操作没有生成
+test episode、指标或 checkpoint 选择信号。
+
+![GPU GRPO 训练证据链](docs/assets/grpo-evidence-timeline.svg)
+
+复现一个实验臂需要启动策略模型，并在 `.env` 中配置 `DEEPSEEK_API_KEY`：
 
 ```bash
 uv run python -m service_agent.eval.run_ablation --arm h2 --tasks dev --trials 4 \
     --agent-llm "openai/<served-model>" --agent-api-base http://127.0.0.1:8398/v1 \
     --out results/dev/h2
-uv run python -m service_agent.eval.report_ablation   # regenerates both reports
+uv run python -m service_agent.eval.report_ablation   # 重新生成两份 dev 报告
 ```
 
-## What is mine, what is upstream
+## 自研部分与上游边界
 
-Everything under `src/service_agent/` and `tests/` is written for this project.
-`third_party/tau2-bench` (`cf71a80`) and `third_party/ART` (`828b839`) are pinned
-submodules, not vendored into the tree. ART is unmodified; tau2-bench carries one
-local fix commit to the gym wrapper (the seed/thread fixes below), isolated by a
-test that asserts nothing else differs from the pin. UPSTREAM.md draws the line
-precisely. The pieces I built:
+`src/service_agent/` 和 `tests/` 下的内容均为本项目编写。
+`third_party/tau2-bench`（上游基线 `cf71a80`）与 `third_party/ART`（`828b839`）是固定
+版本的 git submodule，不是复制进仓库的代码。ART 保持未修改；tau2-bench 只带有一个
+隔离的 gym wrapper 修复提交，用于修复 seed 传播和线程泄漏，并由测试保证没有其他差异。
+`UPSTREAM.md` 详细划分了上游与本项目的边界。
 
-- **Execution governance** (`governance/`, `agent/governed.py`): the evidence
-  extractor, the policy-derived rule table, idempotency keys, bounded recovery,
-  and the `GovernedLLMAgent` that adjudicates a candidate *before* it enters the
-  official trajectory. That placement is a correctness requirement, not a
-  preference — see below.
-- **Data hygiene** (`splits.py`, `leakage.py`): the split protocol that keeps
-  training off the test set, deterministic stratified dev selection, and
-  leak detection that matches serialized task labels against every
-  model-visible surface.
-- **A FastAPI shim** (`serve/tau2_shim.py`): ART's tau-bench client speaks the
-  original tau-bench env-server protocol, which tau2 v1.0.1 does not serve; the
-  shim bridges it to tau2's native environment, user simulator, and evaluator.
-- **Two upstream bug fixes** to tau2's gym wrapper (seed propagation and a
-  thread leak), with reproducing tests, on a branch ready to submit as a PR.
-- **The evaluation and analysis harness**: ablation arms over the native runner,
-  one-yardstick governance metrics, the approval-gated final 40x8x4 runner,
-  dual-alias serving provenance, paired task bootstrap, mechanical failure
-  taxonomy, a privacy-checked public evidence package, and the RL training
-  path.
+本项目实现的主要部分包括：
 
-I do not reimplement the environment, the user simulator, the evaluator, or the
-RL trainer. The value is in understanding where enterprise agents actually break
-and measuring it rigorously, not in rewriting a benchmark.
+- **执行治理**（`governance/`、`agent/governed.py`）：证据提取器、策略规则表、幂等键、
+  有界恢复，以及在候选操作进入正式 trajectory 前完成裁决的 `GovernedLLMAgent`。
+- **数据卫生**（`splits.py`、`leakage.py`）：阻止训练访问 test 集的数据协议、确定性的
+  分层 dev 选择，以及针对所有模型可见表面的标签泄漏检测。
+- **FastAPI shim**（`serve/tau2_shim.py`）：将 ART 的 tau-bench env-server 协议桥接到
+  tau2 v1.0.1 的原生环境、用户模拟器和 evaluator。
+- **两个上游 gym 修复**：seed 传播与线程泄漏修复，并提供可复现测试。
+- **评测与分析系统**：原生 runner 上的消融实验、统一口径的治理指标、批准门控的最终
+  40×8×4 runner、双 alias serving 来源记录、任务级配对 bootstrap、机械失败分类、
+  隐私检查的公开证据包，以及 RL 训练路径。
 
-## The one correctness subtlety worth knowing
+本项目没有重新实现环境、用户模拟器、evaluator 或 RL trainer。核心价值在于识别企业
+Agent 的真实失效位置，并使用可复核的实验方法测量治理框架与模型训练的作用。
 
-tau2's evaluator does not read the live environment. It computes the
-database-match reward by **replaying the write tool calls found in the official
-trajectory** against a fresh environment. So a rejected action must never enter
-the trajectory — if it did, the replay would re-execute it and the reward would
-be wrong, or strict replay would crash. The governance layer therefore
-adjudicates inside the agent, before the message is returned to the
-orchestrator: rejected candidates go only to an audit trail, the model gets
-private feedback and regenerates, and the official trajectory contains only
-authorized actions. An end-to-end test drives the real orchestrator and
-evaluator to prove replay stays valid (`tests/test_governed_agent_replay.py`).
+## 一个关键的正确性细节
 
-## Reproduce
+tau2 evaluator 不会读取运行中的环境状态。它会在一个新环境中，通过**重新执行正式
+trajectory 中记录的写工具调用**计算数据库匹配奖励。因此，被拒绝的候选操作绝不能进入
+正式 trajectory；否则 replay 会重新执行它，导致奖励错误，或者使严格 replay 失败。
+
+治理层必须在 Agent 内部、`generate_next_message` 返回之前完成裁决。被拒绝的候选调用
+只写入 audit trail，模型收到私有反馈并重新生成；正式 trajectory 只包含已经授权的
+操作。`tests/test_governed_agent_replay.py` 通过真实 orchestrator 和 evaluator 的端到端
+测试验证了这一性质。
+
+## 本地复现
 
 ```bash
-uv sync                 # Python 3.12; tau2 installed editable from the submodule
-uv run pytest           # 170 tests: splits, leakage, gym fixes, governance,
-                        # replay, serving, final protocol, privacy, statistics
+uv sync                 # Python 3.12；tau2 从 submodule 以 editable 方式安装
+uv run pytest           # 170 项测试：数据划分、泄漏、gym 修复、治理、replay、
+                        # serving、最终协议、隐私和统计
 ```
 
-Tests need no API keys — models are mocked or driven by scripted stand-ins.
-The ablation and RL runs need a served policy model and keys in `.env`;
-`CLAUDE.md` lists the serving commands and the traps found along the way.
+测试不需要 API key：模型均被 mock，或由脚本化替身驱动。消融实验与 RL 运行需要已启动的
+策略模型以及 `.env` 中的密钥；`CLAUDE.md` 列出了 serving 命令和已发现的注意事项。
 
-## Limitations
+## 局限与结果边界
 
-- **The RL row is not yet measured.** Official preflight and smoke passed, and
-  formal GRPO selected checkpoint 0015 before its controlled sparse-reward
-  stop. That proves the training path and leaves a reproducible candidate; it
-  does not supply the RL/H0 or RL/H2 evaluation cells. The one final campaign
-  is approved and frozen but has not yet reported, so every task-performance
-  result in the main table is still the base-model row on dev. Teacher-data
-  generation and SFT remain frozen unless a new protocol decision authorizes a
-  fresh lineage.
-- **The dev serving stack is not the final stack.** Dev ablations run the policy
-  on quantized MLX; the final 2x2 runs it on vLLM in bf16. Dev results select
-  Hbest; the final table will be produced entirely on the final stack, and the
-  difference is disclosed rather than smoothed over.
-- **One domain, one model size.** Whether the governance/training split holds
-  across enterprise domains and model scales is the first thing more compute
-  would test.
-- **The user simulator is part of the benchmark.** All cells share one simulator
-  build; no number is compared across a simulator change.
+- **最终 RL 评测行尚未测量。** Preflight 和 smoke 已通过，正式 GRPO 在受控的稀疏奖励
+  停止前选择了 checkpoint 0015。这证明训练路径可运行并留下可恢复候选，但不提供
+  RL/H0 或 RL/H2 两个最终评测格。当前主表中的任务性能仍是基础模型在 dev 集上的结果。
+- **Dev 与最终 serving 技术栈不同。** Dev 消融使用量化 MLX；最终 2×2 使用 bf16 vLLM。
+  Dev 结果只用于选择 Hbest，最终表必须在统一的最终技术栈上生成。
+- **研究范围为一个领域和一个模型规模。** 是否能推广到其他企业领域和模型规模，需要
+  额外计算资源验证。
+- **用户模拟器属于 benchmark 定义的一部分。** 所有实验格使用同一个模拟器版本；不会
+  跨模拟器变更直接比较结果。
 
-## Layout
+## 目录结构
 
-```
+```text
 src/service_agent/
-  splits.py leakage.py     data protocol and label-leak detection
-  governance/              decisions, evidence, telecom rules, idempotency, recovery, audit
-  agent/governed.py        pre-trajectory adjudication
-  serve/tau2_shim.py       ART client protocol over tau2 natives
-  eval/                    ablation arms, one-yardstick metrics, factorial stats, reports
-  training/                GRPO driver, logprob gate, SFT bridge
-reports/                   baseline, governance ablation, failure taxonomy, GRPO outcome
-results/gpu/               official phase manifests, process exits, checksums
-runbooks/autodl.md         the GPU training sequence, end to end
-UPSTREAM.md                pins, provenance, every verified code-level claim
-DECISIONS.md               execution-time judgment calls, with reasoning
+  splits.py leakage.py     数据协议与标签泄漏检测
+  governance/              决策、证据、策略规则、幂等、恢复与审计
+  agent/governed.py        trajectory 前裁决
+  serve/tau2_shim.py       在 tau2 原生组件上实现 ART 客户端协议
+  eval/                    消融、统一治理指标、因子统计与报告
+  training/                GRPO driver、logprob 门禁与 SFT bridge
+reports/                   基线协议、治理消融、失败分类与 GRPO 结果
+results/gpu/               正式阶段 manifests、进程退出状态与校验和
+runbooks/autodl.md         GPU 训练全流程
+UPSTREAM.md                固定版本、来源和已验证的上游结论
+DECISIONS.md               运行期间的决策及其理由
 ```

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="580" viewBox="0 0 1200 580" role="img" aria-labelledby="title desc">
+  <title id="title">GPU GRPO 训练证据链</title>
+  <desc id="desc">时间线展示 preflight、smoke、正式 GRPO、冻结开发集选择与 adapter 恢复验证。正式训练在第 24 个位置触发预先声明的稀疏奖励停止，共完成 445 个 ART 梯度步，选择 checkpoint 0015。</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #0f172a; }
+      .title { font-size: 28px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #475569; }
+      .phase { font-size: 17px; font-weight: 700; }
+      .label { font-size: 14px; font-weight: 600; }
+      .small { font-size: 13px; fill: #475569; }
+      .tiny { font-size: 12px; fill: #64748b; }
+    </style>
+  </defs>
+  <rect width="1200" height="580" rx="24" fill="#f8fafc"/>
+  <text x="48" y="50" class="title">GPU GRPO 训练证据链</text>
+  <text x="48" y="78" class="subtitle">NVIDIA RTX PRO 6000｜Qwen/Qwen3.5-4B bf16 + LoRA｜ART 828b839｜tau2 2822d90</text>
+
+  <line x1="100" y1="286" x2="1100" y2="286" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+
+  <g>
+    <circle cx="110" cy="286" r="16" fill="#0284c7" stroke="#ffffff" stroke-width="5"/>
+    <rect x="42" y="118" width="208" height="132" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="62" y="149" class="phase">零更新 Preflight</text>
+    <text x="62" y="178" class="label">状态：passed</text>
+    <text x="62" y="203" class="small">prompt token 精确一致</text>
+    <text x="62" y="225" class="small">ratio mean = 1.000868</text>
+    <text x="62" y="243" class="tiny">严格 replay；0 次参数更新</text>
+  </g>
+
+  <g>
+    <circle cx="350" cy="286" r="16" fill="#7c3aed" stroke="#ffffff" stroke-width="5"/>
+    <rect x="254" y="328" width="224" height="136" rx="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="274" y="359" class="phase">真实训练 Smoke</text>
+    <text x="274" y="388" class="label">状态：passed</text>
+    <text x="274" y="413" class="small">1 个可训练奖励组</text>
+    <text x="274" y="435" class="small">72 个 ART 梯度步</text>
+    <text x="274" y="457" class="tiny">checkpoint 0000 → 0001</text>
+  </g>
+
+  <g>
+    <circle cx="600" cy="286" r="18" fill="#ea580c" stroke="#ffffff" stroke-width="5"/>
+    <rect x="486" y="106" width="250" height="148" rx="16" fill="#ffedd5" stroke="#ea580c" stroke-width="2.5"/>
+    <text x="506" y="137" class="phase">正式 GRPO Lineage</text>
+    <text x="506" y="166" class="label">24 / 60 个逻辑位置</text>
+    <text x="506" y="191" class="small">5 个可训练组</text>
+    <text x="506" y="213" class="small">445 个 ART 梯度步</text>
+    <text x="506" y="235" class="tiny">预声明 sparse-reward 规则触发终止</text>
+  </g>
+
+  <g>
+    <circle cx="850" cy="286" r="16" fill="#059669" stroke="#ffffff" stroke-width="5"/>
+    <rect x="752" y="328" width="224" height="136" rx="16" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+    <text x="772" y="359" class="phase">冻结开发集选择</text>
+    <text x="772" y="388" class="label">checkpoint 0015</text>
+    <text x="772" y="413" class="small">mean reward = 0.925</text>
+    <text x="772" y="435" class="small">早于终止位置 0024</text>
+    <text x="772" y="457" class="tiny">选择值不是最终 2×2 效果</text>
+  </g>
+
+  <g>
+    <circle cx="1090" cy="286" r="16" fill="#0f766e" stroke="#ffffff" stroke-width="5"/>
+    <rect x="950" y="118" width="208" height="132" rx="16" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+    <text x="970" y="149" class="phase">Adapter 恢复验证</text>
+    <text x="970" y="178" class="label">状态：passed</text>
+    <text x="970" y="203" class="small">固定 bf16 base + 0015</text>
+    <text x="970" y="225" class="small">独立目录重新加载</text>
+    <text x="970" y="243" class="tiny">生成 1 个非 benchmark token</text>
+  </g>
+
+  <rect x="48" y="500" width="1104" height="48" rx="14" fill="#fef2f2" stroke="#ef4444"/>
+  <text x="600" y="529" text-anchor="middle" class="label" fill="#b91c1c">证据边界：GPU 训练与 checkpoint 选择已有正式记录；最终 40×8×4 的 2×2 测试结果尚未产生</text>
+</svg>
